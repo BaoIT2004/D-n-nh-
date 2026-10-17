@@ -45,6 +45,15 @@ export async function loginUser(
         });
 
         if(!responseLogin.ok){
+            const responseBody: unknown = await responseLogin.json();
+            if (
+                typeof responseBody === "object" &&
+                responseBody !== null &&
+                "message" in responseBody &&
+                typeof responseBody.message === "string"
+            ) {
+                return { success: false, message: responseBody.message };
+            }
             return { success: false, message: "Đăng nhập thất bại" };
         }
 

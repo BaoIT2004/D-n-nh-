@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Service;
+using Middleware.Example;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,13 +30,16 @@ builder.Services.AddDbContext<ApplicationContext>(
 
 var app = builder.Build();
 
+// xây dựng middleware
+app.UseMiddleware<RequestCultureMiddleware>();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-
+    //kết nối FE BE
 app.UseCors("AllowReactApp");
 app.MapControllers();
 app.Run();
