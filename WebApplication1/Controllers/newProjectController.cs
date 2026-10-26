@@ -20,7 +20,7 @@ namespace WebApplication1.Controllers
         }
 
         // Heieenrn thị dự án "R"
-        [HttpGet]
+        [HttpPost]
         [Authorize] // jwt hợp lệ mới tạo được project 
         public IActionResult AddProject(newProject project)
         {
@@ -92,7 +92,7 @@ namespace WebApplication1.Controllers
             });
         }
 
-        
+                
     }
 
 

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { allProject, type Project } from "../services/allProject";
 
 function AllProject() {
-    const [project, setProject] = useState<Project[]>([]);  // ai sinh ra
+    const [project, setProject] = useState<Project[]>([]); 
 
     useEffect(() => {
         async function loadProjects() {
