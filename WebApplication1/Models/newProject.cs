@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 namespace WebApplication1.Models;
 
 
@@ -14,10 +13,12 @@ public class newProject
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // tạo mối quan hệ hai bảng user và newProject
-    [ForeignKey("User")]
     public int UserId {get;set;} // lưu giá trị khóa ngoại user
 
     //navigation property (thuộc tính điều hướng), cho phép bạn truy cập đối tượng User liên quan đến Project.
     public User? User {get;set;} // null! tắt phát sinh cảnh báo CS8618 //Dấu ? có nghĩa là thuộc tính User có thể chưa có giá trị (null) khi tạo dự án mới.
+
+
+    public ICollection<taskItem> TaskItems {get; set;} = new List<taskItem>();
 
 }

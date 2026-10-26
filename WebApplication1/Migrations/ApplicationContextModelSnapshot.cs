@@ -105,6 +105,39 @@ namespace WebApplication1.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.taskItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("DateTime")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Degree")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("WorkType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("TaskItem");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.newProject", b =>
                 {
                     b.HasOne("WebApplication1.Models.User", "User")
@@ -127,9 +160,25 @@ namespace WebApplication1.Migrations
                     b.Navigation("userId");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.taskItem", b =>
+                {
+                    b.HasOne("WebApplication1.Models.newProject", "Project")
+                        .WithMany("TaskItems")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.User", b =>
                 {
                     b.Navigation("Projects");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.newProject", b =>
+                {
+                    b.Navigation("TaskItems");
                 });
 #pragma warning restore 612, 618
         }
