@@ -5,6 +5,9 @@ using WebApplication1.Models;
 using WebApplication1.Service;
 using WebApplication1.DTOs.ApiResponse;
 using WebApplication1.Exceptions;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace WebApplication1.Controllers
@@ -16,10 +19,13 @@ namespace WebApplication1.Controllers
         private readonly ApplicationContext dbContext;
         private readonly PasswordService passwordService;
 
-        public UserController(ApplicationContext dbContext, PasswordService passwordService)
+        private readonly JwtService _jwtService;
+
+        public UserController(ApplicationContext dbContext, PasswordService passwordService, JwtService jwtService)
         {
             this.dbContext = dbContext;
             this.passwordService = passwordService;
+            _jwtService = jwtService;
         }
 
         // Hiển thị người dùng
@@ -27,7 +33,7 @@ namespace WebApplication1.Controllers
         public IActionResult GetAllUser()
         {
             var allUser = dbContext.Users.ToList();
-            return Ok(new { }); //ok ở đây là trả về danh sách
+            return Ok(allUser); //ok ở đây là trả về danh sách
         }
 
         // Thêm người dùng (đăng kí tài khoản)
@@ -79,7 +85,8 @@ namespace WebApplication1.Controllers
 
         // Đăng nhập tài khoản
         [HttpPost("login")]
-        public IActionResult Login(User login)
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(User login)
         {
             if (string.IsNullOrWhiteSpace(login.Email) || string.IsNullOrWhiteSpace(login.passWord))
             {
@@ -111,6 +118,7 @@ namespace WebApplication1.Controllers
                     Errors = new List<string> { "Email hoặc mật khẩu không đúng" }
                 });
             }
+            var token = await _jwtService.GenerateToken(myUser);
 
             return Ok(new ApiResponse<object>
             {
@@ -119,28 +127,54 @@ namespace WebApplication1.Controllers
                 Message = "Đăng nhập thành công",
                 Data = new
                 {
+                    id = myUser.Id,
                     myUser.Name,
-                    myUser.Email
+                    myUser.Email,
+                    accessToken = token.Tokens,
+                    refreshToken = token.RefreshToken
                 },
-                Errors = new List<string>()
             });
         }
 
-
-
-        [HttpGet("test-errs")]
-        public IActionResult TestError()
+        // Chưa hiểu 
+        [AllowAnonymous]
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequestModel request)
         {
-            throw new Exception("Lỗi hệ thống thử nghiệm");
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                return BadRequest("token không hợp lệ");
+            }
+
+            var token = await _jwtService.ValidateToken(request.RefreshToken);
+            if (token is null)
+            {
+                return Unauthorized("Refresh token không hợp lệ hoặc đã hết hạn");
+            }
+
+            return Ok(new
+            {
+                accessToken = token.Tokens,
+                refreshToken = token.RefreshToken
+            });
         }
 
-    
-
-        [HttpGet("test-null")]
-        public IActionResult TestNull()
+        [AllowAnonymous]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] RefreshRequestModel request)
         {
-            string s = null;
-            return Ok(s.Length);
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                return BadRequest("Refresh token không được để trống");
+            }
+
+            var revoked = await _jwtService.logoutRefreshtoken(request.RefreshToken);
+            if (!revoked)
+            {
+                return Unauthorized("Refresh token không hợp lệ");
+            }
+
+            return Ok(new { message = "Đăng xuất thành công" });
         }
 
     }

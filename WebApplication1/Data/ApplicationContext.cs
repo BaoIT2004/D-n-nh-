@@ -9,4 +9,7 @@ public class ApplicationContext : DbContext
         : base(options) {} // đưa cho dbcontext
 
     public DbSet<User> Users {get; set;} // quản lý các objject user
+    public DbSet<newProject>Projects{get; set;} // quản lý các objject tạo ra dự án
+    public DbSet<refreshToken> RefreshTokens { get; set; }
+
 }

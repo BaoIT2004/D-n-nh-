@@ -250,3 +250,12 @@ D:\CSharp_DuAnNho\WebApplication1\obj\Debug\net10.0\WebApplication1.genruntimeco
 D:\CSharp_DuAnNho\WebApplication1\obj\Debug\net10.0\ref\WebApplication1.dll
 D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\BCrypt-Net-Next.dll
 D:\CSharp_DuAnNho\WebApplication1\obj\Debug\net10.0\WebApplication1.sourcelink.json
+D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll
+D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\Microsoft.IdentityModel.Abstractions.dll
+D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\Microsoft.IdentityModel.Logging.dll
+D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
+D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
+D:\CSharp_DuAnNho\WebApplication1\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll

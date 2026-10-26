@@ -1,29 +1,42 @@
-import { Route } from 'react-router-dom'
-import '../styles/home.css'
-import { Navigate } from 'react-router-dom'
-import React from 'react'
+import { useState } from 'react';
+import '../styles/register.css';
+import Search from '../components/search';
+import SidebarLeft from '../components/SidebarLeft';
+import AddProject from '../components/addProject';
+import AllProject from '../components/allProject';
 
 function Home() {
-  const [goToRegister, setRegister] = React.useState(false);
-  const [goToLogin, setLogin] = React.useState(false);
+    const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false 
 
-  if (goToRegister) {
-    return <Navigate to="/register" />
-  }
+    let projectForm = null;
 
-  if (goToLogin) {
-    return <Navigate to="/login" />
-  }
-  return (
-    <main>
-      <div className="navbar">
-        <div className="navbar_buttons">
-          <button onClick={() => setRegister(true)}>Đăng ký</button>
-          <button onClick={() => setLogin(true)}>Đăng nhập</button>
-        </div>
-      </div>
-    </main>
-  )
+    if (projectOpen) {
+        projectForm = <AddProject />
+    }
+
+    return (
+        <main>
+            <div className="home">
+                <div className="navbar">
+                    <Search />
+                </div>
+
+                <div className="flex">
+                    <SidebarLeft
+                        onCreateClick={() =>
+                            setProjectOpen((openCreate) => !openCreate) // openCreate giá trị hiên tại của projectOpen
+                        }
+                    />
+                    {projectForm}
+
+
+                    <div className='p-5 flex justify-center'>
+                        <AllProject />
+                    </div>
+                </div>
+            </div>
+        </main>
+    );
 }
 
-export default Home
+export default Home;
