@@ -8,7 +8,7 @@ public class newProject
     [Required, MaxLength(100)]
     public string nameProject {get; set;} = "";
     public string status {get; set; } = "private"; // nếu không lưu giá trị khác thì sẽ lưu private
-
+    
     // Ngày giờ tạo dự án
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

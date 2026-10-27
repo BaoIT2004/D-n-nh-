@@ -1,13 +1,21 @@
 import { useState } from 'react';
 import { newProject } from '../services/newProject'
+import { useNavigate } from 'react-router-dom';
 
 
 function addProject() {
     const [nameProject, setnameProject] = useState("");
     const [status, setStatus] = useState("private");
+    const navigate = useNavigate();
+
 
     async function handleNewProject() {
-        await newProject(nameProject, status, 0);
+        try {
+            await newProject(nameProject, status, 0);
+            navigate("/");
+        } catch (err) {
+            console.error(err);
+        }
     }
 
 
@@ -29,12 +37,12 @@ function addProject() {
                         Tên dự án
                     </label>
                     <input type="text" placeholder="Nhập tên dự án" className="text-sm border border-gray-400 w-55 h-9 pl-1 rounded-md"
-                        value={nameProject} onChange={(e)=> setnameProject(e.target.value)}
+                        value={nameProject} onChange={(e) => setnameProject(e.target.value)}
                     />
                     <label htmlFor="" className="text-sm">
                         Quyền xem
                     </label>
-                    <select name="" id="" className="border border-gray-400 w-55 h-9 pl-1 rounded-md text-sm" value={status} onChange={(e)=> setStatus(e.target.value)}>
+                    <select name="" id="" className="border border-gray-400 w-55 h-9 pl-1 rounded-md text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
                         <option value="private">Riêng tư</option>
                         <option value="workspace">Không gian làm việc</option>
                         <option value="public">Công khai</option>
