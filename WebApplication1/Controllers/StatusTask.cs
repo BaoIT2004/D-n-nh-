@@ -65,7 +65,17 @@ namespace WebApplication1.Controllers
 
         }
 
+
+        [HttpGet("{projectId}")]
+        [Authorize]
+        public IActionResult GetStatusTasks(int projectId)
+        {
+            var list = dbContext.addStatusTasks
+                .Where(x => x.ProjectId == projectId).ToList();
+            return Ok(list);
+        }
     }
+
 
 
 }
