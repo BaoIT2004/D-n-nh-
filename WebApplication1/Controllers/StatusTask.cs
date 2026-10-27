@@ -65,13 +65,16 @@ namespace WebApplication1.Controllers
 
         }
 
-
+        //Lỗi 
         [HttpGet("{projectId}")]
         [Authorize]
         public IActionResult GetStatusTasks(int projectId)
         {
             var list = dbContext.addStatusTasks
-                .Where(x => x.ProjectId == projectId).ToList();
+                .Where(x => x.ProjectId == projectId)
+                .Select(x => new { x.Id, x.StatusTask })
+                .ToList();
+
             return Ok(list);
         }
     }
