@@ -12,14 +12,13 @@ namespace WebApplication1.Controllers
     public class newProjectController : Controller
     {
         private readonly ApplicationContext dbContext;
-        private object message;
 
         public newProjectController(ApplicationContext dbContext)
         {
             this.dbContext = dbContext;
         }
 
-        // Heieenrn thị dự án "R"
+        // thểm thị dự án "R"
         [HttpPost]
         [Authorize] // jwt hợp lệ mới tạo được project 
         public IActionResult AddProject(newProject project)
@@ -62,6 +61,8 @@ namespace WebApplication1.Controllers
                 message = "Tạo dự án thành công"
             });
         }
+
+        
 
         [HttpGet("AllProject")]
         [Authorize]

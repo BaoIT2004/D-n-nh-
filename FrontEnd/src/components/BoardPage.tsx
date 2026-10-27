@@ -3,26 +3,37 @@ import { useParams } from "react-router-dom";
 import Search from "./search";
 import SidebarLeft from "./SidebarLeft";
 import AddProject from "./addProject";
+import { CiSquarePlus } from "react-icons/ci";
+import { AddStatusTask } from "../services/AddStatusTask";
+
 
 function BoardPage() {
    const { id } = useParams(); // Lấy id dự án từ URL (ví dụ: /projects/:id)
-   const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false 
+   const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false
+   const [modal, setmodal] = useState(false);
+   const [status, setStatus] = useState("Todo");
+
+
    let projectForm = null;
    if (projectOpen) {
       projectForm = <AddProject />
    }
 
-   useEffect(() => {
-      async function fetchProjectBoard() {
-         try {
-            // Gọi API lấy dữ liệu bảng/chi tiết dự án dựa vào id ở đây
-            // const res = await getProjectById(id);
-         } catch (error) {
-            console.error("Lỗi khi tải dữ liệu bảng:", error);
-         }
+
+   const handleAddStatusTask = async () => {
+      try {
+         const ok = await AddStatusTask(status, Number(id));
+         if (ok)
+            toggleModal(); // lưu xong thì đóng trang
+      } catch (error) {
+         console.error("Lỗi khi thêm trạng thái:", error);
       }
-      fetchProjectBoard();
-   }, [id]);
+   };
+
+   const toggleModal = () => {
+      setmodal(!modal);
+   }
+
 
 
    return (
@@ -41,43 +52,83 @@ function BoardPage() {
                {projectForm}
 
 
-               <div className='p-5 flex justify-center'>
-                  <div className="flex-1 p-6 bg-gray-50 min-h-screen">
-                     <div className="mb-6">
+
+               {/* Nội dung chính */}
+               <div className="flex-1 min-w-0 border-l border-gray-300">
+                  <div className="p-6 bg-white min-h-screen w-full">
+                     <div className="mb-6 ">
                         <h1 className="text-2xl font-bold text-gray-800">Bảng Công Việc</h1>
                         <p className="text-sm text-gray-500">Quản lý tiến độ công việc của dự án này.</p>
                      </div>
 
+                     {/* tạo đưởng kẻ ngang */}
+                     <hr className="border-t border-gray-300 -mx-6 my-5" />
+
                      {/* Giao diện các cột Kanban */}
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
                         {/* Cột 1: To Do */}
-                        <div className="bg-gray-100 p-4 rounded-lg shadow-sm border border-gray-200">
-                           <h3 className="font-semibold text-gray-700 mb-3">Cần làm (To Do)</h3>
-                           <div className="space-y-3">
-                              <div className="bg-white p-3 rounded shadow-sm border border-gray-100 text-sm text-gray-700">
-                                 Thiết kế giao diện trang chủ
-                              </div>
-                           </div>
-                        </div>
+                        {/* Note101 */}
 
-                        {/* Cột 2: In Progress */}
-                        <div className="bg-gray-100 p-4 rounded-lg shadow-sm border border-gray-200">
-                           <h3 className="font-semibold text-gray-700 mb-3">Đang làm (In Progress)</h3>
-                           <div className="space-y-3">
-                              <div className="bg-white p-3 rounded shadow-sm border border-gray-100 text-sm text-gray-700">
-                                 Xử lý API Sidebar và điều hướng
-                              </div>
-                           </div>
-                        </div>
+                        <div className="flex items-start gap-3"> {/*items-start mọi phần tử con bị kéo giãn cho cao bằng phần tử cao nhất trong hàng. */}
+                           <div className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200">
+                              <h3 className="font-semibold text-gray-700 mb-3">To do</h3>
+                              <div className="space-y-3">
+                                 <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
+                                    <CiSquarePlus size={20} />
+                                 </div>
 
-                        {/* Cột 3: Done */}
-                        <div className="bg-gray-100 p-4 rounded-lg shadow-sm border border-gray-200">
-                           <h3 className="font-semibold text-gray-700 mb-3">Hoàn thành (Done)</h3>
-                           <div className="space-y-3">
-                              <div className="bg-white p-3 rounded shadow-sm border border-gray-100 text-sm text-gray-700">
-                                 Cấu hình React Router
                               </div>
                            </div>
+
+
+
+                           {/* add buton */}
+                           <button className="active" onClick={toggleModal}>
+                              <CiSquarePlus size={35} />
+                           </button>
+
+                           {modal && (
+                              <div className="fixed inset-0 flex items-center justify-center">
+                                 <div className="absolute inset-0 bg-black/50 " onClick={toggleModal}></div>
+
+                                 <div className="relative bg-white p-6 rounded-lg w-150 h-70 mb-60">
+                                    <h1 className="font-bold pb-4">
+                                       AddStatus
+                                    </h1>
+                                    <h4 className="text-gray-500">
+                                       A status shows the progression of work. Add an existing status or type to create a new one.
+                                    </h4>
+                                    <h5 className="text-gray-900 pt-4">
+                                       Status name
+                                    </h5>
+                                    <select
+                                       value={status}
+                                       onChange={(e) => setStatus(e.target.value)}
+                                       className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2.5 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 mt-3"
+                                    >
+                                       <option value="Todo">To do</option>
+                                       <option value="Inprogress">In progress</option>
+                                       <option value="Done">Done</option>
+                                    </select>
+
+                                    <div className="mt-6 flex justify-end gap-2">
+                                       <button
+                                          className="rounded-lg bg-red-400 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-200"
+                                          onClick={toggleModal}
+                                       >
+                                          Close
+                                       </button>
+                                       <button
+                                          className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-600"
+                                          onClick={handleAddStatusTask}
+                                       >
+                                          Add
+                                       </button>
+                                    </div>
+                                 </div>
+                              </div>
+                           )}
                         </div>
                      </div>
                   </div>

@@ -18,7 +18,9 @@ public class newProject
     //navigation property (thuộc tính điều hướng), cho phép bạn truy cập đối tượng User liên quan đến Project.
     public User? User {get;set;} // null! tắt phát sinh cảnh báo CS8618 //Dấu ? có nghĩa là thuộc tính User có thể chưa có giá trị (null) khi tạo dự án mới.
 
+    // public ICollection<taskItem> TaskItems {get; set;} = new List<taskItem>();
 
-    public ICollection<taskItem> TaskItems {get; set;} = new List<taskItem>();
+    // Một dự án có nhiều trạng thái khác nhau
+    public ICollection<AddStatusTask> StatusTasks {get;set;} = new List<AddStatusTask>();
 
 }

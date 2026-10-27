@@ -12,7 +12,7 @@ function AllProject() {
             if (!result.success) {
                 alert(result.message);
                 return;
-            }
+            }loadProjects
 
             setProject(result.data ?? []);
         }

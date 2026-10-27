@@ -204,3 +204,20 @@ kiểm thử tích hợp:
 - Xóa định kỳ các bản ghi đã hết hạn/thu hồi theo chính sách lưu trữ của dự án.
 - Không dùng access token để thay thế refresh token; access token nên ngắn
   hạn, còn refresh token chỉ được gửi tới endpoint refresh/logout.
+
+
+
+  FE
+
+(Note101)
+w-fit → width: fit-content
+Chiều rộng vừa khít với nội dung bên trong. Nội dung ngắn thì khung hẹp, nội dung dài thì khung rộng ra.
+
+h-fit → height: fit-content
+Chiều cao vừa khít với nội dung. Thêm task thì khung cao ra, bớt task thì thấp lại. (Thực ra div mặc định đã tự cao theo nội dung, nên h-fit chủ yếu để chắc chắn nó không bị ép kéo dãn bởi thẻ cha.)
+
+min-w-64 → min-width: 16rem (256px)
+Chiều rộng tối thiểu. Dù nội dung ngắn đến đâu, khung cũng không hẹp hơn 256px.
+
+max-w-md → max-width: 28rem (448px)
+Chiều rộng tối đa. Dù nội dung dài đến đâu, khung cũng không rộng hơn 448px; chữ dài sẽ tự xuống dòng.

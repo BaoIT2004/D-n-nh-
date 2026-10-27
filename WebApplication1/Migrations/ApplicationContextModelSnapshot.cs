@@ -22,6 +22,28 @@ namespace WebApplication1.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AddStatusTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StatusTask")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("addStatusTasks");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -138,6 +160,17 @@ namespace WebApplication1.Migrations
                     b.ToTable("TaskItem");
                 });
 
+            modelBuilder.Entity("AddStatusTask", b =>
+                {
+                    b.HasOne("WebApplication1.Models.newProject", "Project")
+                        .WithMany("StatusTasks")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.newProject", b =>
                 {
                     b.HasOne("WebApplication1.Models.User", "User")
@@ -163,7 +196,7 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.taskItem", b =>
                 {
                     b.HasOne("WebApplication1.Models.newProject", "Project")
-                        .WithMany("TaskItems")
+                        .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -178,7 +211,7 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.newProject", b =>
                 {
-                    b.Navigation("TaskItems");
+                    b.Navigation("StatusTasks");
                 });
 #pragma warning restore 612, 618
         }
