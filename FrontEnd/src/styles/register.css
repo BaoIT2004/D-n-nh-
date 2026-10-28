@@ -1,3 +1,7 @@
+@import "tailwindcss";
+
+
+
 .page_ft {
     display: flex;
     justify-content: center;
@@ -16,7 +20,7 @@
     background-color: #EEEEEE;
 }
 
-.infomation_register{
+.infomation_register {
     margin-top: 80px;
 }
 
@@ -34,12 +38,11 @@
     margin: 15px;
     display: flex;
     align-items: center;
-    box-sizing: border-box; /* tính cả padding và border vào kích thước đã khai báo. */
+    box-sizing: border-box;
     border: none;
     border-radius: 10px;
     border: 1px solid gray;
     padding-left: 10px;
-
 }
 
 .btn_register {
@@ -54,14 +57,132 @@
     color: white;
 }
 
-.text_inf{
+.text_inf {
     border: none;
     display: flex;
-    justify-content: center; /* căn giữa theo chiều ngang */
+    justify-content: center;
 }
-
 
 .link_login {
     text-decoration: none;
     color: #1F2937;
 }
+
+/* home */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.home_page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;        /* trang đúng bằng màn hình */
+}   
+
+.navbar {
+    width: 100%;
+    height: 40px;
+     flex-shrink: 0;       /* không bị co khi nội dung dài */
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border: 1px solid #9CA3AF;
+}
+
+.layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;     /* chặn tràn ra ngoài */
+}
+
+.sidebar {
+    width: 240px;
+    min-width: 0;
+    flex: 0 0 240px;
+    overflow: hidden;
+    border-right: 1px solid #9CA3AF;
+    box-sizing: border-box;
+    white-space: nowrap;
+    opacity: 1;
+    transition: width 300ms ease, flex-basis 300ms ease, opacity 300ms ease;
+}
+
+.sidebar-closed {
+    width: 0;
+    flex-basis: 0;
+    border-right-width: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.content {
+    flex: 1;
+    overflow: auto;       /* chỉ vùng này cuộn */
+    padding: 24px;
+}
+
+/* input search */
+.search {
+    width: 100%;          /* chiếm hết navbar */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.navbar_buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-right: 40px;
+    margin-left: auto;
+    position: absolute  ;
+    right: 40px;
+    font-size: 13px;
+}
+
+.navbar_buttons button {
+    height: 28px;
+    background: #1F2937;
+    cursor: pointer;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* input search */
+.search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.IputRes {
+    width: 500px;
+    height: 25px;     
+    padding: 0 20px;
+    box-sizing: border-box;
+    border: 1px solid #1F2937;
+    border-radius: 8px;
+    font-size: 15px;         
+    line-height: normal;
+}
+
+/* nút đóng mở  */
+
+.menuOpen {
+    padding: 0.5rem 0.75rem;
+    height: 5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 250px;
+}
+
+
