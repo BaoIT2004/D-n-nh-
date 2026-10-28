@@ -23,6 +23,12 @@ namespace WebApplication1.Repositories
         {
             return _dbContext.Projects.ToListAsync();
         }
+
+        public async Task UpdateProjectAsync(NewProject newProject)
+        {
+            _dbContext.Projects.Update(newProject);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 
 }

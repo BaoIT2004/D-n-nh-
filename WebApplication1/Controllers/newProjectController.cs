@@ -27,18 +27,29 @@ namespace WebApplication1.Controllers
         // tạo dự án "R"
         [HttpPost]
         [Authorize] // jwt hợp lệ mới tạo được project 
-        public async Task<IActionResult> AddProject(ProjectRequestDto project)
+        public async Task<IActionResult> AddProject([FromBody] ProjectRequestDto project)
         {
            
             var response = await _projectService.AddNewProject(project);    
              return StatusCode(response.StatusCode, response);
         }
 
+
+        //2.Hiển thị dự án
         [HttpGet("AllProject")]
         [Authorize]
         public async Task<IActionResult> AllProject()
         {
             var response = await _projectService.GetAllProject();
+            return StatusCode(response.StatusCode, response);
+        }
+
+        //3.Cập nhật dự án
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProject([FromBody] UpdateProjectRequestDto project, int id)
+        {
+            var response = await _projectService.UpdateProjectAsync(project,id);
             return StatusCode(response.StatusCode, response);
         }
 

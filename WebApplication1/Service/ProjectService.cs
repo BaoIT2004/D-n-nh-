@@ -105,6 +105,73 @@ namespace WebApplication1.Services
                 }).ToList()
             };
         }
+
+        //cập nhật dự án
+
+        public async Task<ApiResponse<UpdateProjectReSponseDto>> UpdateProjectAsync(UpdateProjectRequestDto project, int id)
+        {
+            //1. Validate dự liệu
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(project.NameProject))
+            {
+                errors.Add("không để trống tên dự án");
+            }
+
+            if (string.IsNullOrWhiteSpace(project.Status))
+            {
+                errors.Add("Không để trống trạng thái dự án");
+            }
+
+            if(errors.Count > 0)
+            {
+                return new ApiResponse<UpdateProjectReSponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Dữ liệu không hợp lệ",
+                    Data = null!,
+                    Errors = errors
+                };
+            }
+
+            //2. Tìm id của dự án  FirstOrDefault: tìm phần tử đầu tiên
+            var update = _dbContext.Projects.FirstOrDefault(p=> p.Id == id);  // tìm đầu tiên trong bảng project có Id bằng với biến id 
+
+            if(update == null)
+            {
+                return new ApiResponse<UpdateProjectReSponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Không tìm thấy id",
+                    Data = null!,
+                    Errors = errors
+                };
+            }
+            else
+            {
+                update.NameProject = project.NameProject;
+                update.Status = project.Status;
+
+            };
+            //3. Lưu thông tin sau cập nhật
+            await _projectRepository.UpdateProjectAsync(update);
+
+            //4. Map qua controlle
+
+            return new ApiResponse<UpdateProjectReSponseDto>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Cập nhật thành công",
+                Data = new UpdateProjectReSponseDto
+                {
+                    NameProject = update.NameProject,
+                    Status = update.Status
+                }
+            };
+        }
     
     
     }
