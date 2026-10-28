@@ -28,7 +28,7 @@ export async function registerUser(Name: string, Email: string, Password: String
 
 
 //đăg nhập
-export async function loginUser(Name: string, Email: string, Password: string): Promise<{ success: boolean; message: string }> {
+export async function loginUser(Email: string, Password: string): Promise<{ success: boolean; message: string }> {
     try {
 
         const responseLogin = await fetch("http://localhost:5024/api/User/login", {
@@ -37,7 +37,6 @@ export async function loginUser(Name: string, Email: string, Password: string): 
                 "content-Type": "application/json",
             },
             body: JSON.stringify({
-                name: Name,
                 email: Email,
                 password: Password,
             })
@@ -48,7 +47,7 @@ export async function loginUser(Name: string, Email: string, Password: string): 
         if (!responseLogin.ok) {
             return {
                 success: false,
-                message: "Đăng nhập thất bại"
+                message: result.message || "Đăng nhập thất bại"
             };
         } else {
             localStorage.setItem("accessToken", result.data.accessToken);
@@ -57,7 +56,7 @@ export async function loginUser(Name: string, Email: string, Password: string): 
             localStorage.setItem("userId", String(result.data.id));
             return {
                 success: true,
-                message: "Đăng nhập thành công"
+                message: result.message || "Đăng nhập thành công"
             }
         }
 

@@ -4,20 +4,17 @@ import { loginUser } from '../services/User'
 import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
-    const [Name, setName] = useState("");
     const [Email, SetEmail] = useState("");
     const [Password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    
-
     async function handleLogin() {
         setIsSubmitting(true);
         setMessage("");
         try {
-            const result = await loginUser(Name, Email, Password);
+            const result = await loginUser(Email, Password);
             setMessage(result.message);
             if (result.success) {
                 navigate("/");
