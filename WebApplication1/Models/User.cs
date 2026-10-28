@@ -8,5 +8,5 @@ public class User
     public string Email { get; set; } = "";
     public string passWord { get; set; } = "";
 
-    public ICollection<newProject> Projects {get; set;} = new List<newProject>();
+    public ICollection<NewProject> Projects {get; set;} = new List<NewProject>();
 }

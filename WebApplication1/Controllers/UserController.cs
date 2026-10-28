@@ -36,7 +36,6 @@ namespace WebApplication1.Controllers
             // return Ok(allUser); //ok ở đây là trả về danh sách
             var response = await _userService.GetAllUsersAsync();
             return StatusCode(response.StatusCode, response);
-
         }
 
 

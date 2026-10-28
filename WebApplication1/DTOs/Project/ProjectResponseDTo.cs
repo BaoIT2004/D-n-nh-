@@ -1,6 +1,6 @@
 namespace WebApplication1.DTOs.Project;
 
-public class ProjectResponseDTo
+public class ProjectResponseDto
 {
     public int Id { get; set; }
 

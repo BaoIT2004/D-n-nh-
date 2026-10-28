@@ -15,8 +15,13 @@ namespace WebApplication1.Repositories
 
         public async Task AddProjectAsync(NewProject newProject)
         {
-            await _dbContext.Project.AddAsync(newProject);
+            await _dbContext.Projects.AddAsync(newProject);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public Task<List<NewProject>> GetAllProjectAsync()
+        {
+            return _dbContext.Projects.ToListAsync();
         }
     }
 

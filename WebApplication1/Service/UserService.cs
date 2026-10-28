@@ -171,9 +171,9 @@ public class UserService
             Message = "Hiển thị danh sách các user",
             Data = users.Select(user => new GetAllUsersResponseDto
             {
-                 Id = user.Id,
-        Name = user.Name,
-        Email = user.Email
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email
             }).ToList()
         };
     }
@@ -204,7 +204,7 @@ public class UserService
             Message = "Đăng xuất thành công",
             Data = new LogoutResponseDto
             {
-                Message = "Đăn xuất thành công"
+                Message = "Đăng xuất thành công"
             },
         };
     }

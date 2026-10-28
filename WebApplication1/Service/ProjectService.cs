@@ -19,8 +19,9 @@ namespace WebApplication1.Services
             _dbContext = dbContext;
             _projectRepository = projectRepository;
         }
-
-        public async Task<ApiResponse<ProjectResponseDTo>> AddNewProject(NewProject project)
+        
+        //Thêm dự án
+        public async Task<ApiResponse<ProjectResponseDto>> AddNewProject(ProjectRequestDto project)
         {
             //1. Validate nôi dung người dùng gửi
             var errors = new List<string>();
@@ -35,7 +36,7 @@ namespace WebApplication1.Services
             }
             if (errors.Count > 0)
             {
-                return new ApiResponse<ProjectResponseDTo>
+                return new ApiResponse<ProjectResponseDto>
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     Status = false,
@@ -45,27 +46,66 @@ namespace WebApplication1.Services
                 };
             }
 
+            var user = _dbContext.Users.Any(user => user.Id == project.UserId);
+            if (!user)
+            {
+                return new ApiResponse<ProjectResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "KHông tìm thấy người dùng",
+                    Data = null!,
+                    Errors = errors
+                };
+            }
+
             //2.Tại dữ liệu
             var newProject = new NewProject
             {
                 NameProject = project.NameProject,
-                Status = project.Status
+                Status = project.Status,
+                UserId = project.UserId
             };
             //3. Lưu dữ liệu
             await _projectRepository.AddProjectAsync(newProject);
 
             //4. Map dữ liệu qua controller
-            return new ApiResponse<ProjectResponseDTo>
+            return new ApiResponse<ProjectResponseDto>
             {
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
                 Message = "Đăng ký thành công",
-                Data = new ProjectResponseDTo
+                Data = new ProjectResponseDto
                 {
                     NameProject = project.NameProject,
                     Status = project.Status
                 }
             };
         }
+    
+
+        //Hiển thị toàn bộ dự án
+        public async Task<ApiResponse<List<GetAllProjectResponseDto>>> GetAllProject()
+        {
+            //1.Lấy toàn bộ thông tin dự án
+            var project = await _projectRepository.GetAllProjectAsync();
+
+            //2.Map sang GetAllUsersAsync trả về cho Controller
+
+            return new ApiResponse<List<GetAllProjectResponseDto>>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Hiển thị thông tin của dự án",
+                Data = project.Select(project => new GetAllProjectResponseDto
+                {
+                    NameProject = project.NameProject,
+                    Status = project.Status,
+                    UserId = project.UserId
+                }).ToList()
+            };
+        }
+    
+    
     }
 }

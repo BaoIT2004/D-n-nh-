@@ -22,9 +22,4 @@ public class NewProject
 
     // Một dự án có nhiều trạng thái khác nhau
     public ICollection<AddStatusTask> StatusTasks {get;set;} = new List<AddStatusTask>();
-
-    public static implicit operator NewProject(NewProject v)
-    {
-        throw new NotImplementedException();
-    }
 }

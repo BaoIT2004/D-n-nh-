@@ -27,19 +27,20 @@ namespace WebApplication1.Controllers
         // tạo dự án "R"
         [HttpPost]
         [Authorize] // jwt hợp lệ mới tạo được project 
-        public async Task<IActionResult> AddProject(NewProject project)
+        public async Task<IActionResult> AddProject(ProjectRequestDto project)
         {
-            var response = await _projectService.AddNewProject(project);
+           
+            var response = await _projectService.AddNewProject(project);    
              return StatusCode(response.StatusCode, response);
         }
 
-        // [HttpGet("AllProject")]
-        // [Authorize]
-        // public IActionResult GetAllProject(){
-        //     var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        //     var allProject = dbContext.Projects.Where(p=>p.UserId == userId).ToList();
-        //     return Ok(allProject);
-        // }
+        [HttpGet("AllProject")]
+        [Authorize]
+        public async Task<IActionResult> AllProject()
+        {
+            var response = await _projectService.GetAllProject();
+            return StatusCode(response.StatusCode, response);
+        }
 
         // // cập nhật thông tin dự án "U"
         // [HttpPut("{id}")]

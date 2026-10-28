@@ -13,5 +13,5 @@ public class taskItem
     public int ProjectId {get;set;}
 
     // dự án chứa công việc này
-    public newProject? Project {get; set; }
+    public NewProject? Project {get; set; }
 }
