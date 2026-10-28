@@ -2,12 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.Service;
-using WebApplication1.DTOs.ApiResponse;
 using WebApplication1.DTOs.Auth;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
-
-
 
 namespace WebApplication1.Controllers
 {
@@ -62,7 +58,6 @@ namespace WebApplication1.Controllers
             var response = await _userService.LoginAsync(request);
             return StatusCode(response.StatusCode, response);
         }
-
 
         //Đăng xuất
         [AllowAnonymous]
