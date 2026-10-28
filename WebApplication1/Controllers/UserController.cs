@@ -3,6 +3,7 @@ using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.Service;
 using WebApplication1.DTOs.ApiResponse;
+using WebApplication1.DTOs.Auth;
 using Microsoft.AspNetCore.Authorization;
 
 
@@ -15,14 +16,19 @@ namespace WebApplication1.Controllers
     {
         private readonly ApplicationContext dbContext;
         private readonly PasswordService passwordService;
-
         private readonly JwtService _jwtService;
+        private readonly UserService _userService;
 
-        public UserController(ApplicationContext dbContext, PasswordService passwordService, JwtService jwtService)
+        public UserController(
+            ApplicationContext dbContext,
+            PasswordService passwordService,
+            JwtService jwtService,
+            UserService userService)
         {
             this.dbContext = dbContext;
             this.passwordService = passwordService;
             _jwtService = jwtService;
+            _userService = userService;
         }
 
         // Hiển thị người dùng
@@ -83,54 +89,10 @@ namespace WebApplication1.Controllers
         // Đăng nhập tài khoản
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(User login)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
-            if (string.IsNullOrWhiteSpace(login.Email) || string.IsNullOrWhiteSpace(login.passWord))
-            {
-                var errorResponse = new ApiResponse<object>
-                {
-                    StatusCode = 409,
-                    Status = false,
-                    Message = "Email đã được sử dụng",
-                    Data = null,
-                    Errors = new List<string>
-                        {
-                        "Email không được để trống",
-                        "Mật khẩu không được để trống"
-                        }
-                };
-                return StatusCode(errorResponse.StatusCode, errorResponse);
-            }
-
-            var myUser = dbContext.Users.Where(x => x.Email == login.Email).FirstOrDefault();
-
-            if (myUser == null || !passwordService.VerifyPassword(login.passWord, myUser.passWord))
-            {
-                return StatusCode(StatusCodes.Status401Unauthorized, new ApiResponse<object>
-                {
-                    StatusCode = StatusCodes.Status401Unauthorized,
-                    Status = false,
-                    Message = "Email hoặc mật khẩu không đúng",
-                    Data = null,
-                    Errors = new List<string> { "Email hoặc mật khẩu không đúng" }
-                });
-            }
-            var token = await _jwtService.GenerateToken(myUser);
-
-            return Ok(new ApiResponse<object>
-            {
-                StatusCode = 200,
-                Status = true,
-                Message = "Đăng nhập thành công",
-                Data = new
-                {
-                    id = myUser.Id,
-                    myUser.Name,
-                    myUser.Email,
-                    accessToken = token.Tokens,
-                    refreshToken = token.RefreshToken
-                },
-            });
+            var response = await _userService.LoginAsync(request);
+            return StatusCode(response.StatusCode, response);
         }
 
         // Chưa hiểu 
@@ -151,7 +113,7 @@ namespace WebApplication1.Controllers
 
             return Ok(new
             {
-                accessToken = token.Tokens,
+                accessToken = token.AccessToken,
                 refreshToken = token.RefreshToken
             });
         }

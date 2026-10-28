@@ -3,8 +3,11 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using WebApplication1.DTOs.Auth;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
+
+namespace WebApplication1.Service;
 
 public class JwtService
 {
@@ -22,7 +25,7 @@ public class JwtService
         _userRepository = userRepository;
     }
 
-    public async Task<refreshToken?> ValidateToken(string Token)
+    public async Task<TokenResponseDto?> ValidateToken(string Token)
     {
         var refreshTokenHash = HashRefreshToken(Token);
         var refreshToken = await _refreshTokenRepository.Get(refreshTokenHash);
@@ -39,7 +42,7 @@ public class JwtService
 
     }
 
-    public async Task<refreshToken> GenerateToken(User user)
+    public async Task<TokenResponseDto> GenerateToken(User user)
     {
         //1. Tạo thông tin người dùng
         var claims = new[]
@@ -48,7 +51,7 @@ public class JwtService
         };
 
         //2. Tạo chìa khóa
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:key"]!)); // tạo chòa khóa/ chuyễn ký tự thành mã UTF8 _config["Jwt:key"]:Dùng để lấy giá trị Key trong file appsettings.json.
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)); // tạo chòa khóa/ chuyễn ký tự thành mã UTF8 _config["Jwt:Key"]:Dùng để lấy giá trị Key trong file appsettings.json.
         //3. Tạo chữ ký
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); // tạo chữ ký / SecurityAlgorithms.HmacSha256: thuật toán dùng để ký Token. / SigningCredentials: kết hợp khóa và thuật toán để tạo thông tin ký.
         //4. Tạo JWT
@@ -64,11 +67,9 @@ public class JwtService
         var accessToken = new JwtSecurityTokenHandler().WriteToken(token);  // chuyển đổi đối tượng JwtSecurityToken thành chuỗi JWT để gửi về cho Client.
         
         
-        return new refreshToken
+        return new TokenResponseDto
         {
-            Tokens = accessToken,
-            UserId = user.Id,
-            Expiry = DateTime.UtcNow.AddDays(_config.GetValue<int>("Jwt:RefreshTokenDays")),
+            AccessToken = accessToken,
             RefreshToken = await GenerateRefreshToken(user.Id)
         };
 
@@ -101,7 +102,6 @@ public class JwtService
     }
 
     // Logout
-
     public async Task<bool> logoutRefreshtoken(string token)
     {
         if (string.IsNullOrWhiteSpace(token))
