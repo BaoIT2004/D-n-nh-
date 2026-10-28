@@ -177,4 +177,35 @@ public class UserService
             }).ToList()
         };
     }
+
+    public async Task<ApiResponse<LogoutResponseDto>> Logout(LogoutResquestDto request)
+    {
+        //1. Validate kiểm trs đã có token chưa
+        var result = await _jwtService.logoutRefreshtoken(request.RefreshToken);
+
+        //2. Khi thất bại
+        if (!result)
+        {
+            return new ApiResponse<LogoutResponseDto>
+            {
+                StatusCode = StatusCodes.Status401Unauthorized,
+                Status = false,
+                Message = "Không tìm thấy token",
+                Data = null!,
+                Errors = new List<string> {"token không hợp lệ"}
+            };
+        }
+    
+        //3. Map sang LogoutnResponseDto trả về cho Controller
+        return new ApiResponse<LogoutResponseDto>
+        {
+            StatusCode = StatusCodes.Status200OK,
+            Status = true,
+            Message = "Đăng xuất thành công",
+            Data = new LogoutResponseDto
+            {
+                Message = "Đăn xuất thành công"
+            },
+        };
+    }
 }

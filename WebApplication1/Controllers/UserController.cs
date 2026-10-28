@@ -64,17 +64,15 @@ namespace WebApplication1.Controllers
         }
 
 
+        //Đăng xuất
+        [AllowAnonymous]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] LogoutResquestDto request)
+        {
+            var response = await _userService.Logout(request);
 
-
-
-
-
-
-
-
-
-
-
+            return StatusCode(response.StatusCode, response);
+        }
 
 
         [AllowAnonymous]
@@ -101,23 +99,7 @@ namespace WebApplication1.Controllers
 
 
 
-        [AllowAnonymous]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromBody] RefreshRequestModel request)
-        {
-            if (string.IsNullOrWhiteSpace(request.RefreshToken))
-            {
-                return BadRequest("Refresh token không được để trống");
-            }
-
-            var revoked = await _jwtService.logoutRefreshtoken(request.RefreshToken);
-            if (!revoked)
-            {
-                return Unauthorized("Refresh token không hợp lệ");
-            }
-
-            return Ok(new { message = "Đăng xuất thành công" });
-        }
+        
 
     }
 }
