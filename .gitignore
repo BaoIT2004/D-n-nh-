@@ -1,0 +1,75 @@
+# ==========================================
+# Frontend (Node.js / Vite / React / TypeScript)
+# ==========================================
+node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+*/dist/
+dist-ssr/
+*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor & build cache
+.eslintcache
+*.tsbuildinfo
+.vite/
+
+# Environment variables (chỉ giữ file .env.example nếu có)
+.env.local
+.env.*.local
+
+
+# ==========================================
+# Backend (.NET / C# / ASP.NET Core)
+# ==========================================
+[Bb]in/
+[Oo]bj/
+*/[Bb]in/
+*/[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+publish/
+*/publish/
+
+# Visual Studio & User specific files
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+# .NET Publish & Secrets
+*.publishsettings
+*.pubxml
+*.pubxml.user
+App_Data/
+secrets.json
+
+# Local configurations
+appsettings.*.local.json
+appsettings.local.json
+
+# Rider / JetBrains
+_ReSharper*/
+*.DotSettings.user
+.idea/
+
+
+# ==========================================
+# Operating System
+# ==========================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
