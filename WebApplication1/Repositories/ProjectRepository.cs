@@ -29,6 +29,21 @@ namespace WebApplication1.Repositories
             _dbContext.Projects.Update(newProject);
             await _dbContext.SaveChangesAsync();
         }
+
+        //lấy id từ project
+        public async Task<NewProject?> GetProjectByIdAsunc (int id)
+        {
+            return await _dbContext.Projects.FirstOrDefaultAsync(p=>p.Id == id);
+        }
+
+
+        public async Task DeleteProjectAsync(NewProject newProject)
+        {
+            _dbContext.Projects.Remove(newProject);
+            await _dbContext.SaveChangesAsync();
+        }
+
+
     }
 
 }

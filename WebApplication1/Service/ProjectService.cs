@@ -2,7 +2,6 @@ using WebApplication1.Data;
 using WebApplication1.DTOs.ApiResponse;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
-using WebApplication1.DTOs.Auth;
 using WebApplication1.DTOs.Project;
 
 namespace WebApplication1.Services
@@ -19,7 +18,7 @@ namespace WebApplication1.Services
             _dbContext = dbContext;
             _projectRepository = projectRepository;
         }
-        
+
         //Thêm dự án
         public async Task<ApiResponse<ProjectResponseDto>> AddNewProject(ProjectRequestDto project)
         {
@@ -82,7 +81,6 @@ namespace WebApplication1.Services
                 }
             };
         }
-    
 
         //Hiển thị toàn bộ dự án
         public async Task<ApiResponse<List<GetAllProjectResponseDto>>> GetAllProject()
@@ -107,7 +105,6 @@ namespace WebApplication1.Services
         }
 
         //cập nhật dự án
-
         public async Task<ApiResponse<UpdateProjectReSponseDto>> UpdateProjectAsync(UpdateProjectRequestDto project, int id)
         {
             //1. Validate dự liệu
@@ -123,7 +120,7 @@ namespace WebApplication1.Services
                 errors.Add("Không để trống trạng thái dự án");
             }
 
-            if(errors.Count > 0)
+            if (errors.Count > 0)
             {
                 return new ApiResponse<UpdateProjectReSponseDto>
                 {
@@ -136,9 +133,9 @@ namespace WebApplication1.Services
             }
 
             //2. Tìm id của dự án  FirstOrDefault: tìm phần tử đầu tiên
-            var update = _dbContext.Projects.FirstOrDefault(p=> p.Id == id);  // tìm đầu tiên trong bảng project có Id bằng với biến id 
+            var update = _dbContext.Projects.FirstOrDefault(p => p.Id == id);  // tìm đầu tiên trong bảng project có Id bằng với biến id 
 
-            if(update == null)
+            if (update == null)
             {
                 return new ApiResponse<UpdateProjectReSponseDto>
                 {
@@ -154,7 +151,8 @@ namespace WebApplication1.Services
                 update.NameProject = project.NameProject;
                 update.Status = project.Status;
 
-            };
+            }
+            ;
             //3. Lưu thông tin sau cập nhật
             await _projectRepository.UpdateProjectAsync(update);
 
@@ -172,7 +170,45 @@ namespace WebApplication1.Services
                 }
             };
         }
-    
-    
+
+        //Xóa dự án 
+        public async Task<ApiResponse<DeleteProjectResponseDto>> DeleteProjectAsync(int id)
+        {
+            var errors = new List<string>();
+            //1.Tìm dự án cần xóa
+            var deleteProject = await _projectRepository.GetProjectByIdAsunc(id);
+
+            //2.Kiểm tra project có tồn tại không
+
+            if (deleteProject == null)
+            {
+                return new ApiResponse<DeleteProjectResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Không tìm thấy project",
+                    Data = null!,
+                    Errors = errors
+                };
+            }
+
+            //3.Xóa dự án
+            await _projectRepository.DeleteProjectAsync(deleteProject);
+            //4.Nap quan cotroller
+            return new ApiResponse<DeleteProjectResponseDto>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Xóa dự án thành công",
+                Data = new DeleteProjectResponseDto
+                {
+                    // Id = deleteProject.Id,
+                    Message = "Xóa dự án thành công"
+                }
+            };
+
+        }
+
+
     }
 }
