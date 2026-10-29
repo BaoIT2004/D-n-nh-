@@ -221,3 +221,6 @@ Chiều rộng tối thiểu. Dù nội dung ngắn đến đâu, khung cũng kh
 
 max-w-md → max-width: 28rem (448px)
 Chiều rộng tối đa. Dù nội dung dài đến đâu, khung cũng không rộng hơn 448px; chữ dài sẽ tự xuống dòng.
+
+
+// note thư mục 

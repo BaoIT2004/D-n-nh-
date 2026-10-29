@@ -5,8 +5,8 @@ using Middleware.Example;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.Extensions.Options;
 using WebApplication1.Repositories;
+using WebApplication1.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(Options =>
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
     };
 });
 
@@ -42,6 +42,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ProjectRepository>();
+builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<StatusTaskRepository>();
+builder.Services.AddScoped<StatusTaskService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 // core kết nối với react

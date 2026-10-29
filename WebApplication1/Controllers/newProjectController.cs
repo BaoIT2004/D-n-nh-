@@ -1,100 +1,63 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Data;
-using WebApplication1.Models;
-
+using  WebApplication1.Services;
 
 namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class newProjectController : Controller
+    public class NewProjectController : Controller
     {
         private readonly ApplicationContext dbContext;
+        private readonly ProjectService _projectService;
 
-        public newProjectController(ApplicationContext dbContext)
+        public NewProjectController(
+            ApplicationContext dbContext,
+            ProjectService projectService)
         {
             this.dbContext = dbContext;
+            _projectService = projectService;
         }
 
-        // thểm thị dự án "R"
+        // tạo dự án 
         [HttpPost]
         [Authorize] // jwt hợp lệ mới tạo được project 
-        public IActionResult AddProject(newProject project)
+        public async Task<IActionResult> AddProject([FromBody] ProjectRequestDto project)
         {
-            var newProject = dbContext.Users.Any(user => user.Id == project.UserId);
-            if (!newProject)
-            {
-                return NotFound(new
-                {
-                    message = "Không tìm thấy người dùng."
-                });
-            }
-
-            var allowedStatuses = new[]
-            {
-                "private",
-                "workspace",
-                "public"
-            };
-
-            if (!allowedStatuses.Contains(project.status))
-            {
-                return BadRequest(new
-                {
-                    message = "Trạng thái dự án không hợp lệ."
-                });
-            }
-
-            var addNewProject = new newProject
-            {
-                nameProject = project.nameProject,
-                status = project.status,
-                UserId = project.UserId
-            };
-
-            dbContext.Projects.Add(addNewProject);
-            dbContext.SaveChanges();
-            return Ok(new
-            {
-                message = "Tạo dự án thành công"
-            });
+           
+            var response = await _projectService.AddNewProject(project);    
+             return StatusCode(response.StatusCode, response);
         }
 
-        
 
-        [HttpGet("AllProject")]
+        //Hiển thị dự án
+        [HttpGet("{userId}")]
         [Authorize]
-        public IActionResult GetAllProject(){
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var allProject = dbContext.Projects.Where(p=>p.UserId == userId).ToList();
-            return Ok(allProject);
+        public async Task<IActionResult> AllProject(int userId)
+        {
+            var response = await _projectService.GetAllProjects(userId);
+            return StatusCode(response.StatusCode, response);
         }
 
-        // cập nhật thông tin dự án "U"
+        //Cập nhật dự án
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> UpdateProject(newProject newProject, int id)
+        public async Task<IActionResult> UpdateProject([FromBody] UpdateProjectRequestDto project, int id)
         {
-            var update = dbContext.Projects.FirstOrDefault(p => p.Id == id); // lấy từ bảng project ./ 
-            // ấy bản ghi đầu tiên thỏa điều kiện. Nếu không có bản ghi nào thì trả về null thay vì báo lỗi./
-            //p => p.Id == id là điều kiện lọc (lambda)  p đại diện cho từng dự án trong bảng, và dòng này nghĩa là “lấy dự án nào có Id bằng id được truyền vào”.s
-            if (update == null)
-            {
-                return NotFound(new { message = "Không tìm thấy dự án." });
-            }
-            update.nameProject = newProject.nameProject;
-            update.status = newProject.status;  
-
-            dbContext.SaveChanges();
-            return Ok(new {
-                message = "Cập nhật thành công"
-            });
+            var response = await _projectService.UpdateProjectAsync(project,id);
+            return StatusCode(response.StatusCode, response);
         }
 
-                
+        // Xóa dự án
+        [HttpDelete("delete/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteProject(int id)
+        {
+            var response = await _projectService.DeleteProjectAsync(id);
+            return StatusCode(response.StatusCode, response);
+        }
+        
     }
-
 
 }

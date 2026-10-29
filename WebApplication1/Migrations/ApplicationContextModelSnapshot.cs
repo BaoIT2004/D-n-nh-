@@ -41,7 +41,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("addStatusTasks");
+                    b.ToTable("AddStatusTasks");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.User", b =>

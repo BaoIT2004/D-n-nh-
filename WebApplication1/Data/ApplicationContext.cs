@@ -12,6 +12,5 @@ public class ApplicationContext(  // constructor
 
     public DbSet<taskItem> TaskItem {get;set;}
 
-    public DbSet<AddStatusTask> addStatusTasks {get;set;}
-
+    public DbSet<AddStatusTask> AddStatusTasks {get;set;}
 }

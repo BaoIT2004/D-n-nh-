@@ -21,7 +21,15 @@ export async function allProject(): Promise<{
             };
         }
 
-        const response = await fetch("http://localhost:5024/api/newProject/AllProject", {
+        const userId = Number(localStorage.getItem("userId"));
+        if (!Number.isInteger(userId) || userId <= 0) {
+            return {
+                success: false,
+                message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại."
+            };
+        }
+
+        const response = await fetch(`http://localhost:5024/api/newProject/AllProject?userId=${userId}`, {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -35,11 +43,11 @@ export async function allProject(): Promise<{
             }
         }
 
-        const data: Project[] = await response.json();
+        const result: { data?: Project[]; message?: string } = await response.json();
         return{
             success: true,
-            message: "Lấy danh sách thành công",
-            data
+            message: result.message ?? "Lấy danh sách thành công",
+            data: result.data ?? []
         }
     } catch (error) {
         console.error(error);
