@@ -2,12 +2,12 @@ using System.ComponentModel.DataAnnotations;
 namespace WebApplication1.Models;
 
 
-public class NewProject
+public class newProject
 {   
     public int Id {get; set; }
     [Required, MaxLength(100)]
-    public string NameProject {get; set;} = "";
-    public string Status {get; set; } = "private"; // nếu không lưu giá trị khác thì sẽ lưu private
+    public string nameProject {get; set;} = "";
+    public string status {get; set; } = "private"; // nếu không lưu giá trị khác thì sẽ lưu private
     
     // Ngày giờ tạo dự án
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -22,4 +22,5 @@ public class NewProject
 
     // Một dự án có nhiều trạng thái khác nhau
     public ICollection<AddStatusTask> StatusTasks {get;set;} = new List<AddStatusTask>();
+
 }

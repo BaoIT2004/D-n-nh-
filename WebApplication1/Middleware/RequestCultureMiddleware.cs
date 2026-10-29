@@ -58,7 +58,7 @@ public class RequestCultureMiddleware
             StatusCode = statusCode,
             Status = false,
             Message = message,
-            Data = null,
+            Data = null!,
             Errors = new List<string> { message }
         };
 

@@ -59,10 +59,10 @@ namespace WebApplication1.Services
             }
 
             //2.Tại dữ liệu
-            var newProject = new NewProject
+            var newProject = new newProject
             {
-                NameProject = project.NameProject,
-                Status = project.Status,
+                nameProject = project.NameProject,
+                status = project.Status,
                 UserId = project.UserId
             };
             //3. Lưu dữ liệu
@@ -97,8 +97,8 @@ namespace WebApplication1.Services
                 Message = "Hiển thị thông tin của dự án",
                 Data = projects.Select(project => new GetAllProjectResponseDto
                 {
-                    NameProject = project.NameProject,
-                    Status = project.Status,
+                    NameProject = project.nameProject,
+                    Status = project.status,
                     UserId = project.UserId
                 }).ToList()
             };
@@ -148,8 +148,8 @@ namespace WebApplication1.Services
             }
             else
             {
-                update.NameProject = project.NameProject;
-                update.Status = project.Status;
+                update.nameProject = project.NameProject;
+                update.status = project.Status;
 
             }
             ;
@@ -165,8 +165,8 @@ namespace WebApplication1.Services
                 Message = "Cập nhật thành công",
                 Data = new ProjectResponseDto
                 {
-                    NameProject = update.NameProject,
-                    Status = update.Status
+                    NameProject = update.nameProject,
+                    Status = update.status
                 }
             };
         }
