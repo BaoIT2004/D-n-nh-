@@ -86,7 +86,7 @@ namespace WebApplication1.Services
         public async Task<ApiResponse<List<GetAllProjectResponseDto>>> GetAllProject()
         {
             //1.Lấy toàn bộ thông tin dự án
-            var project = await _projectRepository.GetAllProjectAsync();
+            var projects = await _projectRepository.GetAllProjectAsync();
 
             //2.Map sang GetAllUsersAsync trả về cho Controller
 
@@ -95,7 +95,7 @@ namespace WebApplication1.Services
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
                 Message = "Hiển thị thông tin của dự án",
-                Data = project.Select(project => new GetAllProjectResponseDto
+                Data = projects.Select(project => new GetAllProjectResponseDto
                 {
                     NameProject = project.NameProject,
                     Status = project.Status,
@@ -105,7 +105,7 @@ namespace WebApplication1.Services
         }
 
         //cập nhật dự án
-        public async Task<ApiResponse<UpdateProjectReSponseDto>> UpdateProjectAsync(UpdateProjectRequestDto project, int id)
+        public async Task<ApiResponse<ProjectResponseDto>> UpdateProjectAsync(UpdateProjectRequestDto project, int id)
         {
             //1. Validate dự liệu
             var errors = new List<string>();
@@ -122,7 +122,7 @@ namespace WebApplication1.Services
 
             if (errors.Count > 0)
             {
-                return new ApiResponse<UpdateProjectReSponseDto>
+                return new ApiResponse<ProjectResponseDto>
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     Status = false,
@@ -137,7 +137,7 @@ namespace WebApplication1.Services
 
             if (update == null)
             {
-                return new ApiResponse<UpdateProjectReSponseDto>
+                return new ApiResponse<ProjectResponseDto>
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     Status = false,
@@ -158,12 +158,12 @@ namespace WebApplication1.Services
 
             //4. Map qua controlle
 
-            return new ApiResponse<UpdateProjectReSponseDto>
+            return new ApiResponse<ProjectResponseDto>
             {
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
                 Message = "Cập nhật thành công",
-                Data = new UpdateProjectReSponseDto
+                Data = new ProjectResponseDto
                 {
                     NameProject = update.NameProject,
                     Status = update.Status
