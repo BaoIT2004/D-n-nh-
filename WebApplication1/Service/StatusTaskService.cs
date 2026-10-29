@@ -132,6 +132,7 @@ namespace WebApplication1.Services
 
         }
 
+        //3.Xóa
         public async Task<ApiResponse<DaleteStatusTaskResponeDto>> DeleteStatusTaskAsync(int projectId, int userId, int statusTaskId)
         {
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
@@ -172,5 +173,60 @@ namespace WebApplication1.Services
             };
         }
 
+        //4.Cập nhật 
+        public async Task<ApiResponse<StatusTaskResponseDto>> UpdateStatusTaskAsync(
+            int projectId,
+            int userId,
+            int statusTaskId,
+            UpdateStatusTaskRequestDto request)
+        {
+
+            // 1. kiểm tra project + quyền
+            var projectUpdate = await _projectRepository.GetProjectByIdAsync(projectId);
+            if (projectUpdate == null || projectUpdate.UserId != userId)
+            {
+                return new ApiResponse<StatusTaskResponseDto>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy dự án",
+                    Data = null!,
+                };
+            }
+
+            //2. Tìm status task
+
+            var updateStatusStask = await _statusTaskRepository.getStatusTaskAsync(statusTaskId, projectId);
+
+            if (updateStatusStask == null)
+            {
+                return new ApiResponse<StatusTaskResponseDto>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy dự án",
+                    Data = null!,
+                };
+            }
+            else
+            {
+                updateStatusStask.StatusTask = request.StatusTask;
+            }
+
+            await _statusTaskRepository.UpdateStatusTaskAsync(updateStatusStask);
+
+            return new ApiResponse<StatusTaskResponseDto>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Cập nhật thành công",
+                Data = new StatusTaskResponseDto
+                {
+                    StatusTask = updateStatusStask.StatusTask,
+                    ProjectId = updateStatusStask.ProjectId
+                }
+            };
+
+        }
     }
 }

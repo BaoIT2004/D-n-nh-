@@ -4,8 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 
 namespace WebApplication1.Repositories;
- public class StatusTaskRepository
- {
+
+public class StatusTaskRepository
+{
     private readonly ApplicationContext _dbContext;
 
     public StatusTaskRepository(ApplicationContext dbContext)
@@ -30,8 +31,14 @@ namespace WebApplication1.Repositories;
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<AddStatusTask> getStatusTaskAsync(int statusTaskId ,int projectId)
+    public async Task<AddStatusTask> getStatusTaskAsync(int statusTaskId, int projectId)
     {
-        return await _dbContext.AddStatusTasks.FirstAsync(p => p.Id == statusTaskId && p.ProjectId == projectId );
+        return await _dbContext.AddStatusTasks.FirstAsync(p => p.Id == statusTaskId && p.ProjectId == projectId);
+    }
+
+    public async Task UpdateStatusTaskAsync(AddStatusTask statusTask)
+    {
+        _dbContext.AddStatusTasks.Update(statusTask);
+        await _dbContext.SaveChangesAsync();
     }
 }

@@ -43,11 +43,21 @@ namespace WebApplication1.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        //Cập nhật
+        [HttpPut("update/{projectId}/{statusTaskId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStatusTask(int projectId, int statusTaskId, [FromBody] UpdateStatusTaskRequestDto request  )
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _statustTaskervice.UpdateStatusTaskAsync(projectId, userId, statusTaskId, request);
+            return StatusCode(response.StatusCode , response);
+        }
+
 
         //Xóa
         [HttpDelete("delete/{projectId}/{statusTaskId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteStatusTask(int projectId, int statusTaskId)
+        public async Task<IActionResult> DeleteStatusTask([FromBody] int projectId, int statusTaskId)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var response = await _statustTaskervice.DeleteStatusTaskAsync(projectId, userId, statusTaskId);
