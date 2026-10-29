@@ -32,11 +32,11 @@ namespace WebApplication1.Controllers
 
 
         //Hiển thị dự án
-        [HttpGet("AllProject")]
+        [HttpGet("{userId}")]
         [Authorize]
-        public async Task<IActionResult> AllProject()
+        public async Task<IActionResult> AllProject(int userId)
         {
-            var response = await _projectService.GetAllProject();
+            var response = await _projectService.GetAllProject(userId);
             return StatusCode(response.StatusCode, response);
         }
 

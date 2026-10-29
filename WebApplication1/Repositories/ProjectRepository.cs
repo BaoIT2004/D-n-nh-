@@ -19,12 +19,12 @@ namespace WebApplication1.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public Task<List<newProject>> GetAllProjectAsync()
+        public Task<List<newProject>> GetAllProjectAsync(int UserId)
         {
-            return _dbContext.Projects.ToListAsync();
+            return _dbContext.Projects.Where(p=>p.UserId == UserId).ToListAsync();
         }
 
-        public async Task UpdateProjectAsync(newProject newProject)
+        public async Task UpdateProjectAsync(newProject newProject) 
         {
             _dbContext.Projects.Update(newProject);
             await _dbContext.SaveChangesAsync();

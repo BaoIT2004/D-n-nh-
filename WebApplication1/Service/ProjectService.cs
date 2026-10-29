@@ -50,7 +50,7 @@ namespace WebApplication1.Services
             {
                 return new ApiResponse<ProjectResponseDto>
                 {
-                    StatusCode = StatusCodes.Status400BadRequest,
+                    StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
                     Message = "KHông tìm thấy người dùng",
                     Data = null!,
@@ -73,7 +73,7 @@ namespace WebApplication1.Services
             {
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
-                Message = "Đăng ký thành công",
+                Message = "Tạo dự án thành công",
                 Data = new ProjectResponseDto
                 {
                     NameProject = project.NameProject,
@@ -83,10 +83,10 @@ namespace WebApplication1.Services
         }
 
         //Hiển thị toàn bộ dự án
-        public async Task<ApiResponse<List<GetAllProjectResponseDto>>> GetAllProject()
+        public async Task<ApiResponse<List<GetAllProjectResponseDto>>> GetAllProject(int userId)
         {
             //1.Lấy toàn bộ thông tin dự án
-            var projects = await _projectRepository.GetAllProjectAsync();
+            var projects = await _projectRepository.GetAllProjectAsync(userId);
 
             //2.Map sang GetAllUsersAsync trả về cho Controller
 
@@ -97,8 +97,10 @@ namespace WebApplication1.Services
                 Message = "Hiển thị thông tin của dự án",
                 Data = projects.Select(project => new GetAllProjectResponseDto
                 {
+                    Id = project.Id,
                     NameProject = project.nameProject,
                     Status = project.status,
+                    CreatedAt = project.CreatedAt,
                     UserId = project.UserId
                 }).ToList()
             };
@@ -139,7 +141,7 @@ namespace WebApplication1.Services
             {
                 return new ApiResponse<ProjectResponseDto>
                 {
-                    StatusCode = StatusCodes.Status400BadRequest,
+                    StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
                     Message = "Không tìm thấy id",
                     Data = null!,
