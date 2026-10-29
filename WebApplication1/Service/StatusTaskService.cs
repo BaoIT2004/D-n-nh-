@@ -12,15 +12,21 @@ namespace WebApplication1.Services
         private readonly ApplicationContext _dbContext;
         private readonly StatusTaskRepository _statusTaskRepository;
 
+        private readonly ProjectRepository _projectRepository;
+
         public StatusTaskService(
            ApplicationContext dbcontext,
-           StatusTaskRepository statusTaskRepository
+           StatusTaskRepository statusTaskRepository,
+           ProjectRepository projectRepository
         )
         {
             _dbContext = dbcontext;
             _statusTaskRepository = statusTaskRepository;
+            _projectRepository = projectRepository;
         }
 
+
+        //thêm trạng thái dự án
         public async Task<ApiResponse<StatusTaskResponseDto>> AddNewStatusTask ([FromBody] StatusTaskRequestDto request)
         {
             var errors = new List<string>();
@@ -76,5 +82,45 @@ namespace WebApplication1.Services
             };
 
         }
+    
+        //2.Hiển thị trạng thái dự án
+    
+        public async Task<ApiResponse<List<GetAllStatusTaskResponseDto>>> GetAllStatusTasks(int projectId)
+        {
+            var project = await _projectRepository.GetProjectByIdAsunc(projectId);
+
+
+            if(project == null)
+            {
+                return new ApiResponse<List<GetAllStatusTaskResponseDto>>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy dự án",
+                    Data = null!,
+                };
+            }
+
+            //1.Lấy toàn bộ  trạng thái dự án 
+            var statusTask = await _statusTaskRepository.GetAllStatusProjectAsync(projectId);
+
+            //2.Map qua controller
+
+            return new ApiResponse<List<GetAllStatusTaskResponseDto>>
+            {
+              StatusCode = StatusCodes.Status200OK,
+              Status = true,
+              Message ="Hiển thị thành công",
+              Data = statusTask.Select(project => new GetAllStatusTaskResponseDto
+              {
+                  Status = project.StatusTask,
+                  ProjectId = project.ProjectId
+              }).ToList()
+            };
+
+        }
+
+
+
     }
 }

@@ -36,7 +36,7 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> AllProject(int userId)
         {
-            var response = await _projectService.GetAllProject(userId);
+            var response = await _projectService.GetAllProjects(userId);
             return StatusCode(response.StatusCode, response);
         }
 

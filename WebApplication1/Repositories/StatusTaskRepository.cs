@@ -1,5 +1,6 @@
 
 
+using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 
 namespace WebApplication1.Repositories;
@@ -17,4 +18,10 @@ namespace WebApplication1.Repositories;
         await _dbContext.AddStatusTasks.AddAsync(addStatusTask);
         await _dbContext.SaveChangesAsync();
     }
- }   
+
+    public async Task<List<AddStatusTask>> GetAllStatusProjectAsync(int projectId)
+    {
+        return await _dbContext.AddStatusTasks.Where(p => p.ProjectId == projectId).ToListAsync();
+    }
+
+}

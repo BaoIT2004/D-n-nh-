@@ -32,23 +32,28 @@ namespace WebApplication1.Controllers
         }
         
 
-
-
-
-
-
-        //Lỗi 
+        //Hiển thị 
         [HttpGet("{projectId}")]
         [Authorize]
-        public IActionResult GetStatusTasks(int projectId)
+        public async Task<IActionResult> AllStatusTasks(int projectId)
         {
-            var list = dbContext.AddStatusTasks
-                .Where(x => x.ProjectId == projectId)
-                .Select(x => new { x.Id, x.StatusTask })
-                .ToList();
-
-            return Ok(list);
+            var response = await _statustTaskervice.GetAllStatusTasks(projectId);
+            return StatusCode(response.StatusCode, response);
         }
+
+
+        // //Lỗi 
+        // [HttpGet("{projectId}")]
+        // [Authorize]
+        // public IActionResult GetStatusTasks(int projectId)
+        // {
+        //     var list = dbContext.AddStatusTasks
+        //         .Where(x => x.ProjectId == projectId)
+        //         .Select(x => new { x.Id, x.StatusTask })
+        //         .ToList();
+
+        //     return Ok(list);
+        // }
 
        
     }

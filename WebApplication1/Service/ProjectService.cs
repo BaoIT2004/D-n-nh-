@@ -83,7 +83,7 @@ namespace WebApplication1.Services
         }
 
         //Hiển thị toàn bộ dự án
-        public async Task<ApiResponse<List<GetAllProjectResponseDto>>> GetAllProject(int userId)
+        public async Task<ApiResponse<List<GetAllProjectResponseDto>>> GetAllProjects(int userId)
         {
             //1.Lấy toàn bộ thông tin dự án
             var projects = await _projectRepository.GetAllProjectAsync(userId);
@@ -186,7 +186,7 @@ namespace WebApplication1.Services
             {
                 return new ApiResponse<DeleteProjectResponseDto>
                 {
-                    StatusCode = StatusCodes.Status400BadRequest,
+                    StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
                     Message = "Không tìm thấy project",
                     Data = null!,
