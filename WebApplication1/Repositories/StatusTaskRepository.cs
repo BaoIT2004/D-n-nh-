@@ -24,5 +24,14 @@ namespace WebApplication1.Repositories;
         return await _dbContext.AddStatusTasks.Where(p => p.ProjectId == projectId && p.Project!.UserId == userId).ToListAsync();
     }
 
+    public async Task DeleteStatusTaskAsync(AddStatusTask addStatusTask)
+    {
+        _dbContext.AddStatusTasks.Remove(addStatusTask);
+        await _dbContext.SaveChangesAsync();
+    }
 
+    public async Task<AddStatusTask> getStatusTaskAsync(int statusTaskId ,int projectId)
+    {
+        return await _dbContext.AddStatusTasks.FirstAsync(p => p.Id == statusTaskId && p.ProjectId == projectId );
+    }
 }

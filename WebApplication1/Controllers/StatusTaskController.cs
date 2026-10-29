@@ -28,7 +28,7 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> AddStatusTask([FromBody] StatusTaskRequestDto request)
         {
-            var response = await _statustTaskervice.AddNewStatusTask(request);
+            var response = await _statustTaskervice.AddNewStatusTaskAsync(request);
             return StatusCode(response.StatusCode, response);
         }
         
@@ -39,26 +39,22 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> AllStatusTasks(int projectId)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _statustTaskervice.GetAllStatusTasks(projectId, userId);
+            var response = await _statustTaskervice.GetAllStatusTasksAsync(projectId, userId);
             return StatusCode(response.StatusCode, response);
         }
 
 
-        // //Lỗi 
-        // [HttpGet("{projectId}")]
-        // [Authorize]
-        // public IActionResult GetStatusTasks(int projectId)
-        // {
-        //     var list = dbContext.AddStatusTasks
-        //         .Where(x => x.ProjectId == projectId)
-        //         .Select(x => new { x.Id, x.StatusTask })
-        //         .ToList();
+        //Xóa
+        [HttpDelete("delete/{projectId}/{statusTaskId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteStatusTask(int projectId, int statusTaskId)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _statustTaskervice.DeleteStatusTaskAsync(projectId, userId, statusTaskId);
+            return StatusCode(response.StatusCode, response);
+        }
 
-        //     return Ok(list);
-        // }
-
-       
     }
 
-    
+
 }
