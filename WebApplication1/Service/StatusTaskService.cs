@@ -27,19 +27,19 @@ namespace WebApplication1.Services
 
 
         //thêm trạng thái dự án
-        public async Task<ApiResponse<StatusTaskResponseDto>> AddNewStatusTask ([FromBody] StatusTaskRequestDto request)
+        public async Task<ApiResponse<StatusTaskResponseDto>> AddNewStatusTask([FromBody] StatusTaskRequestDto request)
         {
             var errors = new List<string>();
 
-            if(errors.Count >0)
+            if (errors.Count > 0)
             {
                 return new ApiResponse<StatusTaskResponseDto>
                 {
-                  StatusCode = StatusCodes.Status400BadRequest,
-                  Status = false,
-                  Message = "Lỗi ",
-                  Data = null!,
-                  Errors = errors
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Lỗi ",
+                    Data = null!,
+                    Errors = errors
                 };
             }
 
@@ -49,10 +49,10 @@ namespace WebApplication1.Services
             {
                 return new ApiResponse<StatusTaskResponseDto>
                 {
-                  StatusCode = StatusCodes.Status400BadRequest,
-                  Status = false,
-                  Message = "không tìm thấy dự án",
-                  Errors = errors  
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "không tìm thấy dự án",
+                    Errors = errors
                 };
             }
 
@@ -62,7 +62,7 @@ namespace WebApplication1.Services
                 StatusTask = request.StatusTask,
                 ProjectId = request.ProjectId
             };
-            
+
             //lưu vào db
             await _statusTaskRepository.AddStatusTaskAsync(newStatusTask);
 
@@ -82,15 +82,24 @@ namespace WebApplication1.Services
             };
 
         }
-    
+
         //2.Hiển thị trạng thái dự án
-    
-        public async Task<ApiResponse<List<GetAllStatusTaskResponseDto>>> GetAllStatusTasks(int projectId)
+        public async Task<ApiResponse<List<GetAllStatusTaskResponseDto>>> GetAllStatusTasks(int projectId, int userId)
         {
-            var project = await _projectRepository.GetProjectByIdAsunc(projectId);
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
+            if (project == null || project.UserId != userId)
+            {
+                return new ApiResponse<List<GetAllStatusTaskResponseDto>>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy dự án",
+                    Data = null!
+                };
+            }
 
-            if(project == null)
+            if (project == null)
             {
                 return new ApiResponse<List<GetAllStatusTaskResponseDto>>
                 {
@@ -101,21 +110,24 @@ namespace WebApplication1.Services
                 };
             }
 
+            var statusTasks = await _statusTaskRepository.GetAllStatusProjectAsync(projectId, userId);
+
+
             //1.Lấy toàn bộ  trạng thái dự án 
-            var statusTask = await _statusTaskRepository.GetAllStatusProjectAsync(projectId);
+            var statusTask = await _statusTaskRepository.GetAllStatusProjectAsync(projectId, userId);
 
             //2.Map qua controller
 
             return new ApiResponse<List<GetAllStatusTaskResponseDto>>
             {
-              StatusCode = StatusCodes.Status200OK,
-              Status = true,
-              Message ="Hiển thị thành công",
-              Data = statusTask.Select(project => new GetAllStatusTaskResponseDto
-              {
-                  Status = project.StatusTask,
-                  ProjectId = project.ProjectId
-              }).ToList()
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Hiển thị thành công",
+                Data = statusTask.Select(project => new GetAllStatusTaskResponseDto
+                {
+                    Status = project.StatusTask,
+                    ProjectId = project.ProjectId
+                }).ToList()
             };
 
         }

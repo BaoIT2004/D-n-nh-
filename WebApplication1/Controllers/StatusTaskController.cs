@@ -1,4 +1,5 @@
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +38,8 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> AllStatusTasks(int projectId)
         {
-            var response = await _statustTaskervice.GetAllStatusTasks(projectId);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _statustTaskervice.GetAllStatusTasks(projectId, userId);
             return StatusCode(response.StatusCode, response);
         }
 

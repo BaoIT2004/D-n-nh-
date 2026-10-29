@@ -31,7 +31,7 @@ namespace WebApplication1.Repositories
         }
 
         //lấy id từ project
-        public async Task<newProject?> GetProjectByIdAsunc (int id)
+        public async Task<newProject?> GetProjectByIdAsync (int id)
         {
             return await _dbContext.Projects.FirstOrDefaultAsync(p=>p.Id == id);
         }
