@@ -27,7 +27,8 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> AddStatusTask([FromBody] StatusTaskRequestDto request)
         {
-            var response = await _statustTaskervice.AddNewStatusTaskAsync(request);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _statustTaskervice.AddNewStatusTaskAsync(request, userId);
             return StatusCode(response.StatusCode, response);
         }
         

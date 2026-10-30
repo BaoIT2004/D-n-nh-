@@ -28,9 +28,11 @@ namespace WebApplication1.Services
 
 
         //thêm trạng thái dự án
-        public async Task<ApiResponse<StatusTaskResponseDto>> AddNewStatusTaskAsync([FromBody] StatusTaskRequestDto request)
+        public async Task<ApiResponse<StatusTaskResponseDto>> AddNewStatusTaskAsync([FromBody] StatusTaskRequestDto request, int userId)
         {
             var errors = new List<string>();
+            if (string.IsNullOrWhiteSpace(request.StatusTask))
+                errors.Add("Tên trạng thái không được để trống");
 
             if (errors.Count > 0)
             {
@@ -38,22 +40,22 @@ namespace WebApplication1.Services
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     Status = false,
-                    Message = "Lỗi ",
+                    Message = "Dữ liệu không hợp lệ",
                     Data = null!,
                     Errors = errors
                 };
             }
 
-            var statusTask = await _dbContext.Users.AnyAsync(p => p.Id == request.ProjectId);
+            var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
 
-            if (!statusTask)
+            if (project == null || project.UserId != userId)
             {
                 return new ApiResponse<StatusTaskResponseDto>
                 {
-                    StatusCode = StatusCodes.Status400BadRequest,
+                    StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
-                    Message = "không tìm thấy dự án",
-                    Errors = errors
+                    Message = "Không tìm thấy dự án",
+                    Data = null!
                 };
             }
 
@@ -76,8 +78,9 @@ namespace WebApplication1.Services
                 Message = "Thêm trạng thái thành công",
                 Data = new StatusTaskResponseDto
                 {
-                    StatusTask = request.StatusTask,
-                    ProjectId = request.ProjectId
+                    Id = newStatusTask.Id,
+                    StatusTask = newStatusTask.StatusTask,
+                    ProjectId = newStatusTask.ProjectId
                 },
                 Errors = errors
             };
@@ -111,6 +114,7 @@ namespace WebApplication1.Services
                 Message = "Hiển thị thành công",
                 Data = statusTask.Select(project => new GetAllStatusTaskResponseDto
                 {
+                    Id = project.Id,
                     Status = project.StatusTask,
                     ProjectId = project.ProjectId
                 }).ToList()
@@ -207,6 +211,7 @@ namespace WebApplication1.Services
                 Message = "Cập nhật thành công",
                 Data = new StatusTaskResponseDto
                 {
+                    Id = updateStatusTask.Id,
                     StatusTask = updateStatusTask.StatusTask,
                     ProjectId = updateStatusTask.ProjectId
                 }

@@ -42,6 +42,7 @@ public class TaskItemRepositories
         return await _dbcontext.TaskItem.FirstOrDefaultAsync(p => p.StatusId == statusId);        
     }
 
+
     public async Task DeleteTaskItemReposity(TaskItem taskItem)
     {
         _dbcontext.TaskItem.Remove(taskItem);
