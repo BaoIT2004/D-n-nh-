@@ -32,8 +32,6 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUser()
         {
-            // var allUser = dbContext.Users.ToList();
-            // return Ok(allUser); //ok ở đây là trả về danh sách
             var response = await _userService.GetAllUsersAsync();
             return StatusCode(response.StatusCode, response);
         }

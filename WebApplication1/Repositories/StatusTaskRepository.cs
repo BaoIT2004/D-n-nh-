@@ -2,6 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
+using WebApplication1.Models;
 
 namespace WebApplication1.Repositories;
 
@@ -41,4 +42,12 @@ public class StatusTaskRepository
         _dbContext.AddStatusTasks.Update(statusTask);
         await _dbContext.SaveChangesAsync();
     }
+
+    // TÌm status số mấy 
+    public async Task<AddStatusTask?> GetStatusTaskById (int id)
+    {
+        return await _dbContext.AddStatusTasks.Include(s=> s.Project).FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+   
 }

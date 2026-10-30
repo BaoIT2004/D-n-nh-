@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.DTOs.ApiResponse;
+using WebApplication1.Models;
 using WebApplication1.Repositories;
 
 namespace WebApplication1.Services
@@ -98,24 +99,9 @@ namespace WebApplication1.Services
                     Data = null!
                 };
             }
-
-            if (project == null)
-            {
-                return new ApiResponse<List<GetAllStatusTaskResponseDto>>
-                {
-                    StatusCode = StatusCodes.Status404NotFound,
-                    Status = false,
-                    Message = "Không tìm thấy dự án",
-                    Data = null!,
-                };
-            }
-
-            var statusTasks = await _statusTaskRepository.GetAllStatusProjectAsync(projectId, userId);
-
-
+           
             //1.Lấy toàn bộ  trạng thái dự án 
             var statusTask = await _statusTaskRepository.GetAllStatusProjectAsync(projectId, userId);
-
             //2.Map qua controller
 
             return new ApiResponse<List<GetAllStatusTaskResponseDto>>
@@ -195,10 +181,9 @@ namespace WebApplication1.Services
             }
 
             //2. Tìm status task
+            var updateStatusTask = await _statusTaskRepository.getStatusTaskAsync(statusTaskId, projectId);
 
-            var updateStatusStask = await _statusTaskRepository.getStatusTaskAsync(statusTaskId, projectId);
-
-            if (updateStatusStask == null)
+            if (updateStatusTask == null)
             {
                 return new ApiResponse<StatusTaskResponseDto>
                 {
@@ -210,10 +195,10 @@ namespace WebApplication1.Services
             }
             else
             {
-                updateStatusStask.StatusTask = request.StatusTask;
+                updateStatusTask.StatusTask = request.StatusTask;
             }
 
-            await _statusTaskRepository.UpdateStatusTaskAsync(updateStatusStask);
+            await _statusTaskRepository.UpdateStatusTaskAsync(updateStatusTask);
 
             return new ApiResponse<StatusTaskResponseDto>
             {
@@ -222,8 +207,8 @@ namespace WebApplication1.Services
                 Message = "Cập nhật thành công",
                 Data = new StatusTaskResponseDto
                 {
-                    StatusTask = updateStatusStask.StatusTask,
-                    ProjectId = updateStatusStask.ProjectId
+                    StatusTask = updateStatusTask.StatusTask,
+                    ProjectId = updateStatusTask.ProjectId
                 }
             };
 

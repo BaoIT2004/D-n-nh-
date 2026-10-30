@@ -31,7 +31,7 @@ namespace WebApplication1.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        //p.Id == id: hỏi “đây là project số mấy?
+        //p.Id == id: có nghĩa là đây là project số mấy
         public async Task<newProject?> GetProjectByIdAsync (int id)
         {
             return await _dbContext.Projects.FirstOrDefaultAsync(p=>p.Id == id);

@@ -10,7 +10,7 @@ public class ApplicationContext(  // constructor
     public DbSet<newProject>Projects{get; set;} // quản lý các objject tạo ra dự án
     public DbSet<refreshToken> RefreshTokens { get; set; }
 
-    public DbSet<taskItem> TaskItem {get;set;}
+    public DbSet<TaskItem> TaskItem {get;set;}
 
     public DbSet<AddStatusTask> AddStatusTasks {get;set;}
 }
