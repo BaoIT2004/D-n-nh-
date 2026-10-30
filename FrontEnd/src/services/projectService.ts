@@ -14,6 +14,8 @@ type ProjectResponse = {
 };
 
 export function allProject(): Promise<ServiceResult<Project[]>> {
+
+    // người dùng đã đăng nhập chưa
     const userId = getStoredUserId();
     if (!userId) {
         return Promise.resolve({
@@ -25,6 +27,8 @@ export function allProject(): Promise<ServiceResult<Project[]>> {
     return apiRequest<Project[]>(`/api/newProject/${userId}`);
 }
 
+
+//Tạo dự án
 export function createProject(
     nameProject: string,
     status: string,

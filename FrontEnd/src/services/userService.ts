@@ -29,6 +29,8 @@ export function registerUser(
     });
 }
 
+
+//Đăng nhập
 export async function loginUser(
     email: string,
     password: string,
@@ -58,6 +60,7 @@ export async function loginUser(
         };
     }
 
+    //Lưu thông tin ở localstorage
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("email", accountEmail);
@@ -66,6 +69,8 @@ export async function loginUser(
     return result;
 }
 
+
+//Đăng xuất
 export async function logoutUser(): Promise<ServiceResult<LogoutResponse | null>> {
     const refreshToken = localStorage.getItem("refreshToken");
     if (!refreshToken) {
