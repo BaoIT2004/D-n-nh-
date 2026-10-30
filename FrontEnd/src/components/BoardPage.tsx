@@ -4,7 +4,7 @@ import Search from "./search";
 import SidebarLeft from "./SidebarLeft";
 import AddProject from "./addProject";
 import { CiSquarePlus } from "react-icons/ci";
-import { AddStatusTask } from "../services/AddStatusTask";
+import { addStatusTask } from "../services/statusTaskService";
 
 
 function BoardPage() {
@@ -22,11 +22,21 @@ function BoardPage() {
 
    const handleAddStatusTask = async () => {
       try {
-         const ok = await AddStatusTask(status, Number(id));
-         if (ok)
-            toggleModal(); // lưu xong thì đóng trang
+         const projectId = Number(id);
+         if (!Number.isInteger(projectId) || projectId <= 0) {
+            alert("ID dự án không hợp lệ.");
+            return;
+         }
+
+         const result = await addStatusTask(status, projectId);
+         if (result.success) {
+            toggleModal();
+         } else {
+            alert(result.message);
+         }
       } catch (error) {
          console.error("Lỗi khi thêm trạng thái:", error);
+         alert("Không thể thêm trạng thái.");
       }
    };
 

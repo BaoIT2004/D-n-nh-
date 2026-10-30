@@ -1,8 +1,7 @@
-    import React, { useState } from "react";
+    import { useState } from "react";
     import { Link } from "react-router-dom";
     import '../styles/register.css'
-    import {useQuery} from "@tanstack/react-query"
-    import  { registerUser }  from '../services/User'
+    import { registerUser } from '../services/userService'
     
 
     function register() {
@@ -10,9 +9,11 @@
         const [Name, setName] = useState("");
         const [Email, SetEmail] = useState("");
         const [Password, setPassword] = useState("");
+        const [message, setMessage] = useState("");
         
         async function handleRegister() {
-            await registerUser(Name, Email,Password);
+            const result = await registerUser(Name, Email, Password);
+            setMessage(result.message);
         }
 
         return (
@@ -32,6 +33,7 @@
                             value={Password} onChange={(e) => setPassword(e.target.value)}/>
 
                             <button className="btn_register" onClick={handleRegister}>Đăng kí tài khoản</button>
+                            {message && <p role="status">{message}</p>}
 
                             <div className="input_field text_inf">Bạn đã có tài khoản?<Link to="/login" className="link_login">Đăng nhập</Link></div>
                         </div>

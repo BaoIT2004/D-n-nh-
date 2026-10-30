@@ -26,3 +26,14 @@ src/
 
 Khi chưa cần một thư mục, cứ để trống. Chỉ thêm cấu trúc mới khi dự án thực sự
 có thêm nhiều trang hoặc tính năng.
+
+## Cấu hình API
+
+Các service dùng chung `services/api.ts`. Có thể đặt URL backend trong
+`FrontEnd/.env.local`:
+
+```text
+VITE_API_BASE_URL=http://localhost:5024
+```
+
+Nếu không khai báo biến này, ứng dụng dùng `http://localhost:5024` làm mặc định.

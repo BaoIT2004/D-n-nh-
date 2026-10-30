@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { allProject, type Project } from "../services/allProject";
+import { allProject, type Project } from "../services/projectService";
 
 function AllProject() {
     const [project, setProject] = useState<Project[]>([]); 
@@ -12,7 +12,7 @@ function AllProject() {
             if (!result.success) {
                 alert(result.message);
                 return;
-            }loadProjects
+            }
 
             setProject(result.data ?? []);
         }
