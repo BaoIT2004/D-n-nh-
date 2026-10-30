@@ -186,3 +186,15 @@ body {
 }
 
 
+/* Hiển thị validate thông báo lỗi  */
+.error_message {
+    height: 18px;
+    margin: 5px 0 10px 15px;
+    font-size: 13px;
+    color: red;
+    visibility: hidden;
+}
+
+.error_message.show {
+    visibility: visible;
+}

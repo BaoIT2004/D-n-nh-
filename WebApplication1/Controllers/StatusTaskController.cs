@@ -1,7 +1,7 @@
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Services;
 
@@ -27,7 +27,8 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> AddStatusTask([FromBody] StatusTaskRequestDto request)
         {
-            var response = await _statustTaskervice.AddNewStatusTask(request);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _statustTaskervice.AddNewStatusTaskAsync(request, userId);
             return StatusCode(response.StatusCode, response);
         }
         
@@ -37,26 +38,33 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> AllStatusTasks(int projectId)
         {
-            var response = await _statustTaskervice.GetAllStatusTasks(projectId);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _statustTaskervice.GetAllStatusTasksAsync(projectId, userId);
             return StatusCode(response.StatusCode, response);
         }
 
+        //Cập nhật
+        [HttpPut("update/{projectId}/{statusTaskId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStatusTask(int projectId, int statusTaskId, [FromBody] UpdateStatusTaskRequestDto request  )
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _statustTaskervice.UpdateStatusTaskAsync(projectId, userId, statusTaskId, request);
+            return StatusCode(response.StatusCode , response);
+        }
 
-        // //Lỗi 
-        // [HttpGet("{projectId}")]
-        // [Authorize]
-        // public IActionResult GetStatusTasks(int projectId)
-        // {
-        //     var list = dbContext.AddStatusTasks
-        //         .Where(x => x.ProjectId == projectId)
-        //         .Select(x => new { x.Id, x.StatusTask })
-        //         .ToList();
 
-        //     return Ok(list);
-        // }
+        //Xóa
+        [HttpDelete("delete/{projectId}/{statusTaskId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteStatusTask([FromBody] int projectId, int statusTaskId)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _statustTaskervice.DeleteStatusTaskAsync(projectId, userId, statusTaskId);
+            return StatusCode(response.StatusCode, response);
+        }
 
-       
     }
 
-    
+
 }

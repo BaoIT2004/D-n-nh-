@@ -8,8 +8,8 @@
     import { IoSettingsOutline } from "react-icons/io5";
     import { MdMenuOpen } from "react-icons/md";
     import { useNavigate } from "react-router-dom";
-    import { logoutUser } from "../services/User";
-    import { allProject, type Project } from "../services/allProject";
+    import { logoutUser } from "../services/userService";
+    import { allProject, type Project } from "../services/projectService";
     import { SiAlby } from "react-icons/si";
 
     type SidebarLeftProps = {
@@ -26,6 +26,7 @@
             const result = await logoutUser();
             if (!result.success) {
                 alert(result.message);
+                return;
             }
             navigate("/login");
         }
@@ -33,6 +34,10 @@
         useEffect(() => {
             async function viewProject() {
                 const result = await allProject();
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
                 setProject(result.data ?? []);
             }
             viewProject();

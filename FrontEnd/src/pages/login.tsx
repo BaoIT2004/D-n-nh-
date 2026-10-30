@@ -1,6 +1,6 @@
 import { useState } from "react";
 import '../styles/register.css' 
-import { loginUser } from '../services/User'
+import { loginUser } from '../services/userService'
 import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
