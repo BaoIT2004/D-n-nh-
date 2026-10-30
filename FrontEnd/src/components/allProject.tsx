@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
-import { allProject, type Project } from "../services/projectService";
+import { allProject } from "../services/projectService";
+import type { Project } from "../types/project";
 
 function AllProject() {
     const [project, setProject] = useState<Project[]>([]); 
@@ -8,15 +9,12 @@ function AllProject() {
     useEffect(() => {
         async function loadProjects() {
             const result = await allProject();
-
             if (!result.success) {
                 alert(result.message);
                 return;
             }
-
             setProject(result.data ?? []);
         }
-
         void loadProjects();
     }, []);
 

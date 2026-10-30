@@ -1,21 +1,5 @@
 import { apiRequest, type ServiceResult } from "./api";
-
-type LoginResponse = {
-    id: number;
-    email: string;
-    accessToken: string;
-    refreshToken: string;
-};
-
-type RegisterResponse = {
-    id: number;
-    name: string;
-    email: string;
-};
-
-type LogoutResponse = {
-    message?: string;
-};
+import type { LoginResponse, LogoutResponse, RegisterResponse } from "../types/auth";
 
 export function registerUser(
     name: string,

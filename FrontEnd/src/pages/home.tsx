@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import '../styles/register.css';
-import Search from '../components/search';
+import Search from '../components/Search';
 import SidebarLeft from '../components/SidebarLeft';
-import AddProject from '../components/addProject';
-import AllProject from '../components/allProject';
-
+import AddProject from '../components/AddProject';
+import AllProject from '../components/AllProject';
+  
 function Home() {
     const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false 
 
@@ -17,7 +16,7 @@ function Home() {
     return (
         <main>
             <div className="home">
-                <div className="navbar">
+                <div className="flex h-10 w-full shrink-0 items-center justify-end border border-[#9CA3AF] bg-white">
                     <Search />
                 </div>
 

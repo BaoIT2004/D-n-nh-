@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Search from "./search";
+import Search from "./Search";
 import SidebarLeft from "./SidebarLeft";
-import AddProject from "./addProject";
+import AddProject from "./AddProject";
 import { CiSquarePlus } from "react-icons/ci";
 import { addStatusTask } from "../services/statusTaskService";
 
@@ -20,6 +20,7 @@ function BoardPage() {
    }
 
 
+   const [isSuccess, setIsSuccess] = useState(false);
    const handleAddStatusTask = async () => {
       try {
          const projectId = Number(id);
@@ -49,7 +50,7 @@ function BoardPage() {
    return (
       <nav>
          <div className="home">
-            <div className="navbar">
+            <div className="flex h-10 w-full shrink-0 items-center justify-end border border-[#9CA3AF] bg-white">
                <Search />
             </div>
 

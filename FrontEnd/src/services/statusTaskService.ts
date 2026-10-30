@@ -1,10 +1,5 @@
 import { apiRequest, type ServiceResult } from "./api";
-
-export type StatusTask = {
-    id: number;
-    statusTask: string;
-    projectId: number;
-};
+import type { StatusTask } from "../types/statusTask";
 
 export function addStatusTask(
     statusTask: string,

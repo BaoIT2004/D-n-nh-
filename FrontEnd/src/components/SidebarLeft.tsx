@@ -1,5 +1,4 @@
     import { useEffect, useState } from "react";
-    import '../styles/register.css'
     import { IoHomeOutline } from "react-icons/io5";
     import { IoCreateOutline } from "react-icons/io5";
     import { CiViewBoard } from "react-icons/ci";
@@ -9,7 +8,8 @@
     import { MdMenuOpen } from "react-icons/md";
     import { useNavigate } from "react-router-dom";
     import { logoutUser } from "../services/userService";
-    import { allProject, type Project } from "../services/projectService";
+    import { allProject } from "../services/projectService";
+    import type { Project } from "../types/project";
     import { SiAlby } from "react-icons/si";
 
     type SidebarLeftProps = {

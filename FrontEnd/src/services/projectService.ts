@@ -1,17 +1,5 @@
 import { apiRequest, getStoredUserId, type ServiceResult } from "./api";
-
-export type Project = {
-    id: number;
-    nameProject: string;
-    status: string;
-    createdAt: string;
-    userId: number;
-};
-
-type ProjectResponse = {
-    nameProject: string;
-    status: string;
-};
+import type { Project, ProjectResponse } from "../types/project";
 
 export function allProject(): Promise<ServiceResult<Project[]>> {
 
