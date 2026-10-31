@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { createProject } from '../services/projectService'
+import { createProject } from '../services/ProjectService'
 import { useNavigate } from 'react-router-dom';
+import toast from "react-hot-toast";
 
 
 function AddProject() {
@@ -13,13 +14,14 @@ function AddProject() {
         try {
             const result = await createProject(nameProject, status);
             if (result.success) {
+                toast.success("Tạo dự án thành công.");
                 navigate("/");
             } else {
-                alert(result.message);
+                toast.error(result.message);
             }
         } catch (err) {
             console.error(err);
-            alert("Không thể tạo dự án.");
+            toast.error("Không thể tạo dự án.");
         }
     }
 

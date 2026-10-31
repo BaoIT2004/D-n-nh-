@@ -27,8 +27,6 @@ function Home() {
                         }
                     />
                     {projectForm}
-
-
                     <div className='p-5 flex justify-center'>
                         <AllProject />
                     </div>

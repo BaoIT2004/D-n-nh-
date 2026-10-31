@@ -1,4 +1,4 @@
-import { apiRequest, type ServiceResult } from "./api";
+import { apiRequest, type ServiceResult } from "./Api";
 import type { LoginResponse, LogoutResponse, RegisterResponse } from "../types/auth";
 
 export function registerUser(
@@ -24,32 +24,14 @@ export async function loginUser(
         authenticated: false,
         body: JSON.stringify({ email, password }),
     });
-
     if (!result.success) {
         return result;
     }
-
-    if (typeof result.data !== "object" || result.data === null) {
-        return {
-            success: false,
-            message: "Dữ liệu đăng nhập máy chủ trả về không hợp lệ.",
-        };
-    }
-
     const { accessToken, refreshToken, id, email: accountEmail } = result.data;
-    if (!accessToken || !refreshToken || !Number.isInteger(id) || !accountEmail) {
-        return {
-            success: false,
-            message: "Dữ liệu đăng nhập máy chủ trả về không hợp lệ.",
-        };
-    }
-
-    //Lưu thông tin ở localstorage
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("email", accountEmail);
     localStorage.setItem("userId", String(id));
-
     return result;
 }
 

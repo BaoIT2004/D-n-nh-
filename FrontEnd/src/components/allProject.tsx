@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { allProject } from "../services/projectService";
+import { allProject } from "../services/ProjectService";
 import type { Project } from "../types/project";
 
 function AllProject() {

@@ -1,7 +1,7 @@
-import { apiRequest, type ServiceResult } from "./api";
-import type { StatusTask } from "../types/statusTask";
+import { apiRequest, type ServiceResult } from "./Api";
+import type { GetAllStatusTaask, StatusTask } from "../types/statusTask";
 
-export function addStatusTask(
+export function AddStatusTask(
     statusTask: string,
     projectId: number,
 ): Promise<ServiceResult<StatusTask>> {
@@ -10,3 +10,12 @@ export function addStatusTask(
         body: JSON.stringify({ statusTask, projectId }),
     });
 }
+
+//Hiển thị 
+export function GetAllStatusTaask(
+    projectId: number,
+): Promise<ServiceResult<GetAllStatusTaask>>{
+    return apiRequest<GetAllStatusTaask>(`/api/statusTask/${projectId}`);
+}
+
+

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { loginUser } from '../services/userService'
+import { loginUser } from '../services/UserService'
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function Login() {
     const [Email, SetEmail] = useState("");
@@ -24,7 +25,10 @@ function Login() {
             const result = await loginUser(Email, Password);
             setMessage(result.message);
             if (result.success) {
+                toast.success("Đăng nhập thàn công")
                 navigate("/");
+            }else{
+                toast.error("Email hoặc mật khẩu không đúng");
             }
         }catch(err){
             console.log(err);
@@ -38,7 +42,7 @@ function Login() {
             <div className="mt-10 flex justify-center px-4">
                 <div className="w-full max-w-md rounded-2xl border border-[#808080] bg-[#EEEEEE]">
                     <div className="mx-auto w-full max-w-sm px-6 py-8">
-                        <div className="mb-6 flex justify-center font-bold text-xl">Đăng kí tài khoản</div>
+                        <div className="mb-6 flex justify-center font-bold text-xl">Đăng nhập tài khoản</div>
 
                         <div className="mb-3">
                             <input type="Text" placeholder="Email của bạn" className="box-border h-11 w-full rounded-lg border border-[#808080] px-3"

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { PiCodesandboxLogoDuotone } from "react-icons/pi";
 import { IoMdHelpCircleOutline } from "react-icons/io";
-import { logoutUser } from "../services/userService";
+import { logoutUser } from "../services/UserService";
 import { useState } from 'react';
 
 

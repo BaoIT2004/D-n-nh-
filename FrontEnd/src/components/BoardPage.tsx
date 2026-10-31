@@ -4,7 +4,9 @@ import Search from "./Search";
 import SidebarLeft from "./SidebarLeft";
 import AddProject from "./AddProject";
 import { CiSquarePlus } from "react-icons/ci";
-import { addStatusTask } from "../services/statusTaskService";
+import { AddStatusTask } from "../services/statusTaskService";
+import type { StatusTask } from "../types/statusTask";
+import toast from "react-hot-toast";
 
 
 function BoardPage() {
@@ -12,6 +14,7 @@ function BoardPage() {
    const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false
    const [modal, setmodal] = useState(false);
    const [status, setStatus] = useState("Todo");
+   const [statusTasks, setStatusTask] = useState<StatusTask[]>([]);
 
 
    let projectForm = null;
@@ -20,31 +23,41 @@ function BoardPage() {
    }
 
 
-   const [isSuccess, setIsSuccess] = useState(false);
+   //thêm trạng thái
    const handleAddStatusTask = async () => {
-      try {
-         const projectId = Number(id);
-         if (!Number.isInteger(projectId) || projectId <= 0) {
-            alert("ID dự án không hợp lệ.");
-            return;
-         }
+      const projectId = Number(id);
 
-         const result = await addStatusTask(status, projectId);
+      if (!Number.isInteger(projectId) || projectId < 0) {
+         toast.error("ID dư án không hợp lệ");
+         return;
+      }
+
+      try {
+         const result = await AddStatusTask(status, projectId);
          if (result.success) {
+            setStatusTask(prevList => [...prevList, result.data]);
             toggleModal();
+            toast.success("Thêm trạng thái thành công");
+
          } else {
-            alert(result.message);
+            toast.error(result.message);
          }
-      } catch (error) {
-         console.error("Lỗi khi thêm trạng thái:", error);
-         alert("Không thể thêm trạng thái.");
+      } catch (err) {
+         console.error("Lỗi: ", err);
+         toast.error("không thể thêm trạng thái");
       }
    };
 
+
+   //Hiển thị trạng thái
+
+
+
+
+   //tắt trang StatusTask
    const toggleModal = () => {
       setmodal(!modal);
    }
-
 
 
    return (
@@ -62,8 +75,6 @@ function BoardPage() {
                />
                {projectForm}
 
-
-
                {/* Nội dung chính */}
                <div className="flex-1 min-w-0 border-l border-gray-300">
                   <div className="p-6 bg-white min-h-screen w-full">
@@ -75,7 +86,7 @@ function BoardPage() {
                      {/* tạo đưởng kẻ ngang */}
                      <hr className="border-t border-gray-300 -mx-6 my-5" />
 
-                     {/* Giao diện các cột Kanban */}
+                     {/* Giao diện các cột */}
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                         {/* Cột 1: To Do */}
@@ -94,11 +105,29 @@ function BoardPage() {
 
 
 
+                           {statusTasks.map((s) => (
+                              <div
+                                 key={s.id}
+                                 className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200"
+                              >
+                                 <h3 className="font-semibold text-gray-700 mb-3">{s.statusTask}</h3>
+                                 <div className="space-y-3">
+                                    <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
+                                       <CiSquarePlus size={20} />
+                                    </div>
+                                 </div>
+                              </div>
+                           ))}
+
+
+
                            {/* add buton */}
                            <button className="active" onClick={toggleModal}>
                               <CiSquarePlus size={35} />
                            </button>
 
+
+                           {/* trang thêm statustask */}
                            {modal && (
                               <div className="fixed inset-0 flex items-center justify-center">
                                  <div className="absolute inset-0 bg-black/50 " onClick={toggleModal}></div>

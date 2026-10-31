@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { registerUser } from '../services/userService'
+import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from '../services/UserService'
+import toast from "react-hot-toast";
 
 
 function register() {
-
+    const navigate = useNavigate(); 
     const [Name, setName] = useState("");
     const [Email, SetEmail] = useState("");
     const [Password, setPassword] = useState("");
@@ -16,13 +17,13 @@ function register() {
             setMessage("empty");
             return;
         }
-
         setMessage("");
-
         const result = await registerUser(Name, Email, Password);
-
         if (!result.success) {
-            setMessage(result.message);
+           toast.error("Đăng kí không thành công");
+        }else{
+            toast.success("Đăng kí thành công")
+            navigate("/login");
         }
     }
     return (

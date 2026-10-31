@@ -7,8 +7,8 @@
     import { IoSettingsOutline } from "react-icons/io5";
     import { MdMenuOpen } from "react-icons/md";
     import { useNavigate } from "react-router-dom";
-    import { logoutUser } from "../services/userService";
-    import { allProject } from "../services/projectService";
+    import { logoutUser } from "../services/UserService";
+    import { allProject } from "../services/ProjectService";
     import type { Project } from "../types/project";
     import { SiAlby } from "react-icons/si";
 

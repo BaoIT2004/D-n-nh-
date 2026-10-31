@@ -1,4 +1,4 @@
-import { apiRequest, getStoredUserId, type ServiceResult } from "./api";
+import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
 import type { Project, ProjectResponse } from "../types/project";
 
 export function allProject(): Promise<ServiceResult<Project[]>> {
