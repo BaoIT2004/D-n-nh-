@@ -1,44 +1,72 @@
-    import React, { useState } from "react";
-    import { Link } from "react-router-dom";
-    import '../styles/register.css'
-    import {useQuery} from "@tanstack/react-query"
-    import  { registerUser }  from '../services/User'
-    
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from '../services/UserService'
+import toast from "react-hot-toast";
 
-    function register() {
 
-        const [Name, setName] = useState("");
-        const [Email, SetEmail] = useState("");
-        const [Password, setPassword] = useState("");
-        
-        async function handleRegister() {
-            await registerUser(Name, Email,Password);
+function register() {
+    const navigate = useNavigate(); 
+    const [Name, setName] = useState("");
+    const [Email, SetEmail] = useState("");
+    const [Password, setPassword] = useState("");
+    const [message, setMessage] = useState("");
+
+    async function handleRegister() {
+        // trim là xóa khoảng trắng đầu và cuối chuối
+        if (!Name.trim() || !Email.trim() || !Password.trim()) { 
+            setMessage("empty");
+            return;
         }
+        setMessage("");
+        const result = await registerUser(Name, Email, Password);
+        if (!result.success) {
+           toast.error("Đăng kí không thành công");
+        }else{
+            toast.success("Đăng kí thành công")
+            navigate("/login");
+        }
+    }
+    return (
+        <main>
+            <div className="mt-10 flex justify-center px-4">
+                <div className="w-full max-w-md rounded-2xl border border-[#808080] bg-[#EEEEEE]">
+                    <div className="mx-auto w-full max-w-sm px-6 py-8">
+                        <div className="mb-6 flex justify-center font-bold text-xl">Đăng kí tài khoản</div>
 
-        return (
-            <main>
-                <div className="page_ft">
-                    <div className="register_page">
-                        <div className="infomation_register">
-                            <div className="text">Đăng kí tài khoản</div>
+                        <div className="mb-3">
+                            <input type="Text" placeholder="Tên của bạn" className="box-border h-11 w-full rounded-lg border border-[#808080] px-3"
+                            value={Name} onChange={(e) => setName(e.target.value)} />
+                            <p className={`${!Name.trim() && message === "empty" ? "visible" : "invisible"} mt-1 h-4 text-xs text-[#ff0000]`}>
+                                Vui lòng nhập tên
+                            </p>
+                        </div>
 
-                            <input type="Text" placeholder="Tên của bạn" className="input_field" 
-                            value = {Name} onChange={(e)=> setName(e.target.value)}/>
+                        <div className="mb-3">
+                            <input type="Text" placeholder="Email của bạn" className="box-border h-11 w-full rounded-lg border border-[#808080] px-3"
+                            value={Email} onChange={(e) => SetEmail(e.target.value)} />
+                            <p className={`${!Email.trim() && message === "empty" ? "visible" : "invisible"} mt-1 h-4 text-xs text-[#ff0000]`}>
+                                Vui lòng nhập Email
+                            </p>
+                        </div>
 
-                            <input type="Text" placeholder="Email của bạn" className="input_field" 
-                            value={Email} onChange={(e) => SetEmail(e.target.value)}/>
+                        <div className="mb-3">
+                            <input type="password" placeholder="Mật khẩu của bạn" className="box-border h-11 w-full rounded-lg border border-[#808080] px-3"
+                            value={Password} onChange={(e) => setPassword(e.target.value)} />
+                            <p className={`${!Password.trim() && message === "empty" ? "visible" : "invisible"} mt-1 h-4 text-xs text-[#ff0000]`}>
+                                Vui lòng nhập mật khẩu
+                            </p>
+                        </div>
 
-                            <input type="password" placeholder="Mật khẩu của bạn" className="input_field" 
-                            value={Password} onChange={(e) => setPassword(e.target.value)}/>
+                        <button className="mt-1 h-10 w-full cursor-pointer rounded-md border-0 bg-[#1F2937] text-white" onClick={handleRegister}>Đăng kí tài khoản</button>
 
-                            <button className="btn_register" onClick={handleRegister}>Đăng kí tài khoản</button>
-
-                            <div className="input_field text_inf">Bạn đã có tài khoản?<Link to="/login" className="link_login">Đăng nhập</Link></div>
+                        <div className="mt-4 flex h-10 items-center justify-center">
+                            Bạn đã có tài khoản?<Link to="/login" className="text-[#1F2937] no-underline">Đăng nhập</Link>
                         </div>
                     </div>
                 </div>
-            </main>
-        )
-    }
+            </div>
+        </main>
+    )
+}
 
-    export default register
+export default register

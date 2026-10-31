@@ -46,6 +46,8 @@ builder.Services.AddScoped<ProjectRepository>();
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<StatusTaskRepository>();
 builder.Services.AddScoped<StatusTaskService>();
+builder.Services.AddScoped<TaskItemRepositories>();
+builder.Services.AddScoped<TaskItemService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 // core kết nối với react

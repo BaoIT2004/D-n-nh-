@@ -1,5 +1,4 @@
     import { useEffect, useState } from "react";
-    import '../styles/register.css'
     import { IoHomeOutline } from "react-icons/io5";
     import { IoCreateOutline } from "react-icons/io5";
     import { CiViewBoard } from "react-icons/ci";
@@ -8,9 +7,10 @@
     import { IoSettingsOutline } from "react-icons/io5";
     import { MdMenuOpen } from "react-icons/md";
     import { useNavigate } from "react-router-dom";
-    import { logoutUser } from "../services/User";
-    import { allProject, type Project } from "../services/allProject";
+    import { AllProject } from "../../services/ProjectService";
+    import type { Project } from "../../types/project";
     import { SiAlby } from "react-icons/si";
+    import { getStoredUserId } from "../../services/Api";
 
     type SidebarLeftProps = {
         onCreateClick: () => void;  // onCreateClick tên thuộc tính hàm sẽ nhân , () => void kiểu hàm không nhận tham số () và không yêu cầu trả về giá trị void
@@ -22,17 +22,18 @@
         const [board, setBoard] = useState(true);
         const navigate = useNavigate();
 
-        async function handleLogout() {
-            const result = await logoutUser();
-            if (!result.success) {
-                alert(result.message);
-            }
-            navigate("/login");
-        }
 
         useEffect(() => {
+            if (!localStorage.getItem("accessToken") || getStoredUserId() === null) {
+                return;
+            }
             async function viewProject() {
-                const result = await allProject();
+
+                const result = await AllProject();
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
                 setProject(result.data ?? []);
             }
             viewProject();

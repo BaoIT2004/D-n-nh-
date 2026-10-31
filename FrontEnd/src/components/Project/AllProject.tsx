@@ -1,22 +1,25 @@
 
 import { useEffect, useState } from "react";
-import { allProject, type Project } from "../services/allProject";
+import { AllProject} from "../../services/ProjectService";
+import type { Project } from "../../types/project";
+import { getStoredUserId } from "../../services/Api";
 
-function AllProject() {
+function ProjectTable() {
     const [project, setProject] = useState<Project[]>([]); 
 
     useEffect(() => {
-        async function loadProjects() {
-            const result = await allProject();
+        if (!localStorage.getItem("accessToken") || getStoredUserId() === null) {
+            return;
+        }
 
+        async function loadProjects() {
+            const result = await AllProject();
             if (!result.success) {
                 alert(result.message);
                 return;
-            }loadProjects
-
+            }
             setProject(result.data ?? []);
         }
-
         void loadProjects();
     }, []);
 
@@ -51,4 +54,4 @@ function AllProject() {
     );
 }
 
-export default AllProject;
+export default ProjectTable;

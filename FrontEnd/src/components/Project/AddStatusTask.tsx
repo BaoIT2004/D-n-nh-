@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Search from "./search";
-import SidebarLeft from "./SidebarLeft";
-import AddProject from "./addProject";
+import Search from "../Home/Search";
+import SidebarLeft from "../Home/SidebarLeft";
+import AddProject from "./AddProject";
 import { CiSquarePlus } from "react-icons/ci";
-import { AddStatusTask } from "../services/AddStatusTask";
+import { AddStatusTask, GetAllStatusTask } from "../../services/StatusTaskService";
+import type { StatusTask } from "../../types/statusTask";
+import toast from "react-hot-toast";
+import AddStatusItem from "../Project/AddStaskItem"
 
 
 function BoardPage() {
@@ -12,34 +15,75 @@ function BoardPage() {
    const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false
    const [modal, setmodal] = useState(false);
    const [status, setStatus] = useState("Todo");
+   const [statusTasks, setStatusTask] = useState<StatusTask[]>([]);
+   const { id: projectId } = useParams();
+   const [showTaskItem, setShowTaskItem] = useState(false);
 
+   // thêm cột
+   const [openColumnId, setOpenColumnId] = useState<number | null>(null);
 
    let projectForm = null;
    if (projectOpen) {
       projectForm = <AddProject />
    }
 
-
+   //thêm trạng thái
    const handleAddStatusTask = async () => {
+      const Id = Number(projectId);
+
+      if (!Number.isInteger(Id) || Id < 0) {
+         toast.error("ID dư án không hợp lệ");
+         return;
+      }
+
       try {
-         const ok = await AddStatusTask(status, Number(id));
-         if (ok)
-            toggleModal(); // lưu xong thì đóng trang
-      } catch (error) {
-         console.error("Lỗi khi thêm trạng thái:", error);
+         const result = await AddStatusTask(status, Id);
+         if (result.success) {
+            setStatusTask(prevList => [...prevList, result.data]);
+            toggleModal();
+            toast.success("Thêm trạng thái thành công");
+
+         } else {
+            toast.error(result.message);
+         }
+      } catch (err) {
+         console.error("Lỗi: ", err);
+         toast.error("không thể thêm trạng thái");
       }
    };
 
+   //Hiển thị trạng thái
+   useEffect(() => {
+      async function viewProject() {
+         const result = await GetAllStatusTask(Number(projectId));
+         if (!result.success) {
+            alert(result.message);
+            return;
+         }
+         setStatusTask(result.data ?? []);
+      }
+      viewProject();
+   }, [projectId])
+
+
+   //tắt trang StatusTask
    const toggleModal = () => {
       setmodal(!modal);
    }
 
-
+   //Thêm cột mới 
+   const handleClickPlus = (columnId: number) => {
+      if (openColumnId === columnId) {
+         setOpenColumnId(null);      // đang mở đúng cột này → đóng lại
+      } else {
+         setOpenColumnId(columnId);  // mở cột này
+      }
+   };
 
    return (
       <nav>
          <div className="home">
-            <div className="navbar">
+            <div className="flex h-10 w-full shrink-0 items-center justify-end border border-[#9CA3AF] bg-white">
                <Search />
             </div>
 
@@ -50,8 +94,6 @@ function BoardPage() {
                   }
                />
                {projectForm}
-
-
 
                {/* Nội dung chính */}
                <div className="flex-1 min-w-0 border-l border-gray-300">
@@ -64,30 +106,34 @@ function BoardPage() {
                      {/* tạo đưởng kẻ ngang */}
                      <hr className="border-t border-gray-300 -mx-6 my-5" />
 
-                     {/* Giao diện các cột Kanban */}
+                     {/* Giao diện các cột */}
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                         {/* Cột 1: To Do */}
-                        {/* Note101 */}
-
                         <div className="flex items-start gap-3"> {/*items-start mọi phần tử con bị kéo giãn cho cao bằng phần tử cao nhất trong hàng. */}
-                           <div className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200">
-                              <h3 className="font-semibold text-gray-700 mb-3">To do</h3>
-                              <div className="space-y-3">
-                                 <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
-                                    <CiSquarePlus size={20} />
+                           {statusTasks.map((s) => (
+                              <div
+                                 key={s.id}
+                                 className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200"
+                              >
+                                 <h3 className="font-semibold text-gray-700 mb-6">{s.status}</h3>
+                                 <div className="-mx-3 -my-3 space-y-1">
+                                    {openColumnId === s.id && <AddStatusItem statusId={s.id} />}
+                                    <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
+                                       <button onClick={() => handleClickPlus(s.id)}>
+                                          <CiSquarePlus size={20} onClick={() => setShowTaskItem(true)} />
+                                       </button>
+                                    </div>
                                  </div>
-
                               </div>
-                           </div>
-
-
+                           ))}
 
                            {/* add buton */}
                            <button className="active" onClick={toggleModal}>
                               <CiSquarePlus size={35} />
                            </button>
 
+                           {/* trang thêm statustask */}
                            {modal && (
                               <div className="fixed inset-0 flex items-center justify-center">
                                  <div className="absolute inset-0 bg-black/50 " onClick={toggleModal}></div>
