@@ -7,6 +7,7 @@ import { CiSquarePlus } from "react-icons/ci";
 import { AddStatusTask, GetAllStatusTask } from "../../services/StatusTaskService";
 import type { StatusTask } from "../../types/statusTask";
 import toast from "react-hot-toast";
+import AddStatusItem from "../Project/AddStaskItem"
 
 
 function BoardPage() {
@@ -16,13 +17,15 @@ function BoardPage() {
    const [status, setStatus] = useState("Todo");
    const [statusTasks, setStatusTask] = useState<StatusTask[]>([]);
    const { id: projectId } = useParams();
+   const [showTaskItem, setShowTaskItem] = useState(false);
 
+   // thêm cột
+   const [openColumnId, setOpenColumnId] = useState<number | null>(null);
 
    let projectForm = null;
    if (projectOpen) {
       projectForm = <AddProject />
    }
-
 
    //thêm trạng thái
    const handleAddStatusTask = async () => {
@@ -49,11 +52,7 @@ function BoardPage() {
       }
    };
 
-   // Thêm 
-
-
    //Hiển thị trạng thái
-
    useEffect(() => {
       async function viewProject() {
          const result = await GetAllStatusTask(Number(projectId));
@@ -72,6 +71,14 @@ function BoardPage() {
       setmodal(!modal);
    }
 
+   //Thêm cột mới 
+   const handleClickPlus = (columnId: number) => {
+      if (openColumnId === columnId) {
+         setOpenColumnId(null);      // đang mở đúng cột này → đóng lại
+      } else {
+         setOpenColumnId(columnId);  // mở cột này
+      }
+   };
 
    return (
       <nav>
@@ -103,42 +110,28 @@ function BoardPage() {
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                         {/* Cột 1: To Do */}
-                        {/* Note101 */}
-
                         <div className="flex items-start gap-3"> {/*items-start mọi phần tử con bị kéo giãn cho cao bằng phần tử cao nhất trong hàng. */}
-                           <div className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200">
-                              <h3 className="font-semibold text-gray-700 mb-3">To do</h3>
-                              <div className="space-y-3">
-                                 <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
-                                    <CiSquarePlus size={20} />
-                                 </div>
-
-                              </div>
-                           </div>
-
-
-
                            {statusTasks.map((s) => (
                               <div
                                  key={s.id}
                                  className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200"
                               >
-                                 <h3 className="font-semibold text-gray-700 mb-3">{s.status}</h3>
-                                 <div className="space-y-3">
+                                 <h3 className="font-semibold text-gray-700 mb-6">{s.status}</h3>
+                                 <div className="-mx-3 -my-3 space-y-1">
+                                    {openColumnId === s.id && <AddStatusItem statusId={s.id} />}
                                     <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
-                                       <CiSquarePlus size={20} />
+                                       <button onClick={() => handleClickPlus(s.id)}>
+                                          <CiSquarePlus size={20} onClick={() => setShowTaskItem(true)} />
+                                       </button>
                                     </div>
                                  </div>
                               </div>
                            ))}
 
-
-
                            {/* add buton */}
                            <button className="active" onClick={toggleModal}>
                               <CiSquarePlus size={35} />
                            </button>
-
 
                            {/* trang thêm statustask */}
                            {modal && (
