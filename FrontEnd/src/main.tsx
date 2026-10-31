@@ -11,6 +11,8 @@ if (!rootElement) {
   throw new Error('Không tìm thấy phần tử #root trong index.html')
 }
 
+
+
 createRoot(rootElement).render(
   <StrictMode>
     <BrowserRouter>

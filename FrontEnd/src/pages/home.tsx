@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Search from '../components/Search';
-import SidebarLeft from '../components/SidebarLeft';
-import AddProject from '../components/AddProject';
-import AllProject from '../components/AllProject';
+import Search from '../components/Home/Search';
+import SidebarLeft from '../components/Home/SidebarLeft';
+import AddProject from '../components/Project/AddProject';
+import ProjectTable from '../components/Project/AllProject';
   
 function Home() {
     const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false 
@@ -28,7 +28,7 @@ function Home() {
                     />
                     {projectForm}
                     <div className='p-5 flex justify-center'>
-                        <AllProject />
+                        <ProjectTable />
                     </div>
                 </div>
             </div>

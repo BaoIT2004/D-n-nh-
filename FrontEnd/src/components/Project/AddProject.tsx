@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createProject } from '../services/ProjectService'
+import { createProject } from '../../services/ProjectService'
 import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 

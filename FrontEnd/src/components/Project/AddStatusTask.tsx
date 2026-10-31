@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Search from "./Search";
-import SidebarLeft from "./SidebarLeft";
+import Search from "../Home/Search";
+import SidebarLeft from "../Home/SidebarLeft";
 import AddProject from "./AddProject";
 import { CiSquarePlus } from "react-icons/ci";
-import { AddStatusTask } from "../services/statusTaskService";
-import type { StatusTask } from "../types/statusTask";
+import { AddStatusTask, GetAllStatusTask } from "../../services/StatusTaskService";
+import type { StatusTask } from "../../types/statusTask";
 import toast from "react-hot-toast";
 
 
@@ -15,6 +15,7 @@ function BoardPage() {
    const [modal, setmodal] = useState(false);
    const [status, setStatus] = useState("Todo");
    const [statusTasks, setStatusTask] = useState<StatusTask[]>([]);
+   const { id: projectId } = useParams();
 
 
    let projectForm = null;
@@ -25,15 +26,15 @@ function BoardPage() {
 
    //thêm trạng thái
    const handleAddStatusTask = async () => {
-      const projectId = Number(id);
+      const Id = Number(projectId);
 
-      if (!Number.isInteger(projectId) || projectId < 0) {
+      if (!Number.isInteger(Id) || Id < 0) {
          toast.error("ID dư án không hợp lệ");
          return;
       }
 
       try {
-         const result = await AddStatusTask(status, projectId);
+         const result = await AddStatusTask(status, Id);
          if (result.success) {
             setStatusTask(prevList => [...prevList, result.data]);
             toggleModal();
@@ -48,10 +49,22 @@ function BoardPage() {
       }
    };
 
+   // Thêm 
+
 
    //Hiển thị trạng thái
 
-
+   useEffect(() => {
+      async function viewProject() {
+         const result = await GetAllStatusTask(Number(projectId));
+         if (!result.success) {
+            alert(result.message);
+            return;
+         }
+         setStatusTask(result.data ?? []);
+      }
+      viewProject();
+   }, [projectId])
 
 
    //tắt trang StatusTask
@@ -110,7 +123,7 @@ function BoardPage() {
                                  key={s.id}
                                  className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200"
                               >
-                                 <h3 className="font-semibold text-gray-700 mb-3">{s.statusTask}</h3>
+                                 <h3 className="font-semibold text-gray-700 mb-3">{s.status}</h3>
                                  <div className="space-y-3">
                                     <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
                                        <CiSquarePlus size={20} />

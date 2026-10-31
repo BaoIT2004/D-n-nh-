@@ -7,10 +7,10 @@
     import { IoSettingsOutline } from "react-icons/io5";
     import { MdMenuOpen } from "react-icons/md";
     import { useNavigate } from "react-router-dom";
-    import { logoutUser } from "../services/UserService";
-    import { allProject } from "../services/ProjectService";
-    import type { Project } from "../types/project";
+    import { AllProject } from "../../services/ProjectService";
+    import type { Project } from "../../types/project";
     import { SiAlby } from "react-icons/si";
+    import { getStoredUserId } from "../../services/Api";
 
     type SidebarLeftProps = {
         onCreateClick: () => void;  // onCreateClick tên thuộc tính hàm sẽ nhân , () => void kiểu hàm không nhận tham số () và không yêu cầu trả về giá trị void
@@ -22,18 +22,14 @@
         const [board, setBoard] = useState(true);
         const navigate = useNavigate();
 
-        async function handleLogout() {
-            const result = await logoutUser();
-            if (!result.success) {
-                alert(result.message);
-                return;
-            }
-            navigate("/login");
-        }
 
         useEffect(() => {
+            if (!localStorage.getItem("accessToken") || getStoredUserId() === null) {
+                return;
+            }
             async function viewProject() {
-                const result = await allProject();
+
+                const result = await AllProject();
                 if (!result.success) {
                     alert(result.message);
                     return;
