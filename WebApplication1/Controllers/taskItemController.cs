@@ -38,7 +38,7 @@ namespace WebApplication1.Controllers
 
         //chỉnh sửa
         [HttpPut("{taskItemId}")]
-        public async Task<IActionResult> UpdateTaskItem(int taskItemId, [FromBody] UpdateTaskItemkRequestDto request)
+        public async Task<IActionResult> UpdateTaskItem(int taskItemId, [FromBody] UpdateTaskItemRequestDto request)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var response = await _taskItemService.UpdateTaskItemService(request, userId, taskItemId);

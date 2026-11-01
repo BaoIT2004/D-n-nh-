@@ -59,6 +59,7 @@ public class TaskItemService
         }
         //kiểm tra xem người dùng và trạng thái task có đúng không
         var response = await _statusTaskRepository.GetStatusTaskById(statusTaskId);
+        Console.WriteLine($"statusTaskId={statusTaskId}, userId={userId}, response={response?.Id}, project={response?.Project?.UserId}");   
 
         if (response == null || response.Project == null || response.Project.UserId != userId)
         {
@@ -79,7 +80,7 @@ public class TaskItemService
             CreatedAt = request.CreatedAt,   // DateOnly
             WorkType = request.WorkType,
             Degree = request.Degree,
-            StatusId = response.Id
+            StatusId = request.StatusId
         };
 
         await _taskItemRepositories.AddTaskItem(newTaskItem);
@@ -135,7 +136,7 @@ public class TaskItemService
     }
 
     // cập nhật
-    public async Task<ApiResponse<AddTaskItemResponseDto>> UpdateTaskItemService(UpdateTaskItemkRequestDto request, int userId, int taskItemId)
+    public async Task<ApiResponse<UpdateTaskItemResponseDto>> UpdateTaskItemService(UpdateTaskItemRequestDto request, int userId, int taskItemId)
     {
         //1. validate dữ liệu 
         var err = new List<string>();
@@ -160,7 +161,7 @@ public class TaskItemService
 
         if (err.Count > 0)
         {
-            return new ApiResponse<AddTaskItemResponseDto>
+            return new ApiResponse<UpdateTaskItemResponseDto>
             {
                 StatusCode = StatusCodes.Status400BadRequest,
                 Status = false,
@@ -175,7 +176,7 @@ public class TaskItemService
         if (taskItem == null || taskItem.Status?.Project?.UserId != userId)
         {
             {
-                return new ApiResponse<AddTaskItemResponseDto>
+                return new ApiResponse<UpdateTaskItemResponseDto>
                 {
                     StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
@@ -188,7 +189,7 @@ public class TaskItemService
         var targetStatus = await _statusTaskRepository.GetStatusTaskById(request.StatusId);
         if (targetStatus == null || targetStatus.Project?.UserId != userId)
         {
-            return new ApiResponse<AddTaskItemResponseDto>
+            return new ApiResponse<UpdateTaskItemResponseDto>
             {
                 StatusCode = StatusCodes.Status404NotFound,
                 Status = false,
@@ -206,14 +207,13 @@ public class TaskItemService
 
         await _taskItemRepositories.UpdateTaskItemAsync(taskItem);
 
-        return new ApiResponse<AddTaskItemResponseDto>
+        return new ApiResponse<UpdateTaskItemResponseDto>
         {
             StatusCode = StatusCodes.Status200OK,
             Status = true,
             Message = "Cập nhật thành công",
-            Data = new AddTaskItemResponseDto
+            Data = new UpdateTaskItemResponseDto
             {
-                Id = taskItem.Id,
                 Title = taskItem.Title,
                 CreatedAt = taskItem.CreatedAt,
                 WorkType = taskItem.WorkType,

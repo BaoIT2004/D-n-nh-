@@ -1,6 +1,6 @@
 
 
-public class UpdateTaskItemkRequestDto
+public class UpdateTaskItemRequestDto
 {
     public required string Title { get; set; } = string.Empty;
     public DateOnly CreatedAt { get; set; }
