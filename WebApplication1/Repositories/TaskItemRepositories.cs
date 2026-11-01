@@ -32,9 +32,9 @@ public class TaskItemRepositories
         await _dbcontext.SaveChangesAsync();
     }
 
-    public async Task<TaskItem?> GetStatusItemAsync(int statusItemId)
+    public async Task<TaskItem?> GetStatusItemAsync(int taskItemId)
     {
-        return await _dbcontext.TaskItem.Include(p => p.Status!.Project).FirstOrDefaultAsync(p => p.Id == statusItemId);
+        return await _dbcontext.TaskItem.Include(p => p.Status!.Project).FirstOrDefaultAsync(p => p.Id == taskItemId);
     }
 
 

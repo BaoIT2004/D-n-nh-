@@ -46,6 +46,7 @@ public class RequestCultureMiddleware
             await HandleExceptionAsync(context, statusCode, message); // InternalServerError = 500  (int)HttpStatusCode.InternalServerError
         }
     }
+     
 
     private static Task HandleExceptionAsync(HttpContext context, int statusCode, string message)
     {
