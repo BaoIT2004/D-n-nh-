@@ -37,7 +37,8 @@ export function UpdateTaskItem(
     createdAt: string,   // DateOnly
     workType: string,
     degree: string,
-    taskITemId: number
+    taskITemId: number,
+    statusId: number
 ): Promise<ServiceResult<UpdateTaskItem>>{
      // Kiểm tra đăng nhập chưa
     const userId = getStoredUserId();
@@ -50,6 +51,6 @@ export function UpdateTaskItem(
 
     return apiRequest<UpdateTaskItem>(`/api/TaskItem/${taskITemId}`, {
         method: "PUT",
-        body: JSON.stringify({ title, createdAt, workType, degree }),
+        body: JSON.stringify({ title, createdAt, workType, degree , statusId}),
     });
 }

@@ -11,7 +11,6 @@ import { RiTaskLine } from "react-icons/ri";
 import { IoIosArrowDown } from "react-icons/io";
 import { LuPencilLine } from "react-icons/lu";
 import { LiaEllipsisHSolid } from "react-icons/lia";
-import { GetAllStatusTask } from "../../services/StatusTaskService";
 
 
 function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean }) {
@@ -70,7 +69,8 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
         createdAt.toLocaleDateString("sv-SE"), 
         workType, 
         degree, 
-        taskItemId);
+        taskItemId,
+        statusId);
       if (result.success) {
         toast.success("Cập nhật thành công");
         setTaskItemId(null);

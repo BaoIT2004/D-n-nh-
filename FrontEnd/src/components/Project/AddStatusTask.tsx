@@ -4,7 +4,7 @@
    import SidebarLeft from "../Home/SidebarLeft";
    import AddProject from "./AddProject";
    import { CiSquarePlus } from "react-icons/ci";
-   import { AddStatusTask, GetAllStatusTask } from "../../services/StatusTaskService";
+   import { AddStatusTask, GetAllStatusTask } from "../../services/statusTaskService";
    import type { StatusTask } from "../../types/statusTask";
    import toast from "react-hot-toast";
    import AddStatusItem from "../Project/AddStaskItem"
@@ -116,7 +116,7 @@
                                  >
                                     <h3 className="font-semibold text-gray-700 mb-6">{s.status}</h3>
                                     <div className="-mx-3 -my-3 space-y-1">
-                                       {<AddStatusItem statusId={s.id} isOpen={openColumnId === s.id}/>}
+                                       {<AddStatusItem statusId={s.id} isOpen={openColumnId === s.id}/>}  {/* truyền vào hai thông tin là statusId và cho biết cột đó đang được mở hay khônh */}
                                        <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
                                           <button onClick={() => handleClickPlus(s.id)}>
                                              <CiSquarePlus size={20} onClick={() => setShowTaskItem(true)} />
