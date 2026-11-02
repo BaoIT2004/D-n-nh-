@@ -134,7 +134,7 @@
                               ))}
 
                               {/* add buton */}
-                              <button className="active" onClick={toggleModal}>
+                              <button className="sticky right-4 z-10" onClick={toggleModal}>
                                  <CiSquarePlus size={35} />
                               </button>
 

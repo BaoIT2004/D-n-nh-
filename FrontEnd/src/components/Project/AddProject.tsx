@@ -26,7 +26,6 @@ function AddProject() {
         }
     }
 
-
     return (
         <nav className="w-72 h-[40vh] bg-blue-50 p-3">
             <div className="w-65 h-75 bg-white shadow-sm mx-auto border border-gray-200 rounded-md">
