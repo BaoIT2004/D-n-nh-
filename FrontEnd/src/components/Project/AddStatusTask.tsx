@@ -4,7 +4,7 @@
    import SidebarLeft from "../Home/SidebarLeft";
    import AddProject from "./AddProject";
    import { CiSquarePlus } from "react-icons/ci";
-   import { AddStatusTask, GetAllStatusTask } from "../../services/statusTaskService";
+   import { AddMember, AddStatusTask, GetAllStatusTask } from "../../services/statusTaskService";
    import type { StatusTask } from "../../types/statusTask";
    import toast from "react-hot-toast";
    import AddStatusItem from "../Project/AddStaskItem"
@@ -17,7 +17,7 @@
       const [status, setStatus] = useState("Todo");
       const [statusTasks, setStatusTask] = useState<StatusTask[]>([]);
       const { id: projectId } = useParams();
-      const [showTaskItem, setShowTaskItem] = useState(false);
+      const [email, setEmail] = useState("");
 
       // thêm cột
       const [openColumnId, setOpenColumnId] = useState<number | null>(null);
@@ -87,6 +87,17 @@
          }
       };
 
+      // thêm memeber
+      const handAddMember = async () => {
+         const result = await AddMember(Number(projectId), email);
+         if(result.success){
+            toast.success("Thêm thành viên thành công")
+            setEmail("");
+         }else{
+            toast.error("Thêm thành viên thất bại")
+         }
+      }
+
       return (
          <nav>
             <div className="home">
@@ -108,6 +119,17 @@
                         <div className="mb-6 ">
                            <h1 className="text-2xl font-bold text-gray-800">Bảng Công Việc</h1>
                            <p className="text-sm text-gray-500">Quản lý tiến độ công việc của dự án này.</p>
+                        </div>
+
+                        <div>
+                           <input 
+                           type="text" 
+                           placeholder="Tìm kiếm email của bạn" 
+                           className="text-sm border border-gray-400 w-55 h-9 pl-1 rounded-md"
+                           value={email}
+                           onChange={(e) => setEmail(e.target.value)}  // nhập nội dung hiện tại
+                           />
+                           <button onClick={handAddMember}>Thêm</button>
                         </div>
 
                         {/* tạo đưởng kẻ ngang */}

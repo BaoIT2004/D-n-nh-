@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Data;
@@ -25,8 +26,8 @@ namespace WebApplication1.Controllers
         [Authorize] // jwt hợp lệ mới tạo được project 
         public async Task<IActionResult> AddProject([FromBody] ProjectRequestDto project)
         {
-           
-            var response = await _projectService.AddNewProject(project);    
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _projectService.AddNewProject(project, userId);    
             return StatusCode(response.StatusCode, response);
         }
 
@@ -36,7 +37,8 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> AllProject(int userId)
         {
-            var response = await _projectService.GetAllProjects(userId);
+            var userMember = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _projectService.GetAllProjects(userId , userMember);
             return StatusCode(response.StatusCode, response);
         }
 
@@ -45,7 +47,12 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateProject([FromBody] UpdateProjectRequestDto project, int id)
         {
-            var response = await _projectService.UpdateProjectAsync(project,id);
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var response = await _projectService.UpdateProjectAsync(project, id, userId);
             return StatusCode(response.StatusCode, response);
         }
 
@@ -54,7 +61,8 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteProject(int id)
         {
-            var response = await _projectService.DeleteProjectAsync(id);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _projectService.DeleteProjectAsync(id, userId);
             return StatusCode(response.StatusCode, response);
         }
         

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { createProject } from '../../services/ProjectService'
-import { useNavigate } from 'react-router-dom';
+import { addMember, createProject } from '../../services/projectService'
+import { useNavigate, useParams } from 'react-router-dom';
 import toast from "react-hot-toast";
 
 
@@ -8,6 +8,9 @@ function AddProject() {
     const [nameProject, setnameProject] = useState("");
     const [status, setStatus] = useState("private");
     const navigate = useNavigate();
+    const [memberId, setMemberId] = useState("");
+    const { projectId } = useParams();
+
 
 
     async function HandleNewProject() {
@@ -15,7 +18,7 @@ function AddProject() {
             const result = await createProject(nameProject, status);
             if (result.success) {
                 toast.success("Tạo dự án thành công.");
-                setTimeout(()=> window.location.reload(), 500)
+                setTimeout(() => window.location.reload(), 500)
                 navigate("/");
             } else {
                 toast.error(result.message);
@@ -23,6 +26,26 @@ function AddProject() {
         } catch (err) {
             console.error(err);
             toast.error("Không thể tạo dự án.");
+        }
+    }
+
+    async function HandleAddMember(projectId: number) {
+        if (!memberId.trim()) {
+            toast.error("Vui lòng nhập email người cần thêm.");
+            return;
+        }
+
+        try {
+            const result = await addMember(projectId, { userId: Number(memberId) });
+            if (result.success) {
+                toast.success("Thêm người thành công.");
+                setMemberId("");
+            } else {
+                toast.error(result.message);
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Không thể thêm người.");
         }
     }
 
@@ -46,6 +69,7 @@ function AddProject() {
                     <input type="text" placeholder="Nhập tên dự án" className="text-sm border border-gray-400 w-55 h-9 pl-1 rounded-md"
                         value={nameProject} onChange={(e) => setnameProject(e.target.value)}
                     />
+
                     <label htmlFor="" className="text-sm">
                         Quyền xem
                     </label>
@@ -54,6 +78,7 @@ function AddProject() {
                         <option value="workspace">Không gian làm việc</option>
                         <option value="public">Công khai</option>
                     </select>
+                   
                     <div className="flex items-center gap-3 mt-3 ml-12">
                         <button className="border border-gray-200 rounded-md w-20 h-8 text-sm">Hủy</button>
                         <button className="bg-[#1868DB] text-white w-20 h-8 rounded-md flex items-center justify-center text-sm" onClick={HandleNewProject}>Tạo dự án</button>

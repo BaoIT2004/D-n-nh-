@@ -9,4 +9,6 @@ public class User
     public string passWord { get; set; } = "";
 
     public ICollection<newProject> Projects {get; set;} = new List<newProject>();
+
+    public ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
 }

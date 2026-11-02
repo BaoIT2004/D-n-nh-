@@ -12,13 +12,17 @@ public class TaskItemService
 
     private readonly StatusTaskRepository _statusTaskRepository;
 
+    private readonly ProjectRepository _projectRepository;
+
     public TaskItemService(ApplicationContext dbcontext,
     TaskItemRepositories taskItemRepositories,
-    StatusTaskRepository statusTaskRepository)
+    StatusTaskRepository statusTaskRepository,
+    ProjectRepository projectRepository)
     {
         _dbcontext = dbcontext;
         _taskItemRepositories = taskItemRepositories;
         _statusTaskRepository = statusTaskRepository;
+        _projectRepository = projectRepository;
     }
 
 
@@ -106,7 +110,8 @@ public class TaskItemService
     {
         var status = await _statusTaskRepository.GetStatusTaskById(statusId);
 
-        if (status == null || status.Project?.UserId != userId) //status.Project?.UserId != userId:Kiểm tra xem Project chứa Status này có thuộc về người dùng đang đăng nhập hay không.
+        if (status == null ||
+    !await _projectRepository.CanAccessProjectAsync(status.ProjectId, userId)) //status.Project?.UserId != userId:Kiểm tra xem Project chứa Status này có thuộc về người dùng đang đăng nhập hay không.
         {
             return new ApiResponse<List<AddTaskItemResponseDto>>
             {

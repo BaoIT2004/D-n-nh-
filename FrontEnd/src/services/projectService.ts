@@ -1,5 +1,5 @@
 import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
-import type { Project, ProjectResponse } from "../types/project";
+import type { MemberResponse, Project, ProjectResponse } from "../types/project";
 
 export function AllProject(): Promise<ServiceResult<Project[]>> {
     // người dùng đã đăng nhập chưa
@@ -31,5 +31,15 @@ export function createProject(
     return apiRequest<ProjectResponse>("/api/newProject", {
         method: "POST",
         body: JSON.stringify({ nameProject, status, userId }),
+    });
+}
+
+export function addMember(
+    projectId: number,
+    request: object,
+): Promise<ServiceResult<MemberResponse>> {
+    return apiRequest<MemberResponse>(`/api/ProjectMembers/${projectId}/members`, {
+        method: "POST",
+        body: JSON.stringify(request),
     });
 }

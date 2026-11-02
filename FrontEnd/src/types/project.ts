@@ -10,3 +10,7 @@ export type ProjectResponse = {
     nameProject: string;
     status: string;
 };
+
+export type MemberResponse = {
+    userId: number
+}

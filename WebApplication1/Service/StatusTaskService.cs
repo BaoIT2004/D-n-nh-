@@ -92,7 +92,7 @@ namespace WebApplication1.Services
         {
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
-            if (project == null || project.UserId != userId)
+            if (project == null || !await _projectRepository.CanAccessProjectAsync(projectId, userId))
             {
                 return new ApiResponse<List<GetAllStatusTaskResponseDto>>
                 {

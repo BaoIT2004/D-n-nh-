@@ -1,5 +1,5 @@
 import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
-import type { AddStatusTaskResponse, GetAllStatusTaask } from "../types/statusTask";
+import type { AddMemberResponse, AddStatusTaskResponse, GetAllStatusTaask } from "../types/statusTask";
 
 
 //thêm
@@ -11,6 +11,17 @@ export function AddStatusTask(
         method: "POST",
         body: JSON.stringify({ statusTask, projectId }),
     });
+}
+
+// Thêm user vào dự án
+export function AddMember(
+    projectId: number,
+    email: string
+): Promise<ServiceResult<AddMemberResponse>>{
+    return apiRequest<AddMemberResponse>(`/api/ProjectMembers/${projectId}/members`,{
+        method : "POST",
+        body: JSON.stringify({ projectId, email }),
+    })
 }
 
 //Hiển thị 
@@ -28,4 +39,8 @@ export function GetAllStatusTask(
     }
     return apiRequest<GetAllStatusTaask[]>(`/api/statusTask/${projectId}`);
 }
+
+
+
+
 
