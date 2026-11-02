@@ -1,5 +1,5 @@
 import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
-import type { AddTaskItem, GetAllTaskItem, UpdateTaskItem } from "../types/TaskITem";
+import type { AddTaskItem, DeleteTaskITem, GetAllTaskItem, UpdateTaskItem } from "../types/TaskITem";
 
 
 // Thêm 
@@ -19,7 +19,7 @@ export function AddTaskItem(
 //Hiển thị 
 export function GetAllTaskItems(
     statusId: number,
-): Promise<ServiceResult<GetAllTaskItem[]>>{
+): Promise<ServiceResult<GetAllTaskItem[]>> {
 
     // Kiểm tra đăng nhập chưa
     const userId = getStoredUserId();
@@ -29,7 +29,24 @@ export function GetAllTaskItems(
             message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
         });
     }
-    return apiRequest<GetAllTaskItem[]>(`/api/TaskItem/${statusId}`);
+    return apiRequest<GetAllTaskItem[]>(`/api/TaskItem/${statusId}`,{
+        method: "GET"
+    });
+}
+    
+export function DeleteTaskITem(
+    taskItemId: number,
+): Promise<ServiceResult<DeleteTaskITem>> {
+    const userId = getStoredUserId();
+    if (!userId) {
+        return Promise.resolve({
+            success: false,
+            message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+        });
+    }
+    return apiRequest<DeleteTaskITem>(`/api/TaskITem/${taskItemId}`,{
+        method: "DELETE",
+    });
 }
 
 export function UpdateTaskItem(
@@ -39,8 +56,8 @@ export function UpdateTaskItem(
     degree: string,
     taskITemId: number,
     statusId: number
-): Promise<ServiceResult<UpdateTaskItem>>{
-     // Kiểm tra đăng nhập chưa
+): Promise<ServiceResult<UpdateTaskItem>> {
+    // Kiểm tra đăng nhập chưa
     const userId = getStoredUserId();
     if (!userId) {
         return Promise.resolve({
@@ -51,6 +68,6 @@ export function UpdateTaskItem(
 
     return apiRequest<UpdateTaskItem>(`/api/TaskItem/${taskITemId}`, {
         method: "PUT",
-        body: JSON.stringify({ title, createdAt, workType, degree , statusId}),
+        body: JSON.stringify({ title, createdAt, workType, degree, statusId }),
     });
 }

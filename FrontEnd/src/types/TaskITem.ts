@@ -30,3 +30,7 @@ export type UpdateTaskItemResponse = {
     workType: string;
     degree: string;
 }
+
+export type DeleteTaskITem = {
+    id: number;
+}

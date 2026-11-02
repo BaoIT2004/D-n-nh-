@@ -39,7 +39,14 @@
          try {
             const result = await AddStatusTask(status, Id);
             if (result.success) {
-               setStatusTask(prevList => [...prevList, result.data]);
+               setStatusTask(prevList => [
+                  ...prevList,
+                  {
+                     id: result.data.id,
+                     status: result.data.statusTask,
+                     projectId: result.data.projectId,
+                  },
+               ]);
                toggleModal();
                toast.success("Thêm trạng thái thành công");
 
@@ -52,18 +59,18 @@
          }
       };
 
-      //Hiển thị trạng thái
-      useEffect(() => {
-         async function viewProject() {
-            const result = await GetAllStatusTask(Number(projectId));
-            if (!result.success) {
-               alert(result.message);
-               return;
+         //Hiển thị trạng thái
+         useEffect(() => {
+            async function viewProject() {
+               const result = await GetAllStatusTask(Number(projectId));
+               if (!result.success) {
+                  alert(result.message);
+                  return;
+               }
+               setStatusTask(result.data ?? []);
             }
-            setStatusTask(result.data ?? []);
-         }
-         viewProject();
-      }, [projectId])
+            viewProject();
+         }, [projectId])
 
 
       //tắt trang StatusTask
@@ -119,7 +126,7 @@
                                        {<AddStatusItem statusId={s.id} isOpen={openColumnId === s.id}/>}  {/* truyền vào hai thông tin là statusId và cho biết cột đó đang được mở hay khônh */}
                                        <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
                                           <button onClick={() => handleClickPlus(s.id)}>
-                                             <CiSquarePlus size={20} onClick={() => setShowTaskItem(true)} />
+                                             <CiSquarePlus size={20}/>
                                           </button>
                                        </div>
                                     </div>

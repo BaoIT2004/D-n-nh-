@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AddTaskItem, GetAllTaskItems, UpdateTaskItem } from "../../services/TaskItemService";
+import { AddTaskItem, DeleteTaskITem, GetAllTaskItems, UpdateTaskItem } from "../../services/TaskItemService";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
@@ -18,33 +18,34 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
   const [workType, setWorkType] = useState("Task");
   const [degree, setDegree] = useState("Thấp");
   const [createdAt, setCreatedAt] = useState<Date | null>(new Date());
-  const [taskItem, setTaskItem] = useState<GetAllTaskItem[]>([]);
+  const [taskItem, setTaskItem] = useState<GetAllTaskItem[]>([]);// lấy dữ liệu từ API về
   const [board, setBoard] = useState(false);
   const [open, setOpen] = useState(false);
   const [taskItemId, setTaskItemId] = useState<number | null>(null); // tạo để nhớ khi sửa useState<number | null>: kiểu của giá trị là number (id của task) hoặc null (không sửa task nào).
+  const [showSetting, setShowSetting] = useState<number | null>(null);
 
 
-  //thêm
-  async function handleAdd() {
-    if (!title.trim() || !createdAt) {
-      return;
-    }
-    const result = await AddTaskItem(title, createdAt.toLocaleDateString("sv-SE"), workType, degree, statusId);
-    if (result.success) {
-      toast.success("Thêm thành công");
-      setTitle("");
-      setWorkType("Task");
-      setDegree("Thấp");
-
-      const newResult = await GetAllTaskItems(statusId);
-      if (newResult.success) {
-        setTaskItem(newResult.data ?? []);
+    //thêm
+    async function handleAdd() {
+      if (!title.trim() || !createdAt) {
+        return;
       }
+      const result = await AddTaskItem(title, createdAt.toLocaleDateString("sv-SE"), workType, degree, statusId);
+      if (result.success) {
+        toast.success("Thêm thành công");
+        setTitle("");
+        setWorkType("Task");
+        setDegree("Thấp");
 
-    } else {
-      toast.error("Thêm thất bại")
+        const newResult = await GetAllTaskItems(statusId);
+        if (newResult.success) {
+          setTaskItem(newResult.data ?? []);
+        }
+
+      } else {
+        toast.error("Thêm thất bại")
+      }
     }
-  }
 
   //Hiển thị trạng thái
   useEffect(() => {
@@ -60,37 +61,51 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
   }, [statusId])
 
   //Cập nhật dự án
-    async function updateProject() {
-      if (!title.trim() || !createdAt || taskItemId === null) {
-        return;
-      }
-      const result = await UpdateTaskItem(
-        title, 
-        createdAt.toLocaleDateString("sv-SE"), 
-        workType, 
-        degree, 
-        taskItemId,
-        statusId);
-      if (result.success) {
-        toast.success("Cập nhật thành công");
-        setTaskItemId(null);
-        setTitle("");
-        setWorkType("Task");
-        setDegree("Thấp");
-      } else {
-        toast.error("Cập nhật thất bại")
-        return;
-      }
-
-      // tải lại danh sách
-      const refresh = await GetAllTaskItems(statusId);
-
-      if(refresh.success){
-        setTaskItem(refresh.data ?? []);
-      }else{
-        toast.error(refresh.message);
-      }
+  async function updateProject() {
+    if (!title.trim() || !createdAt || taskItemId === null) {
+      return;
     }
+    const result = await UpdateTaskItem(
+      title,
+      createdAt.toLocaleDateString("sv-SE"),
+      workType,
+      degree,
+      taskItemId,
+      statusId);
+    if (result.success) {
+      toast.success("Cập nhật thành công");
+      setTaskItemId(null);
+      setTitle("");
+      setWorkType("Task");
+      setDegree("Thấp");
+    } else {
+      toast.error("Cập nhật thất bại")
+      return;
+    }
+
+    // tải lại danh sách
+    const refresh = await GetAllTaskItems(statusId);
+
+    if (refresh.success) {
+      setTaskItem(refresh.data ?? []);
+    } else {
+      toast.error(refresh.message);
+    }
+  }
+
+  //Xóa
+  async function deleteTaskItem(taskItemId: number) {
+    const result = await DeleteTaskITem(Number(taskItemId));
+    if (!result.success) {
+      toast.error(result.message);
+      return;  // return này có chức năng dừng tại vị trí này luôn
+    }
+
+    toast.success("Xóa thành công");
+
+    setTaskItem(prev =>
+      prev.filter(item => item.id != Number(taskItemId)))  // giữ lại tất cả các id có trong id đang xóa
+  }
 
 
   const menuItem = [
@@ -130,49 +145,81 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
                   }}>
                   <LuPencilLine />
                 </button>
-                <LiaEllipsisHSolid className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
+
+
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() => setShowSetting(
+                      showSetting === task.id ? null : task.id // toán tử 3 ngôi nếu showSetting = taskItemId thì trả về null ngược lại mở menutassk đó
+                    )}
+                    className="opacity-0 transition-opacity group-hover:opacity-100"
+                  >
+                    <LiaEllipsisHSolid />
+                  </button>
+
+                  {showSetting === task.id && (
+                    <>
+                      <div
+                        className="absolute top-full z-50 w-32 bg-white shadow-md"
+                        onClick={() => setShowSetting(null)}
+                      />
+                      <div className="absolute top-full w-32 bg-white shadow-md">
+                        <button className="block w-full p-2 text-left hover:bg-gray-100"
+                              onClick={() => deleteTaskItem(task.id)}>
+                          Xóa
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+
               </div>
 
+
+
+
+              {/* Nếu taskItemId bằng null thì hiển thị nội dung bên trong */}
               {taskItemId === null && (
                 <>
-                <span className="flex mb-2 items-center gap-1 text-xs text-gray-500">
-                <GrFormSchedule size={22} />
-                {task.createdAt
-                  ? new Date(task.createdAt).toLocaleString("vi-VN", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                  : "—"}
-              </span>
+                  <span className="flex mb-2 items-center gap-1 text-xs text-gray-500">
+                    <GrFormSchedule size={22} />
+                    {task.createdAt
+                      ? new Date(task.createdAt).toLocaleString("vi-VN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                      : "—"}
+                  </span>
 
-              <div className="mt-1 flex items-center gap-2 text-xs  ">
-                <span
-                  className={`rounded px-2 py-0.5 ${task.workType === "Bug"
-                    ? "bg-red-100 text-red-700"
-                    : task.workType === "Story"
-                      ? "bg-green-100 text-green-700"
-                      : task.workType === "Task"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                >
-                  {task.workType}
-                </span>
-
-                <span className={`rounded px-2 py-0.5 ${task.degree === "Thấp"
-                    ? "bg-gray-200 text-gray-700"
-                    : task.degree === "Trung bình"
-                      ? "bg-amber-100 text-amber-700"
-                      : task.degree === "Cao"
+                  <div className="mt-1 flex items-center gap-2 text-xs  ">
+                    <span
+                      className={`rounded px-2 py-0.5 ${task.workType === "Bug"
                         ? "bg-red-100 text-red-700"
-                        : "bg-gray-100 text-gray-700"
-                  }`}>
-                  {task.degree}
-                </span>
-              </div>
+                        : task.workType === "Story"
+                          ? "bg-green-100 text-green-700"
+                          : task.workType === "Task"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                    >
+                      {task.workType}
+                    </span>
+
+                    <span className={`rounded px-2 py-0.5 ${task.degree === "Thấp"
+                      ? "bg-gray-200 text-gray-700"
+                      : task.degree === "Trung bình"
+                        ? "bg-amber-100 text-amber-700"
+                        : task.degree === "Cao"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-700"
+                      }`}>
+                      {task.degree}
+                    </span>
+                  </div>
                 </>
               )}
             </div>
@@ -180,7 +227,12 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
         ))}
       </div>
 
-      {(isOpen || taskItemId !== null) && ( //
+
+
+
+
+
+      {(isOpen || taskItemId !== null) && ( //hiển thị giao diện nếu isOpen đúng HOẶC taskItemId khác null.
         <div className="w-full rounded-lg border-2 border-blue-500 bg-white p-3">
           <textarea
             className="h-16 w-full resize-none text-sm outline-none"
