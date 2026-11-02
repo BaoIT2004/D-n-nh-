@@ -15,6 +15,7 @@ function AddProject() {
             const result = await createProject(nameProject, status);
             if (result.success) {
                 toast.success("Tạo dự án thành công.");
+                setTimeout(()=> window.location.reload(), 500)
                 navigate("/");
             } else {
                 toast.error(result.message);

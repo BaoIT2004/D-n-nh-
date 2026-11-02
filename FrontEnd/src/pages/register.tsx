@@ -20,7 +20,7 @@ function register() {
         setMessage("");
         const result = await registerUser(Name, Email, Password);
         if (!result.success) {
-           toast.error("Đăng kí không thành công");
+           toast.error(result.message || "Đăng ký thất bại");
         }else{
             toast.success("Đăng kí thành công")
             navigate("/login");
