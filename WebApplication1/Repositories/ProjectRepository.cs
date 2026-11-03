@@ -47,7 +47,7 @@ namespace WebApplication1.Repositories
         }
 
 
-        public Task<bool> CanAccessProjectAsync(int projectId, int userId)
+        public Task<bool>CanAccessProjectAsync(int projectId, int userId)
         {
             return _dbContext.Projects.AnyAsync(project =>
                 project.Id == projectId &&
