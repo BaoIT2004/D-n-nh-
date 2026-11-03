@@ -1,43 +1,31 @@
 import { useState } from 'react';
-import { addMember, createProject } from '../../services/projectService'
-import { useNavigate, useParams } from 'react-router-dom';
+import { addMember } from '../../services/projectService'
 import toast from "react-hot-toast";
-import { usePosts } from "../../hooks/use-posts";
+import { useCreateProject } from '../../hooks/use-create-post';
 
 
 function AddProject() {
     const [nameProject, setnameProject] = useState("");
     const [status, setStatus] = useState("private");
-    const navigate = useNavigate();
     const [memberId, setMemberId] = useState("");
+   
 
+    const { mutate } = useCreateProject();
 
-    const { isPending, isError, error } = usePosts();
-
-    if (isPending){
-        return toast.success("haha");
-    }
-
-    if(isError){
-        return toast.error(error.message)
-    }
-
-    async function HandleNewProject() {
-        try {
-            const result = await createProject(nameProject, status);
-            if (result.success) {
+    async function HandleNewProject(){
+        mutate({nameProject, status},{
+              onSuccess: () => {
                 toast.success("Tạo dự án thành công.");
-                setTimeout(() => window.location.reload(), 500)
-                navigate("/");
-            } else {
-                toast.error(result.message);
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error("Không thể tạo dự án.");
-        }
+                setnameProject("");
+            },
+            onError: (error) => {
+                toast.error(error.message);
+            },
+        });
     }
 
+
+  
     async function HandleAddMember(projectId: number) {
         if (!memberId.trim()) {
             toast.error("Vui lòng nhập email người cần thêm.");
@@ -101,3 +89,4 @@ function AddProject() {
 }
 
 export default AddProject
+

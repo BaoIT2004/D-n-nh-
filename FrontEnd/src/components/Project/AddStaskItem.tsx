@@ -1,16 +1,17 @@
-import { useEffect, useState } from "react";
-import { AddTaskItem, DeleteTaskITem, GetAllTaskItems, UpdateTaskItem } from "../../services/TaskItemService";
+import { useState } from "react";
+import { AddTaskItem, DeleteTaskITem, UpdateTaskItem } from "../../services/TaskItemService";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
 import { GrFormSchedule } from "react-icons/gr";
-import type { GetAllTaskItem } from "../../types/TaskITem";
 import { GoBug } from "react-icons/go";
 import { CiBookmark } from "react-icons/ci";
 import { RiTaskLine } from "react-icons/ri";
 import { IoIosArrowDown } from "react-icons/io";
 import { LuPencilLine } from "react-icons/lu";
 import { LiaEllipsisHSolid } from "react-icons/lia";
+import { useTaskItems } from "../../hooks/use-task-items";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean }) {
@@ -18,47 +19,35 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
   const [workType, setWorkType] = useState("Task");
   const [degree, setDegree] = useState("Thấp");
   const [createdAt, setCreatedAt] = useState<Date | null>(new Date());
-  const [taskItem, setTaskItem] = useState<GetAllTaskItem[]>([]);// lấy dữ liệu từ API về
+
+  const { data: taskItem = [] } = useTaskItems(statusId);
+
   const [board, setBoard] = useState(false);
-  const [open, setOpen] = useState(false);
   const [taskItemId, setTaskItemId] = useState<number | null>(null); // tạo để nhớ khi sửa useState<number | null>: kiểu của giá trị là number (id của task) hoặc null (không sửa task nào).
   const [showSetting, setShowSetting] = useState<number | null>(null);
+  const queryClient = useQueryClient();
 
 
-    //thêm
-    async function handleAdd() {
-      if (!title.trim() || !createdAt) {
-        return;
-      }
-      const result = await AddTaskItem(title, createdAt.toLocaleDateString("sv-SE"), workType, degree, statusId);
-      if (result.success) {
-        toast.success("Thêm thành công");
-        setTitle("");
-        setWorkType("Task");
-        setDegree("Thấp");
-
-        const newResult = await GetAllTaskItems(statusId);
-        if (newResult.success) {
-          setTaskItem(newResult.data ?? []);
-        }
-
-      } else {
-        toast.error("Thêm thất bại")
-      }
+  //thêm
+  async function handleAdd() {
+    if (!title.trim() || !createdAt) {
+      return;
     }
-
-  //Hiển thị trạng thái
-  useEffect(() => {
-    async function viewProject() {
-      const result = await GetAllTaskItems(Number(statusId));
-      if (!result.success) {
-        alert(result.message);
-        return;
-      }
-      setTaskItem(result.data ?? []);
+    const result = await AddTaskItem(title, createdAt.toLocaleDateString("sv-SE"), workType, degree, statusId);
+    if (result.success) {
+      toast.success("Thêm thành công");
+      await queryClient.invalidateQueries({
+        queryKey: ["taskItems", statusId],
+      });
+      setTitle("");
+      setWorkType("Task");
+      setDegree("Thấp");
+    } else {
+      toast.error("Thêm thất bại")
     }
-    viewProject();
-  }, [statusId])
+  }
+
+
 
   //Cập nhật dự án
   async function updateProject() {
@@ -74,6 +63,9 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
       statusId);
     if (result.success) {
       toast.success("Cập nhật thành công");
+      await queryClient.invalidateQueries({
+        queryKey: ["taskItems", statusId],
+      });
       setTaskItemId(null);
       setTitle("");
       setWorkType("Task");
@@ -81,15 +73,6 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
     } else {
       toast.error("Cập nhật thất bại")
       return;
-    }
-
-    // tải lại danh sách
-    const refresh = await GetAllTaskItems(statusId);
-
-    if (refresh.success) {
-      setTaskItem(refresh.data ?? []);
-    } else {
-      toast.error(refresh.message);
     }
   }
 
@@ -103,8 +86,9 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
 
     toast.success("Xóa thành công");
 
-    setTaskItem(prev =>
-      prev.filter(item => item.id != Number(taskItemId)))  // giữ lại tất cả các id có trong id đang xóa
+    await queryClient.invalidateQueries({
+      queryKey: ["taskItems", statusId],
+    })
   }
 
 
@@ -165,7 +149,7 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
                       />
                       <div className="absolute top-full w-32 bg-white shadow-md">
                         <button className="block w-full p-2 text-left hover:bg-gray-100"
-                              onClick={() => deleteTaskItem(task.id)}>
+                          onClick={() => deleteTaskItem(task.id)}>
                           Xóa
                         </button>
                       </div>
@@ -226,11 +210,6 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
           </div>
         ))}
       </div>
-
-
-
-
-
 
       {(isOpen || taskItemId !== null) && ( //hiển thị giao diện nếu isOpen đúng HOẶC taskItemId khác null.
         <div className="w-full rounded-lg border-2 border-blue-500 bg-white p-3">

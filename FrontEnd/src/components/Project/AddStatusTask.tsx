@@ -1,13 +1,14 @@
-   import { useEffect, useState } from "react";
+   import { useState } from "react";
    import { useParams } from "react-router-dom";
    import Search from "../Home/Search";
    import SidebarLeft from "../Home/SidebarLeft";
    import AddProject from "./AddProject";
    import { CiSquarePlus } from "react-icons/ci";
-   import { AddMember, AddStatusTask, GetAllStatusTask } from "../../services/StatusTaskService";
-   import type { StatusTask } from "../../types/statusTask";
+   import { AddMember, AddStatusTask } from "../../services/StatusTaskService";
    import toast from "react-hot-toast";
    import AddStatusItem from "../Project/AddStaskItem"
+   import { useStatusTasks } from "../../hooks/use-status-tasks";
+   import { useQueryClient } from "@tanstack/react-query";
 
 
    function BoardPage() {
@@ -15,9 +16,12 @@
       const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false
       const [modal, setmodal] = useState(false);
       const [status, setStatus] = useState("Todo");
-      const [statusTasks, setStatusTask] = useState<StatusTask[]>([]);
       const { id: projectId } = useParams();
       const [email, setEmail] = useState("");
+
+      const projectIdNumber = Number(projectId);
+      const { data: statusTasks = [] } = useStatusTasks(projectIdNumber);
+      const queryClient = useQueryClient();
 
       // thêm cột
       const [openColumnId, setOpenColumnId] = useState<number | null>(null);
@@ -39,16 +43,22 @@
          try {
             const result = await AddStatusTask(status, Id);
             if (result.success) {
-               setStatusTask(prevList => [
-                  ...prevList,
-                  {
-                     id: result.data.id,
-                     status: result.data.statusTask,
-                     projectId: result.data.projectId,
-                  },
-               ]);
                toggleModal();
                toast.success("Thêm trạng thái thành công");
+
+
+               await queryClient.invalidateQueries({ 
+                  queryKey: ["statusTasks", projectIdNumber],
+               });
+
+               // note đoạn code trên 
+               //- queryClient.invalidateQueries(...): đánh dấu các query khớp với queryKey là “stale” (hết hạn).
+               //- queryKey: ["statusTasks", projectIdNumber]: nhận diện query cần làm mới, tức danh sách task theo trạng thái của project có id là projectIdNumber.
+               //- Nếu query đó đang được dùng ở component nào đó (đang mounted), React Query sẽ tự động gọi lại API để lấy dữ liệu mới.
+               //- await: chờ cho đến khi việc refetch hoàn tất rồi mới chạy dòng code tiếp theo.
+               //- sau khi tạo, sửa hoặc xóa một task thành công, gọi đoạn này để danh sách task trên giao diện tự cập nhật, 
+               // không cần reload trang.
+
 
             } else {
                toast.error(result.message);
@@ -58,20 +68,7 @@
             toast.error("không thể thêm trạng thái");
          }
       };
-
-         //Hiển thị trạng thái
-         useEffect(() => {
-            async function viewProject() {
-               const result = await GetAllStatusTask(Number(projectId));
-               if (!result.success) {
-                  alert(result.message);
-                  return;
-               }
-               setStatusTask(result.data ?? []);
-            }
-            viewProject();
-         }, [projectId])
-
+ 
 
       //tắt trang StatusTask
       const toggleModal = () => {
@@ -90,10 +87,10 @@
       // thêm memeber
       const handAddMember = async () => {
          const result = await AddMember(Number(projectId), email);
-         if(result.success){
+         if (result.success) {
             toast.success("Thêm thành viên thành công")
             setEmail("");
-         }else{
+         } else {
             toast.error("Thêm thành viên thất bại")
          }
       }

@@ -20,6 +20,6 @@ export function useProjects() {
         },
         enabled: isAuthenticated,
         retry: false,
-        staleTime: 60_000,
+        staleTime: 60_000,  // hạn sử dụng
     })
 }
