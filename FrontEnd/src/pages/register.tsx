@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from '../services/userService'
+import { registerUser } from '../services/UserService'
 import toast from "react-hot-toast";
 
 

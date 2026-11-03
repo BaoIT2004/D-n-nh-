@@ -1,27 +1,26 @@
-
-import { useEffect, useState } from "react";
-import { AllProject} from "../../services/projectService";
-import type { Project } from "../../types/project";
-import { getStoredUserId } from "../../services/Api";
+import { useProjects } from "../../hooks/use-projects";
 
 function ProjectTable() {
-    const [project, setProject] = useState<Project[]>([]); 
+    // const [project, setProject] = useState<Project[]>([]); 
 
-    useEffect(() => {
-        if (!localStorage.getItem("accessToken") || getStoredUserId() === null) {
-            return;
-        }
+    // useEffect(() => {
+    //     if (!localStorage.getItem("accessToken") || getStoredUserId() === null) {
+    //         return;
+    //     }
 
-        async function loadProjects() {
-            const result = await AllProject();
-            if (!result.success) {
-                alert(result.message);
-                return;
-            }
-            setProject(result.data ?? []);
-        }
-        void loadProjects();
-    }, []);
+    //     async function loadProjects() {
+    //         const result = await AllProject();
+    //         if (!result.success) {
+    //             alert(result.message);
+    //             return;
+    //         }
+    //         setProject(result.data ?? []);
+    //     }
+    //     void loadProjects();
+    // }, []);
+
+    const {data: project = []} = useProjects();
+    
 
     return (
         <div className="p-5 w-330 h-165 border border-gray-400 rounded-2xl overflow-auto">

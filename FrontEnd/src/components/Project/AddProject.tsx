@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { addMember, createProject } from '../../services/projectService'
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from "react-hot-toast";
+import { usePosts } from "../../hooks/use-posts";
 
 
 function AddProject() {
@@ -9,9 +10,17 @@ function AddProject() {
     const [status, setStatus] = useState("private");
     const navigate = useNavigate();
     const [memberId, setMemberId] = useState("");
-    const { projectId } = useParams();
 
 
+    const { isPending, isError, error } = usePosts();
+
+    if (isPending){
+        return toast.success("haha");
+    }
+
+    if(isError){
+        return toast.error(error.message)
+    }
 
     async function HandleNewProject() {
         try {

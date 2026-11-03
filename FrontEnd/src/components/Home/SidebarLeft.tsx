@@ -1,4 +1,4 @@
-    import { useEffect, useState } from "react";
+    import { useState } from "react";
     import { IoHomeOutline } from "react-icons/io5";
     import { IoCreateOutline } from "react-icons/io5";
     import { CiViewBoard } from "react-icons/ci";
@@ -7,38 +7,18 @@
     import { IoSettingsOutline } from "react-icons/io5";
     import { MdMenuOpen } from "react-icons/md";
     import { useNavigate } from "react-router-dom";
-    import { AllProject } from "../../services/projectService";
-    import type { Project } from "../../types/project";
     import { SiAlby } from "react-icons/si";
-    import { getStoredUserId } from "../../services/Api";
+    import { useProjects } from "../../hooks/use-projects";
 
     type SidebarLeftProps = {
         onCreateClick: () => void;  // onCreateClick tên thuộc tính hàm sẽ nhân , () => void kiểu hàm không nhận tham số () và không yêu cầu trả về giá trị void
     };
 
     function SidebarLeft({ onCreateClick }: SidebarLeftProps) { // là destructuring: lấy thẳng onCreateClick ra từ props,
-        const [project, setProject] = useState<Project[]>([]);
         const [open, setOpen] = useState(true);
         const [board, setBoard] = useState(true);
         const navigate = useNavigate();
-
-
-        useEffect(() => {
-            if (!localStorage.getItem("accessToken") || getStoredUserId() === null) {
-                return;
-            }
-            async function viewProject() {
-
-                const result = await AllProject();
-                if (!result.success) {
-                    alert(result.message);
-                    return;
-                }
-                setProject(result.data ?? []);
-            }
-            viewProject();
-        }, [])
-
+        const { data: project = [] } = useProjects();
         const menuItem = [
             {
                 icons: <IoHomeOutline size={20} />,

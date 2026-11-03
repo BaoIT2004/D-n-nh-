@@ -4,7 +4,7 @@
    import SidebarLeft from "../Home/SidebarLeft";
    import AddProject from "./AddProject";
    import { CiSquarePlus } from "react-icons/ci";
-   import { AddMember, AddStatusTask, GetAllStatusTask } from "../../services/statusTaskService";
+   import { AddMember, AddStatusTask, GetAllStatusTask } from "../../services/StatusTaskService";
    import type { StatusTask } from "../../types/statusTask";
    import toast from "react-hot-toast";
    import AddStatusItem from "../Project/AddStaskItem"
