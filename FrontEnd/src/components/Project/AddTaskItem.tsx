@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { AddTaskItem, DeleteTaskITem, UpdateTaskItem } from "../../services/TaskItemService";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
@@ -11,8 +10,8 @@ import { IoIosArrowDown } from "react-icons/io";
 import { LuPencilLine } from "react-icons/lu";
 import { LiaEllipsisHSolid } from "react-icons/lia";
 import { useTaskItems } from "../../hooks/tasks/use-task-items";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCreateStaskItem, useDeleteTaskItem, useUpdateTaskItem } from "../../hooks/tasks/use-create-task-item";
+import { useNavigate } from "react-router-dom";
 
 
 function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean }) {
@@ -24,10 +23,11 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
   const [board, setBoard] = useState(false);
   const [taskItemId, setTaskItemId] = useState<number | null>(null); // tạo để nhớ khi sửa useState<number | null>: kiểu của giá trị là number (id của task) hoặc null (không sửa task nào).
   const [showSetting, setShowSetting] = useState<number | null>(null);
-  const queryClient = useQueryClient();
   const { mutate: createTaskItem } = useCreateStaskItem();
   const { mutate: updateTaskItem } = useUpdateTaskItem();
   const { mutate: deleteTaskItem } = useDeleteTaskItem();
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const navigate = useNavigate();
 
 
   //THÊM
@@ -120,7 +120,7 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
       <div className="space-y-2">
         {taskItem.map((task) => (
           <div key={task.id}>
-            <div className="flex h-28 w-full flex-col rounded-lg border border-gray-300 bg-white p-3">
+            <div className="flex h-28 w-full flex-col rounded-lg border border-gray-300 bg-white p-3" onClick={() => navigate(`/task-detail-modal/${task.id}`)}>
               <div className="group flex items-center gap-2 mb-3">
                 <p className="line-clamp-1 flex-1 min-w-0 whitespace-pre-wrap wrap-break-word text-sm text-gray-800">
                   {task.title}

@@ -213,7 +213,7 @@ namespace WebApplication1.Services
 
             if (File.Exists(flilePath)) // File.Exists hàm có sẵn trogn C# kiểm tra xem có file hay không
             {
-                File.Delete(directory);
+                File.Delete(flilePath);
             }
 
             await _taskAttachmentRepository.DeleteAttachmentAsync(attachment);
