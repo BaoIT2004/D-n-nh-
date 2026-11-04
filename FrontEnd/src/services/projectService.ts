@@ -35,7 +35,7 @@ export function createProject(
 }
 
 export function addMember(
-    projectId: number,
+    projectId: number,  // result = await addMember(projectId, {userId: memberId}); (// file: use-create-post)
     request: object,
 ): Promise<ServiceResult<MemberResponse>> {
     return apiRequest<MemberResponse>(`/api/ProjectMembers/${projectId}/members`, {

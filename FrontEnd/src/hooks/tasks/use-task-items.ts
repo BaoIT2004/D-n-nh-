@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { GetAllStatusTask } from "../services/StatusTaskService";
+import { GetAllTaskItems } from "../../services/TaskItemService";
 
-export function useStatusTasks(projectId: number) {
+export function useTaskItems(statusId: number) {
     return useQuery({
-        queryKey: ["statusTasks", projectId],
+        queryKey: ["taskItems", statusId],
         queryFn: async () => {
-            const result = await GetAllStatusTask(projectId);
+            const result = await GetAllTaskItems(statusId);
 
             if (!result.success) {
                 throw new Error(result.message);
@@ -13,7 +13,7 @@ export function useStatusTasks(projectId: number) {
 
             return result.data;
         },
-        enabled: Number.isInteger(projectId) && projectId > 0,
+        enabled: Number.isInteger(statusId) && statusId > 0,
         retry: false,
         staleTime: 30_000,
     });

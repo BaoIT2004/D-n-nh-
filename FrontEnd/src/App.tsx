@@ -7,7 +7,6 @@ import { getStoredUserId } from './services/Api'
 
 function App() {
   const isAuthenticated = Boolean(localStorage.getItem("accessToken")) && getStoredUserId() !== null;
-
   return (
     <Routes>
       <Route path="/" element={<Home />} />

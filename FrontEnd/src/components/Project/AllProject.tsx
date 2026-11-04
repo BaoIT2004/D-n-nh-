@@ -1,4 +1,4 @@
-import { useProjects } from "../../hooks/use-projects";
+import { useProjects } from "../../hooks/projects/use-projects";
 
 function ProjectTable() {
 

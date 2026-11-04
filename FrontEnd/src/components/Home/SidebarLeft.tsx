@@ -8,7 +8,7 @@
     import { MdMenuOpen } from "react-icons/md";
     import { useNavigate } from "react-router-dom";
     import { SiAlby } from "react-icons/si";
-    import { useProjects } from "../../hooks/use-projects";
+    import { useProjects } from "../../hooks/projects/use-projects";
 
     type SidebarLeftProps = {
         onCreateClick: () => void;  // onCreateClick tên thuộc tính hàm sẽ nhân , () => void kiểu hàm không nhận tham số () và không yêu cầu trả về giá trị void

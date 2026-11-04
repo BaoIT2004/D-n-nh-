@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { addMember } from '../../services/projectService'
 import toast from "react-hot-toast";
-import { useCreateProject } from '../../hooks/use-create-post';
+import { useCreateProject } from '../../hooks/projects/use-create-project';
 
 
 function AddProject() {
     const [nameProject, setnameProject] = useState("");
     const [status, setStatus] = useState("private");
     const [memberId, setMemberId] = useState("");
-   
-
     const { mutate } = useCreateProject();
 
     async function HandleNewProject(){
@@ -22,28 +20,6 @@ function AddProject() {
                 toast.error(error.message);
             },
         });
-    }
-
-
-  
-    async function HandleAddMember(projectId: number) {
-        if (!memberId.trim()) {
-            toast.error("Vui lòng nhập email người cần thêm.");
-            return;
-        }
-
-        try {
-            const result = await addMember(projectId, { userId: Number(memberId) });
-            if (result.success) {
-                toast.success("Thêm người thành công.");
-                setMemberId("");
-            } else {
-                toast.error(result.message);
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error("Không thể thêm người.");
-        }
     }
 
     return (
@@ -89,4 +65,3 @@ function AddProject() {
 }
 
 export default AddProject
-

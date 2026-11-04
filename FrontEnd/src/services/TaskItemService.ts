@@ -35,7 +35,7 @@ export function GetAllTaskItems(
 }
     
 export function DeleteTaskITem(
-    taskItemId: number,
+taskItemId: number, statusId: number,
 ): Promise<ServiceResult<DeleteTaskITem>> {
     const userId = getStoredUserId();
     if (!userId) {

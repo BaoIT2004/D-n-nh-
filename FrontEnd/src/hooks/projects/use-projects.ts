@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getStoredUserId } from "../services/Api";
-import { AllProject } from "../services/projectService";
-
+import { getStoredUserId } from "../../services/Api";
+import { AllProject } from "../../services/projectService";
 
 export function useProjects() {
     const userId = getStoredUserId();
@@ -20,6 +19,7 @@ export function useProjects() {
         },
         enabled: isAuthenticated,
         retry: false,
-        staleTime: 60_000,  // hạn sử dụng
-    })
+        staleTime: 60_000,
+        refetchInterval: 5_000,
+    });
 }
