@@ -67,6 +67,39 @@ namespace WebApplication1.Migrations
                     b.ToTable("ProjectMembers");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.TaskAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TaskItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskItemId");
+
+                    b.ToTable("TaskAttachments");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
                 {
                     b.Property<int>("Id")
@@ -213,6 +246,17 @@ namespace WebApplication1.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.TaskAttachment", b =>
+                {
+                    b.HasOne("WebApplication1.Models.TaskItem", "TaskItem")
+                        .WithMany("Attachments")
+                        .HasForeignKey("TaskItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TaskItem");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
                 {
                     b.HasOne("WebApplication1.Models.AddStatusTask", "Status")
@@ -249,6 +293,11 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.AddStatusTask", b =>
                 {
                     b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
+                {
+                    b.Navigation("Attachments");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.User", b =>

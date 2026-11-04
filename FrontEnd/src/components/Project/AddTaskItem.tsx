@@ -27,7 +27,8 @@ function AddStatusItem({ statusId, isOpen }: { statusId: number; isOpen: boolean
   const queryClient = useQueryClient();
   const { mutate: createTaskItem } = useCreateStaskItem();
   const { mutate: updateTaskItem } = useUpdateTaskItem();
-const { mutate: deleteTaskItem } = useDeleteTaskItem();
+  const { mutate: deleteTaskItem } = useDeleteTaskItem();
+
 
   //THÊM
   function handleAdd() {
@@ -59,7 +60,7 @@ const { mutate: deleteTaskItem } = useDeleteTaskItem();
 
 
   //Cập nhật dự án
-  function updateProject(){
+  function updateProject() {
     if (!title.trim() || !createdAt || taskItemId === null) {
       return;
     }
@@ -137,7 +138,7 @@ const { mutate: deleteTaskItem } = useDeleteTaskItem();
                 </button>
 
 
-                <div className="relative shrink-0">
+                <div className={`relative shrink-0 ${showSetting === task.id ? "z-50" : ""}`}>
                   <button
                     onClick={() => setShowSetting(
                       showSetting === task.id ? null : task.id // toán tử 3 ngôi nếu showSetting = taskItemId thì trả về null ngược lại mở menutassk đó
@@ -149,13 +150,15 @@ const { mutate: deleteTaskItem } = useDeleteTaskItem();
 
                   {showSetting === task.id && (
                     <>
-                      <div
-                        className="absolute top-full z-50 w-32 bg-white shadow-md"
-                        onClick={() => setShowSetting(null)}
-                      />
-                      <div className="absolute top-full w-32 bg-white shadow-md">
-                        <button className="block w-full p-2 text-left hover:bg-gray-100"
-                          onClick={() => handleDeleteTaskItem(task.id)}>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowSetting(null)} />
+                      <div className="absolute right-0 top-full z-50 mt-1 w-32 rounded bg-white shadow-md">
+                        <button
+                          className="block w-full p-2 text-left hover:bg-gray-100"
+                          onClick={() => {
+                            handleDeleteTaskItem(task.id);
+                            setShowSetting(null);
+                          }}
+                        >
                           Xóa
                         </button>
                       </div>
@@ -179,8 +182,6 @@ const { mutate: deleteTaskItem } = useDeleteTaskItem();
                         day: "2-digit",
                         month: "2-digit",
                         year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
                       })
                       : "—"}
                   </span>
@@ -243,8 +244,7 @@ const { mutate: deleteTaskItem } = useDeleteTaskItem();
                 </div>
               </button>
               <ul
-                className={`absolute left-0 top-full z-10 overflow-hidden bg-white shadow transition-all duration-500 ${board ? "max-h-96 opacity-100" : "max-h-0 border-0 opacity-0"
-                  }`}
+                className={`absolute left-0 top-full z-10 overflow-hidden bg-white shadow transition-all duration-500 ${board ? "max-h-96 opacity-100" : "max-h-0 border-0 opacity-0"}`}
               >
                 {menuItem.map((item) => (
                   <li
@@ -265,8 +265,7 @@ const { mutate: deleteTaskItem } = useDeleteTaskItem();
             <DatePicker
               selected={createdAt}
               onChange={(d: Date | null) => setCreatedAt(d)}
-              showTimeSelect
-              dateFormat="dd/MM/yyyy HH:mm"
+              dateFormat="dd/MM/yyyy"
               customInput={
                 <button type="button" className="flex h-8 w-8 items-center justify-center rounded bg-gray-100 hover:bg-blue-100">
                   <GrFormSchedule size={22} />

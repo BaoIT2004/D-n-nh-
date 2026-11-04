@@ -15,4 +15,6 @@ public class ApplicationContext(  // constructor
     public DbSet<AddStatusTask> AddStatusTasks {get;set;}
 
     public DbSet<ProjectMember> ProjectMembers { get; set; }
+
+    public DbSet<TaskAttachment> TaskAttachments { get; set; }
 }

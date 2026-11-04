@@ -8,13 +8,10 @@ using System.Text;
 using WebApplication1.Repositories;
 using WebApplication1.Services;
 
-
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddScoped<PasswordService>();
-
 //JWT
 builder.Services.AddAuthentication(Options =>
 {
@@ -36,8 +33,6 @@ builder.Services.AddAuthentication(Options =>
     };
 });
 
-
-
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<UserRepository>();
@@ -50,6 +45,8 @@ builder.Services.AddScoped<StatusTaskRepository>();
 builder.Services.AddScoped<StatusTaskService>();
 builder.Services.AddScoped<TaskItemRepositories>();
 builder.Services.AddScoped<TaskItemService>();
+builder.Services.AddScoped<TaskAttachmentRepository>();
+builder.Services.AddScoped<TaskAttachmentService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 // core kết nối với react
@@ -63,7 +60,6 @@ builder.Services.AddCors(options =>
     );
 }
 );
-
 // kết nối với database
 builder.Services.AddDbContext<ApplicationContext>(
     Options => Options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")
@@ -71,10 +67,8 @@ builder.Services.AddDbContext<ApplicationContext>(
 );
 
 var app = builder.Build();
-
 // xây dựng middleware
 app.UseMiddleware<RequestCultureMiddleware>();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -85,6 +79,5 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 app.Run();

@@ -12,4 +12,5 @@ public class TaskItem
         // dự án chứa công việc này
         public int StatusId { get; set; }
         public AddStatusTask? Status { get; set; } 
+        public List<TaskAttachment> Attachments { get; set; } = new();
 }
