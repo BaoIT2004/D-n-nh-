@@ -19,6 +19,7 @@ namespace WebApplication1.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        //p.UserId == UserId: hỏi “project này của ai?
         public Task<List<newProject>> GetAllProjectAsync(int UserId)
         {
             return _dbContext.Projects.Where(p=>p.UserId == UserId).ToListAsync();
@@ -30,8 +31,8 @@ namespace WebApplication1.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        //lấy id từ project
-        public async Task<newProject?> GetProjectByIdAsunc (int id)
+        //p.Id == id: có nghĩa là đây là project số mấy
+        public async Task<newProject?> GetProjectByIdAsync (int id)
         {
             return await _dbContext.Projects.FirstOrDefaultAsync(p=>p.Id == id);
         }

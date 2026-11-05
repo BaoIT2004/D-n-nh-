@@ -22,7 +22,7 @@ namespace WebApplication1.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("AddStatusTask", b =>
+            modelBuilder.Entity("WebApplication1.Models.AddStatusTask", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -42,6 +42,39 @@ namespace WebApplication1.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("AddStatusTasks");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly>("CreatedAt")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Degree")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("WorkType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("TaskItem");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.User", b =>
@@ -127,40 +160,7 @@ namespace WebApplication1.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.taskItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateOnly>("DateTime")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Degree")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("WorkType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("TaskItem");
-                });
-
-            modelBuilder.Entity("AddStatusTask", b =>
+            modelBuilder.Entity("WebApplication1.Models.AddStatusTask", b =>
                 {
                     b.HasOne("WebApplication1.Models.newProject", "Project")
                         .WithMany("StatusTasks")
@@ -169,6 +169,17 @@ namespace WebApplication1.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
+                {
+                    b.HasOne("WebApplication1.Models.AddStatusTask", "Status")
+                        .WithMany("Tasks")
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.newProject", b =>
@@ -193,15 +204,9 @@ namespace WebApplication1.Migrations
                     b.Navigation("userId");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.taskItem", b =>
+            modelBuilder.Entity("WebApplication1.Models.AddStatusTask", b =>
                 {
-                    b.HasOne("WebApplication1.Models.newProject", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.User", b =>

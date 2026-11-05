@@ -178,7 +178,7 @@ namespace WebApplication1.Services
         {
             var errors = new List<string>();
             //1.Tìm dự án cần xóa
-            var deleteProject = await _projectRepository.GetProjectByIdAsunc(id);
+            var deleteProject = await _projectRepository.GetProjectByIdAsync(id);
 
             //2.Kiểm tra project có tồn tại không
 

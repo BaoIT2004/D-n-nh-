@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { newProject } from '../services/newProject'
+import { createProject } from '../services/projectService'
 import { useNavigate } from 'react-router-dom';
 
 
@@ -11,10 +11,15 @@ function addProject() {
 
     async function handleNewProject() {
         try {
-            await newProject(nameProject, status, 0);
-            navigate("/");
+            const result = await createProject(nameProject, status);
+            if (result.success) {
+                navigate("/");
+            } else {
+                alert(result.message);
+            }
         } catch (err) {
             console.error(err);
+            alert("Không thể tạo dự án.");
         }
     }
 

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/register.css';
 import { PiCodesandboxLogoDuotone } from "react-icons/pi";
 import { IoMdHelpCircleOutline } from "react-icons/io";
-import { logoutUser } from "../services/User";
+import { logoutUser } from "../services/userService";
 import { useState } from 'react';
 
 
@@ -14,11 +14,12 @@ function Search() {
     const email = localStorage.getItem("email")
 
     const handleLogout = async () => {
-        try{
-            await logoutUser();
-        }finally{
-            navigate('/login')
+        const result = await logoutUser();
+        if (!result.success) {
+            alert(result.message);
+            return;
         }
+        navigate('/login');
     }
 
     return (
