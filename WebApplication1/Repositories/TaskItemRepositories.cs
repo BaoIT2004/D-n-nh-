@@ -24,11 +24,11 @@ public class TaskItemRepositories
     public async Task<List<TaskItem>> GetAllTaskItemAsync(int statusId, int userId)
     {
         return await _dbcontext.TaskItem.Where(task => task.StatusId == statusId &&
-        (task.Status!.Project!.UserId == userId || 
+        (task.Status!.Project!.UserId == userId ||
         task.Status!.Project!.ProjectMembers.Any(member => member.UserId == userId))).ToListAsync(); //TaskItem không có UserId trực tiếp, nên phải đi qua Status rồi Project mới biết task này thuộc user nào
     }
 
-  
+
 
 
     public async Task UpdateTaskItemAsync(TaskItem taskItem)
@@ -43,8 +43,9 @@ public class TaskItemRepositories
     }
 
 
-    public async Task<TaskItem?> TaskItemAsync(int statusId){
-        return await _dbcontext.TaskItem.FirstOrDefaultAsync(p => p.StatusId == statusId);        
+    public async Task<TaskItem?> TaskItemAsync(int statusId)
+    {
+        return await _dbcontext.TaskItem.FirstOrDefaultAsync(p => p.StatusId == statusId);
     }
 
 

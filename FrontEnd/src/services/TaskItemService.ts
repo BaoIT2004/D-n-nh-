@@ -2,8 +2,8 @@ import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
 import type { AddTaskItem, DeleteTaskITem, GetAllTaskItem, UpdateTaskItem } from "../types/TaskITem";
 
 
-// Thêm 
-export function AddTaskItem(
+// Thêm
+export function addTaskItem(
     Title: string,
     createdAt: string,   // DateOnly
     workType: string,
@@ -16,7 +16,7 @@ export function AddTaskItem(
     });
 }
 
-//Hiển thị 
+//Hiển thị
 export function GetAllTaskItems(
     statusId: number,
 ): Promise<ServiceResult<GetAllTaskItem[]>> {
@@ -33,9 +33,9 @@ export function GetAllTaskItems(
         method: "GET"
     });
 }
-    
-export function DeleteTaskITem(
-taskItemId: number, statusId: number,
+
+export function deleteTaskItem(
+taskItemId: number,
 ): Promise<ServiceResult<DeleteTaskITem>> {
     const userId = getStoredUserId();
     if (!userId) {
@@ -49,7 +49,7 @@ taskItemId: number, statusId: number,
     });
 }
 
-export function UpdateTaskItem(
+export function updateTaskItem(
     title: string,
     createdAt: string,   // DateOnly
     workType: string,

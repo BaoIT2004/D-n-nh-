@@ -12,19 +12,17 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class ProjectMembersController : Controller
     {
-        private readonly ApplicationContext _dbContext;
         private readonly ProjectMemberService _projectMemberService;
 
-        public ProjectMembersController(ApplicationContext dbContext, ProjectMemberService projectMemberService)
+        public ProjectMembersController(ProjectMemberService projectMemberService)
         {
-            _dbContext = dbContext;
             _projectMemberService = projectMemberService;
         }
 
         // thêm người
         [HttpPost("{projectId}/members")]
         [Authorize]
-        public async Task<IActionResult> projectMember (int projectId, [FromBody] ProjectMembersRequestDto request)
+        public async Task<IActionResult> projectMember(int projectId, [FromBody] ProjectMembersRequestDto request)
         {
             int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var response = await _projectMemberService.AddMemberAsync(projectId, userId, request);

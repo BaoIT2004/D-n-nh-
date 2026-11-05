@@ -39,7 +39,7 @@ public class StatusTaskRepository
         return await _dbContext.AddStatusTasks.FirstOrDefaultAsync(p => p.Id == statusTaskId && p.ProjectId == projectId);
     }
 
-    
+
 
     public async Task UpdateStatusTaskAsync(AddStatusTask statusTask)
     {
@@ -48,10 +48,10 @@ public class StatusTaskRepository
     }
 
     // TÌm status số mấy 
-    public async Task<AddStatusTask?> GetStatusTaskById (int id)
+    public async Task<AddStatusTask?> GetStatusTaskById(int id)
     {
-        return await _dbContext.AddStatusTasks.Include(s=> s.Project).FirstOrDefaultAsync(p => p.Id == id);
+        return await _dbContext.AddStatusTasks.Include(s => s.Project).FirstOrDefaultAsync(p => p.Id == id);
     }
 
-   
+
 }

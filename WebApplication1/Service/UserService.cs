@@ -21,7 +21,7 @@ public class UserService
         _jwtService = jwtService;
     }
 
-   
+
     //  Đăng nhập
     public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request)
     {
@@ -98,7 +98,8 @@ public class UserService
         {
             errors.Add("Email không được để trống");
         }
-        if (string.IsNullOrWhiteSpace(request.Password)){
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
             errors.Add("Mật khẩu không được để trống");
         }
 
@@ -115,9 +116,9 @@ public class UserService
         }
 
         //2. Kiểm Email đã tồn tại chưa
-        var existingUser  = await _userRepository.GetByEmailAsync(request.Email);
+        var existingUser = await _userRepository.GetByEmailAsync(request.Email);
 
-        if(existingUser  != null)
+        if (existingUser != null)
         {
             return new ApiResponse<RegisterResponseDto>
             {
@@ -192,10 +193,10 @@ public class UserService
                 Status = false,
                 Message = "Không tìm thấy token",
                 Data = null!,
-                Errors = new List<string> {"token không hợp lệ"}
+                Errors = new List<string> { "token không hợp lệ" }
             };
         }
-    
+
         //3. Map sang LogoutnResponseDto trả về cho Controller
         return new ApiResponse<LogoutResponseDto>
         {

@@ -7,19 +7,17 @@ using WebApplication1.Repositories;
 
 public class TaskItemService
 {
-    private readonly ApplicationContext _dbcontext;
     private readonly TaskItemRepositories _taskItemRepositories;
 
     private readonly StatusTaskRepository _statusTaskRepository;
 
     private readonly ProjectRepository _projectRepository;
 
-    public TaskItemService(ApplicationContext dbcontext,
+    public TaskItemService(
     TaskItemRepositories taskItemRepositories,
     StatusTaskRepository statusTaskRepository,
     ProjectRepository projectRepository)
     {
-        _dbcontext = dbcontext;
         _taskItemRepositories = taskItemRepositories;
         _statusTaskRepository = statusTaskRepository;
         _projectRepository = projectRepository;
@@ -29,7 +27,7 @@ public class TaskItemService
     //thêm
     public async Task<ApiResponse<AddTaskItemResponseDto>> AddTaskItem(AddTaskItemRequestDto request, int userId, int statusTaskId)
     {
-        //1. validate dữ liệu 
+        //1. validate dữ liệu
         var err = new List<string>();
 
         if (string.IsNullOrWhiteSpace(request.Title))
@@ -75,7 +73,7 @@ public class TaskItemService
             };
         }
 
-        // tạo mới 
+        // tạo mới
         var newTaskItem = new TaskItem
         {
             Title = request.Title,
@@ -140,7 +138,7 @@ public class TaskItemService
     // cập nhật
     public async Task<ApiResponse<UpdateTaskItemResponseDto>> UpdateTaskItemService(UpdateTaskItemRequestDto request, int userId, int taskItemId)
     {
-        //1. validate dữ liệu 
+        //1. validate dữ liệu
         var err = new List<string>();
 
         if (string.IsNullOrWhiteSpace(request.Title))
@@ -173,7 +171,7 @@ public class TaskItemService
             };
         }
 
-        
+
         var taskItem = await _taskItemRepositories.GetStatusItemAsync(taskItemId);
 
         if (taskItem == null || taskItem.Status == null)
@@ -189,7 +187,7 @@ public class TaskItemService
             }
         }
 
-        
+
         var canAccess = await _projectRepository.CanAccessProjectAsync(taskItem.Status.ProjectId, userId);
         if (!canAccess)
         {
@@ -228,9 +226,9 @@ public class TaskItemService
             };
         }
 
-        if(targetStatus.ProjectId != taskItem.Status.ProjectId)
+        if (targetStatus.ProjectId != taskItem.Status.ProjectId)
         {
-             return new ApiResponse<UpdateTaskItemResponseDto>
+            return new ApiResponse<UpdateTaskItemResponseDto>
             {
                 StatusCode = StatusCodes.Status400BadRequest,
                 Status = false,
@@ -293,7 +291,7 @@ public class TaskItemService
             };
         }
 
-        //Xóa dự án 
+        //Xóa dự án
         await _taskItemRepositories.DeleteTaskItemReposity(taskItem);
 
         return new ApiResponse<bool>

@@ -27,16 +27,16 @@ namespace WebApplication1.Repositories
                 .ToListAsync();
         }
 
-        public async Task UpdateProjectAsync(newProject newProject) 
+        public async Task UpdateProjectAsync(newProject newProject)
         {
             _dbContext.Projects.Update(newProject);
             await _dbContext.SaveChangesAsync();
         }
 
         //p.Id == id: có nghĩa là đây là project số mấy
-        public async Task<newProject?> GetProjectByIdAsync (int id)
+        public async Task<newProject?> GetProjectByIdAsync(int id)
         {
-            return await _dbContext.Projects.FirstOrDefaultAsync(p=>p.Id == id);
+            return await _dbContext.Projects.FirstOrDefaultAsync(p => p.Id == id);
         }
 
 
@@ -47,7 +47,7 @@ namespace WebApplication1.Repositories
         }
 
 
-        public Task<bool>CanAccessProjectAsync(int projectId, int userId)
+        public Task<bool> CanAccessProjectAsync(int projectId, int userId)
         {
             return _dbContext.Projects.AnyAsync(project =>
                 project.Id == projectId &&

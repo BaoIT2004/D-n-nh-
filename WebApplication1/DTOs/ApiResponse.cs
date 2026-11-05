@@ -2,7 +2,7 @@ namespace WebApplication1.DTOs.ApiResponse
 {
     public class ApiResponse<T> // 
     {
-        public int StatusCode {get; set;}// mã code
+        public int StatusCode { get; set; }// mã code
         public bool Status { get; set; } // cho biết request thành công hay thất bại
         public string Message { get; set; } // thông báo cho client
 

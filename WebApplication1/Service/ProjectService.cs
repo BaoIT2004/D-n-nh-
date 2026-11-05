@@ -1,8 +1,8 @@
 using WebApplication1.Data;
 using WebApplication1.DTOs.ApiResponse;
+using WebApplication1.DTOs.Project;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
-using WebApplication1.DTOs.Project;
 
 namespace WebApplication1.Services
 {

@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { addMember } from "../../services/projectService";
 import toast from "react-hot-toast";
 import { useCreateProject } from "../../hooks/projects/use-create-project";
 
 function AddProject() {
   const [nameProject, setnameProject] = useState("");
   const [status, setStatus] = useState("private");
-  const [memberId, setMemberId] = useState("");
   const { mutate } = useCreateProject();
 
   async function HandleNewProject() {

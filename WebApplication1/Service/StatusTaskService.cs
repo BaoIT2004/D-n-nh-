@@ -9,18 +9,14 @@ namespace WebApplication1.Services
 {
     public class StatusTaskService
     {
-        private readonly ApplicationContext _dbContext;
         private readonly StatusTaskRepository _statusTaskRepository;
-
         private readonly ProjectRepository _projectRepository;
 
         public StatusTaskService(
-           ApplicationContext dbcontext,
            StatusTaskRepository statusTaskRepository,
            ProjectRepository projectRepository
         )
         {
-            _dbContext = dbcontext;
             _statusTaskRepository = statusTaskRepository;
             _projectRepository = projectRepository;
         }
@@ -49,7 +45,7 @@ namespace WebApplication1.Services
 
             if (!canAcess)
             {
-                 return new ApiResponse<StatusTaskResponseDto>
+                return new ApiResponse<StatusTaskResponseDto>
                 {
                     StatusCode = StatusCodes.Status403Forbidden,
                     Status = false,
@@ -100,8 +96,8 @@ namespace WebApplication1.Services
                     Data = null!
                 };
             }
-           
-            //1.Lấy toàn bộ  trạng thái dự án 
+
+            //1.Lấy toàn bộ  trạng thái dự án
             var statusTask = await _statusTaskRepository.GetAllStatusProjectAsync(projectId, userId);
             //2.Map qua controller
 
@@ -161,7 +157,7 @@ namespace WebApplication1.Services
             };
         }
 
-        //4.Cập nhật 
+        //4.Cập nhật
         public async Task<ApiResponse<StatusTaskResponseDto>> UpdateStatusTaskAsync(
             int projectId,
             int userId,

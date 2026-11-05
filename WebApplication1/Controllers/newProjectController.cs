@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Data;
-using  WebApplication1.Services;
+using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
 {
@@ -10,14 +10,11 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class NewProjectController : Controller
     {
-        private readonly ApplicationContext dbContext;
         private readonly ProjectService _projectService;
 
         public NewProjectController(
-            ApplicationContext dbContext,
             ProjectService projectService)
         {
-            this.dbContext = dbContext;
             _projectService = projectService;
         }
 
@@ -38,7 +35,7 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> AllProject(int userId)
         {
             var userMember = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _projectService.GetAllProjects(userId , userMember);
+            var response = await _projectService.GetAllProjects(userId, userMember);
             return StatusCode(response.StatusCode, response);
         }
 
