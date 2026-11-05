@@ -20,9 +20,11 @@ namespace WebApplication1.Repositories
         }
 
         //p.UserId == UserId: hỏi “project này của ai?
-        public Task<List<newProject>> GetAllProjectAsync(int UserId)
+        public Task<List<newProject>> GetAllProjectAsync(int userId)
         {
-            return _dbContext.Projects.Where(p=>p.UserId == UserId).ToListAsync();
+            return _dbContext.Projects.Where(p => p.UserId == userId || p.ProjectMembers
+                .Any(member => member.UserId == userId))
+                .ToListAsync();
         }
 
         public async Task UpdateProjectAsync(newProject newProject) 
@@ -42,6 +44,15 @@ namespace WebApplication1.Repositories
         {
             _dbContext.Projects.Remove(newProject);
             await _dbContext.SaveChangesAsync();
+        }
+
+
+        public Task<bool>CanAccessProjectAsync(int projectId, int userId)
+        {
+            return _dbContext.Projects.AnyAsync(project =>
+                project.Id == projectId &&
+                (project.UserId == userId ||
+                 project.ProjectMembers.Any(member => member.UserId == userId)));
         }
 
 

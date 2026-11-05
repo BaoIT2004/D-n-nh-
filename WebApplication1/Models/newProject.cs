@@ -22,5 +22,6 @@ public class newProject
 
     // Một dự án có nhiều trạng thái khác nhau
     public ICollection<AddStatusTask> StatusTasks {get;set;} = new List<AddStatusTask>();
+    public ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
 
 }

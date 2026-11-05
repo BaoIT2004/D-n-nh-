@@ -12,13 +12,17 @@ public class TaskItemService
 
     private readonly StatusTaskRepository _statusTaskRepository;
 
+    private readonly ProjectRepository _projectRepository;
+
     public TaskItemService(ApplicationContext dbcontext,
     TaskItemRepositories taskItemRepositories,
-    StatusTaskRepository statusTaskRepository)
+    StatusTaskRepository statusTaskRepository,
+    ProjectRepository projectRepository)
     {
         _dbcontext = dbcontext;
         _taskItemRepositories = taskItemRepositories;
         _statusTaskRepository = statusTaskRepository;
+        _projectRepository = projectRepository;
     }
 
 
@@ -45,7 +49,6 @@ public class TaskItemService
             err.Add("không được để trống degree");
         }
 
-
         if (err.Count > 0)
         {
             return new ApiResponse<AddTaskItemResponseDto>
@@ -57,11 +60,10 @@ public class TaskItemService
                 Errors = err
             };
         }
+
         //kiểm tra xem người dùng và trạng thái task có đúng không
         var response = await _statusTaskRepository.GetStatusTaskById(statusTaskId);
-        Console.WriteLine($"statusTaskId={statusTaskId}, userId={userId}, response={response?.Id}, project={response?.Project?.UserId}");   
-
-        if (response == null || response.Project == null || response.Project.UserId != userId)
+        if (response == null || !await _projectRepository.CanAccessProjectAsync(response.ProjectId, userId))
         {
             return new ApiResponse<AddTaskItemResponseDto>
             {
@@ -80,7 +82,7 @@ public class TaskItemService
             CreatedAt = request.CreatedAt,   // DateOnly
             WorkType = request.WorkType,
             Degree = request.Degree,
-            StatusId = request.StatusId
+            StatusId = statusTaskId
         };
 
         await _taskItemRepositories.AddTaskItem(newTaskItem);
@@ -106,13 +108,13 @@ public class TaskItemService
     {
         var status = await _statusTaskRepository.GetStatusTaskById(statusId);
 
-        if (status == null || status.Project?.UserId != userId) //status.Project?.UserId != userId:Kiểm tra xem Project chứa Status này có thuộc về người dùng đang đăng nhập hay không.
+        if (status == null || !await _projectRepository.CanAccessProjectAsync(status.ProjectId, userId)) //status.Project?.UserId != userId:Kiểm tra xem Project chứa Status này có thuộc về người dùng đang đăng nhập hay không.
         {
             return new ApiResponse<List<AddTaskItemResponseDto>>
             {
                 StatusCode = StatusCodes.Status404NotFound,
                 Status = false,
-                Message = "Không có dự án để hiển thị",
+                Message = "Trạng thái không tồi tại",
                 Data = null!
             };
         }
@@ -171,29 +173,68 @@ public class TaskItemService
             };
         }
 
+        
         var taskItem = await _taskItemRepositories.GetStatusItemAsync(taskItemId);
 
-        if (taskItem == null || taskItem.Status?.Project?.UserId != userId)
+        if (taskItem == null || taskItem.Status == null)
         {
             {
                 return new ApiResponse<UpdateTaskItemResponseDto>
                 {
                     StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
-                    Message = "Không tìm thấy dự án",
+                    Message = "Không tìm thấy công việc",
                     Data = null!,
                 };
             }
         }
 
+        
+        var canAccess = await _projectRepository.CanAccessProjectAsync(taskItem.Status.ProjectId, userId);
+        if (!canAccess)
+        {
+            return new ApiResponse<UpdateTaskItemResponseDto>
+            {
+                StatusCode = StatusCodes.Status403Forbidden,
+                Status = false,
+                Message = "Bạn không có quyền truy cập dự án",
+                Data = null!
+            };
+        }
+
+
         var targetStatus = await _statusTaskRepository.GetStatusTaskById(request.StatusId);
-        if (targetStatus == null || targetStatus.Project?.UserId != userId)
+        if (targetStatus == null)
         {
             return new ApiResponse<UpdateTaskItemResponseDto>
             {
                 StatusCode = StatusCodes.Status404NotFound,
                 Status = false,
                 Message = "Trạng thái không tồn tại",
+                Data = null!
+            };
+        }
+
+        var canAccessTargetProject = await _projectRepository.CanAccessProjectAsync(targetStatus.ProjectId, userId);
+
+        if (!canAccessTargetProject)
+        {
+            return new ApiResponse<UpdateTaskItemResponseDto>
+            {
+                StatusCode = StatusCodes.Status403Forbidden,
+                Status = false,
+                Message = "Bạn không có quyền truy cập dự án",
+                Data = null!
+            };
+        }
+
+        if(targetStatus.ProjectId != taskItem.Status.ProjectId)
+        {
+             return new ApiResponse<UpdateTaskItemResponseDto>
+            {
+                StatusCode = StatusCodes.Status400BadRequest,
+                Status = false,
+                Message = "Bạn không thể chuyển công việc qua dựa án khác",
                 Data = null!
             };
         }
@@ -217,37 +258,50 @@ public class TaskItemService
                 Title = taskItem.Title,
                 CreatedAt = taskItem.CreatedAt,
                 WorkType = taskItem.WorkType,
-                Degree = taskItem.Degree
+                Degree = taskItem.Degree,
+                StatusId = taskItem.StatusId
             }
         };
     }
 
     //Xóa
-    public async Task<ApiResponse<AddTaskItemResponseDto>> DeleteTaskItem(int userId, int taskItemId)
+    public async Task<ApiResponse<bool>> DeleteTaskItem(int userId, int taskItemId)
     {
         //kiểm tra xem người dùng và trạng thái task có đúng không
         var taskItem = await _taskItemRepositories.GetStatusItemAsync(taskItemId);
 
-        if (taskItem == null || taskItem.Status?.Project?.UserId != userId)
+        if (taskItem == null || taskItem.Status == null)
         {
-            return new ApiResponse<AddTaskItemResponseDto>
+            return new ApiResponse<bool>
             {
                 StatusCode = StatusCodes.Status404NotFound,
                 Status = false,
                 Message = "Không tìm thấy công việc hoặc bạn không có quyền",
-                Data = null!
+                Data = false
+            };
+        }
+
+        var canAccess = await _projectRepository.CanAccessProjectAsync(taskItem.Status.ProjectId, userId);
+        if (!canAccess)
+        {
+            return new ApiResponse<bool>
+            {
+                StatusCode = StatusCodes.Status403Forbidden,
+                Status = false,
+                Message = "Bạn không có quyền truy cập dự án",
+                Data = false
             };
         }
 
         //Xóa dự án 
         await _taskItemRepositories.DeleteTaskItemReposity(taskItem);
 
-        return new ApiResponse<AddTaskItemResponseDto>
+        return new ApiResponse<bool>
         {
             StatusCode = StatusCodes.Status200OK,
             Status = true,
             Message = "Xóa công việc thành công",
-            Data = null!
+            Data = true
         };
     }
 

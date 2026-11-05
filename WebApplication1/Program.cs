@@ -43,6 +43,8 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProjectRepository>();
+builder.Services.AddScoped<ProjectMemberRepository>();
+builder.Services.AddScoped<ProjectMemberService>();
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<StatusTaskRepository>();
 builder.Services.AddScoped<StatusTaskService>();

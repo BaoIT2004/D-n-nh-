@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { AllProject} from "../../services/ProjectService";
+import { AllProject} from "../../services/projectService";
 import type { Project } from "../../types/project";
 import { getStoredUserId } from "../../services/Api";
 

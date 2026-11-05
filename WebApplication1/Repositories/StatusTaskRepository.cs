@@ -23,7 +23,9 @@ public class StatusTaskRepository
 
     public async Task<List<AddStatusTask>> GetAllStatusProjectAsync(int projectId, int userId)
     {
-        return await _dbContext.AddStatusTasks.Where(p => p.ProjectId == projectId && p.Project!.UserId == userId).ToListAsync();
+        return await _dbContext.AddStatusTasks.Where(status => status.ProjectId == projectId &&
+        (status.Project!.UserId == userId ||
+        status.Project.ProjectMembers.Any(member => member.UserId == userId))).ToListAsync();
     }
 
     public async Task DeleteStatusTaskAsync(AddStatusTask addStatusTask)

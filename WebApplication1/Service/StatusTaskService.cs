@@ -1,6 +1,5 @@
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.DTOs.ApiResponse;
 using WebApplication1.Models;
@@ -46,15 +45,15 @@ namespace WebApplication1.Services
                 };
             }
 
-            var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+            var canAcess = await _projectRepository.CanAccessProjectAsync(request.ProjectId, userId);
 
-            if (project == null || project.UserId != userId)
+            if (!canAcess)
             {
-                return new ApiResponse<StatusTaskResponseDto>
+                 return new ApiResponse<StatusTaskResponseDto>
                 {
-                    StatusCode = StatusCodes.Status404NotFound,
+                    StatusCode = StatusCodes.Status403Forbidden,
                     Status = false,
-                    Message = "Không tìm thấy dự án",
+                    Message = "Bạn không thể truy cập dự án",
                     Data = null!
                 };
             }
@@ -68,7 +67,6 @@ namespace WebApplication1.Services
 
             //lưu vào db
             await _statusTaskRepository.AddStatusTaskAsync(newStatusTask);
-
 
             //Map qua controller
             return new ApiResponse<StatusTaskResponseDto>
@@ -92,7 +90,7 @@ namespace WebApplication1.Services
         {
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
 
-            if (project == null || project.UserId != userId)
+            if (project == null || !await _projectRepository.CanAccessProjectAsync(projectId, userId))
             {
                 return new ApiResponse<List<GetAllStatusTaskResponseDto>>
                 {

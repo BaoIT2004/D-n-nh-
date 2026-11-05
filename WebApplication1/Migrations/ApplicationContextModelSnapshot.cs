@@ -44,6 +44,29 @@ namespace WebApplication1.Migrations
                     b.ToTable("AddStatusTasks");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.ProjectMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProjectMembers");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
                 {
                     b.Property<int>("Id")
@@ -171,6 +194,25 @@ namespace WebApplication1.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.ProjectMember", b =>
+                {
+                    b.HasOne("WebApplication1.Models.newProject", "Project")
+                        .WithMany("ProjectMembers")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.User", "User")
+                        .WithMany("ProjectMembers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
                 {
                     b.HasOne("WebApplication1.Models.AddStatusTask", "Status")
@@ -211,11 +253,15 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.User", b =>
                 {
+                    b.Navigation("ProjectMembers");
+
                     b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.newProject", b =>
                 {
+                    b.Navigation("ProjectMembers");
+
                     b.Navigation("StatusTasks");
                 });
 #pragma warning restore 612, 618

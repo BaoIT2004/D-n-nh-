@@ -7,7 +7,7 @@
     import { IoSettingsOutline } from "react-icons/io5";
     import { MdMenuOpen } from "react-icons/md";
     import { useNavigate } from "react-router-dom";
-    import { AllProject } from "../../services/ProjectService";
+    import { AllProject } from "../../services/projectService";
     import type { Project } from "../../types/project";
     import { SiAlby } from "react-icons/si";
     import { getStoredUserId } from "../../services/Api";
@@ -78,7 +78,6 @@
                 </div>
                 <ul>
                     {
-
                         menuItem.map((item, index) => {
                             if (item.isProject) {
                                 return (

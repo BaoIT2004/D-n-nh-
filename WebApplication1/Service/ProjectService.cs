@@ -19,8 +19,9 @@ namespace WebApplication1.Services
             _projectRepository = projectRepository;
         }
 
+
         //Thêm dự án
-        public async Task<ApiResponse<ProjectResponseDto>> AddNewProject(ProjectRequestDto project)
+        public async Task<ApiResponse<ProjectResponseDto>> AddNewProject(ProjectRequestDto project, int userId)
         {
             //1. Validate nôi dung người dùng gửi
             var errors = new List<string>();
@@ -45,7 +46,7 @@ namespace WebApplication1.Services
                 };
             }
 
-            var user = _dbContext.Users.Any(user => user.Id == project.UserId);
+            var user = _dbContext.Users.Any(user => user.Id == userId);
             if (!user)
             {
                 return new ApiResponse<ProjectResponseDto>
@@ -63,7 +64,7 @@ namespace WebApplication1.Services
             {
                 nameProject = project.NameProject,
                 status = project.Status,
-                UserId = project.UserId
+                UserId = userId
             };
             //3. Lưu dữ liệu
             await _projectRepository.AddProjectAsync(newProject);
@@ -83,12 +84,23 @@ namespace WebApplication1.Services
         }
 
         //Hiển thị toàn bộ dự án
-        public async Task<ApiResponse<List<GetAllProjectResponseDto>>> GetAllProjects(int userId)
+        public async Task<ApiResponse<List<GetAllProjectResponseDto>>> GetAllProjects(int userId, int userMember)
         {
-            //1.Lấy toàn bộ thông tin dự án
-            var projects = await _projectRepository.GetAllProjectAsync(userId);
+            // Kiểm tra người dùng có quyền xem danh sách này
+            if (userId != userMember)
+            {
+                return new ApiResponse<List<GetAllProjectResponseDto>>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Status = false,
+                    Message = "Bạn không có quyền xem danh sách này",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
 
-            //2.Map sang GetAllUsersAsync trả về cho Controller
+            // Lấy project người dùng sở hữu hoặc được mời tham gia
+            var projects = await _projectRepository.GetAllProjectAsync(userMember);
 
             return new ApiResponse<List<GetAllProjectResponseDto>>
             {
@@ -107,7 +119,7 @@ namespace WebApplication1.Services
         }
 
         //cập nhật dự án
-        public async Task<ApiResponse<ProjectResponseDto>> UpdateProjectAsync(UpdateProjectRequestDto project, int id)
+        public async Task<ApiResponse<ProjectResponseDto>> UpdateProjectAsync(UpdateProjectRequestDto project, int id, int userId)
         {
             //1. Validate dự liệu
             var errors = new List<string>();
@@ -134,8 +146,8 @@ namespace WebApplication1.Services
                 };
             }
 
-            //2. Tìm id của dự án  FirstOrDefault: tìm phần tử đầu tiên
-            var update = _dbContext.Projects.FirstOrDefault(p => p.Id == id);  // tìm đầu tiên trong bảng project có Id bằng với biến id 
+            //2. Tìm dự án cần cập nhật
+            var update = await _projectRepository.GetProjectByIdAsync(id);
 
             if (update == null)
             {
@@ -148,13 +160,23 @@ namespace WebApplication1.Services
                     Errors = errors
                 };
             }
-            else
-            {
-                update.nameProject = project.NameProject;
-                update.status = project.Status;
 
+            var isOwner = update.UserId == userId;
+            if (!isOwner)
+            {
+                return new ApiResponse<ProjectResponseDto>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Status = false,
+                    Message = "Chỉ chủ dự án mới được cập nhật dự án",
+                    Data = null!,
+                    Errors = errors
+                };
             }
-            ;
+
+            update.nameProject = project.NameProject;
+            update.status = project.Status;
+
             //3. Lưu thông tin sau cập nhật
             await _projectRepository.UpdateProjectAsync(update);
 
@@ -174,7 +196,7 @@ namespace WebApplication1.Services
         }
 
         //Xóa dự án 
-        public async Task<ApiResponse<DeleteProjectResponseDto>> DeleteProjectAsync(int id)
+        public async Task<ApiResponse<DeleteProjectResponseDto>> DeleteProjectAsync(int id, int userId)
         {
             var errors = new List<string>();
             //1.Tìm dự án cần xóa
@@ -189,6 +211,19 @@ namespace WebApplication1.Services
                     StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
                     Message = "Không tìm thấy project",
+                    Data = null!,
+                    Errors = errors
+                };
+            }
+
+            var isOwner = deleteProject.UserId == userId;
+            if (!isOwner)
+            {
+                return new ApiResponse<DeleteProjectResponseDto>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Status = false,
+                    Message = "Chỉ chủ dự án mới được xóa dự án",
                     Data = null!,
                     Errors = errors
                 };

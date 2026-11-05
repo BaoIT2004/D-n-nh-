@@ -15,3 +15,8 @@ export type GetAllStatusTaask = {
     status: string;
     projectId: number;
 }
+
+
+export type AddMemberResponse = {
+    projectId:number;
+}
