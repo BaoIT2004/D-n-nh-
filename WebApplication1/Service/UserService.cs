@@ -3,210 +3,212 @@ using WebApplication1.DTOs.Auth;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
 
-namespace WebApplication1.Service;
-
-public class UserService
+namespace WebApplication1.Service
 {
-    private readonly UserRepository _userRepository;
-    private readonly PasswordService _passwordService;
-    private readonly JwtService _jwtService;
-
-    public UserService(
-        UserRepository userRepository,
-        PasswordService passwordService,
-        JwtService jwtService)
+    public class UserService
     {
-        _userRepository = userRepository;
-        _passwordService = passwordService;
-        _jwtService = jwtService;
-    }
+        private readonly UserRepository _userRepository;
+        private readonly PasswordService _passwordService;
+        private readonly JwtService _jwtService;
 
-
-    //  Đăng nhập
-    public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request)
-    {
-        // 1. Validate dữ liệu đầu vào
-        var errors = new List<string>();
-        if (string.IsNullOrWhiteSpace(request.Email))
+        public UserService(
+            UserRepository userRepository,
+            PasswordService passwordService,
+            JwtService jwtService)
         {
-            errors.Add("Email không được để trống");
-        }
-        if (string.IsNullOrWhiteSpace(request.Password))
-        {
-            errors.Add("Mật khẩu không được để trống");
+            _userRepository = userRepository;
+            _passwordService = passwordService;
+            _jwtService = jwtService;
         }
 
-        if (errors.Count > 0)
+
+        //  Đăng nhập
+        public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request)
         {
+            // 1. Validate dữ liệu đầu vào
+            var errors = new List<string>();
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                errors.Add("Email không được để trống");
+            }
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                errors.Add("Mật khẩu không được để trống");
+            }
+
+            if (errors.Count > 0)
+            {
+                return new ApiResponse<LoginResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Dữ liệu đăng nhập không hợp lệ",
+                    Data = null!,
+                    Errors = errors
+                };
+            }
+
+            // 2. Tìm user theo email thông qua Repository
+            var user = await _userRepository.GetByEmailAsync(request.Email);
+
+            // 3. Kiểm tra sự tồn tại của user và xác thực mật khẩu
+            if (user == null || !_passwordService.VerifyPassword(request.Password, user.passWord))
+            {
+                return new ApiResponse<LoginResponseDto>
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized,
+                    Status = false,
+                    Message = "Email hoặc mật khẩu không đúng",
+                    Data = null!,
+                    Errors = new List<string> { "Email hoặc mật khẩu không đúng" }
+                };
+            }
+
+            // 4. Tạo cặp AccessToken & RefreshToken
+            var token = await _jwtService.GenerateToken(user);
+
+            // 5. Map sang LoginResponseDto trả về cho Controller
             return new ApiResponse<LoginResponseDto>
             {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Status = false,
-                Message = "Dữ liệu đăng nhập không hợp lệ",
-                Data = null!,
-                Errors = errors
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Đăng nhập thành công",
+                Data = new LoginResponseDto
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email,
+                    AccessToken = token.AccessToken,
+                    RefreshToken = token.RefreshToken
+                }
             };
         }
 
-        // 2. Tìm user theo email thông qua Repository
-        var user = await _userRepository.GetByEmailAsync(request.Email);
 
-        // 3. Kiểm tra sự tồn tại của user và xác thực mật khẩu
-        if (user == null || !_passwordService.VerifyPassword(request.Password, user.passWord))
+        // Đăng ký
+        public async Task<ApiResponse<RegisterResponseDto>> RegisterAsync(RegisterRequestDto request)
         {
-            return new ApiResponse<LoginResponseDto>
+            //1. Validate dữ liệu đầu vào
+            var errors = new List<string>();  // tạo danh sách trống lưu dạng chuỗi
+            if (string.IsNullOrWhiteSpace(request.Name))
             {
-                StatusCode = StatusCodes.Status401Unauthorized,
-                Status = false,
-                Message = "Email hoặc mật khẩu không đúng",
-                Data = null!,
-                Errors = new List<string> { "Email hoặc mật khẩu không đúng" }
-            };
-        }
-
-        // 4. Tạo cặp AccessToken & RefreshToken
-        var token = await _jwtService.GenerateToken(user);
-
-        // 5. Map sang LoginResponseDto trả về cho Controller
-        return new ApiResponse<LoginResponseDto>
-        {
-            StatusCode = StatusCodes.Status200OK,
-            Status = true,
-            Message = "Đăng nhập thành công",
-            Data = new LoginResponseDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                AccessToken = token.AccessToken,
-                RefreshToken = token.RefreshToken
+                errors.Add("Không được để trống tên");
             }
-        };
-    }
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                errors.Add("Email không được để trống");
+            }
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                errors.Add("Mật khẩu không được để trống");
+            }
 
+            if (errors.Count > 0)
+            {
+                return new ApiResponse<RegisterResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Dữ liệu đăng ký không hợp lệ",
+                    Data = null!,
+                    Errors = errors
+                };
+            }
 
-    // Đăng ký
-    public async Task<ApiResponse<RegisterResponseDto>> RegisterAsync(RegisterRequestDto request)
-    {
-        //1. Validate dữ liệu đầu vào
-        var errors = new List<string>();  // tạo danh sách trống lưu dạng chuỗi
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            errors.Add("Không được để trống tên");
-        }
-        if (string.IsNullOrWhiteSpace(request.Email))
-        {
-            errors.Add("Email không được để trống");
-        }
-        if (string.IsNullOrWhiteSpace(request.Password))
-        {
-            errors.Add("Mật khẩu không được để trống");
-        }
+            //2. Kiểm Email đã tồn tại chưa
+            var existingUser = await _userRepository.GetByEmailAsync(request.Email);
 
-        if (errors.Count > 0)
-        {
+            if (existingUser != null)
+            {
+                return new ApiResponse<RegisterResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Email đã tồn tại trong hệ thống",
+                    Data = null!,
+                    Errors = errors
+                };
+            }
+
+            //3.Lưu người dùng
+            var newUser = new User
+            {
+                Name = request.Name,
+                Email = request.Email,
+                passWord = _passwordService.HashPassword(request.Password)
+            };
+
+            //4.Lưu thông tin người dùng
+            await _userRepository.AddUserAsync(newUser);
+
+            //5.Map sang RegisterResponseDto trả về cho Controller
+
             return new ApiResponse<RegisterResponseDto>
             {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Status = false,
-                Message = "Dữ liệu đăng ký không hợp lệ",
-                Data = null!,
-                Errors = errors
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Đăng ký thành công",
+                Data = new RegisterResponseDto
+                {
+                    Id = newUser.Id,
+                    Name = newUser.Name,
+                    Email = newUser.Email,
+                }
             };
         }
 
-        //2. Kiểm Email đã tồn tại chưa
-        var existingUser = await _userRepository.GetByEmailAsync(request.Email);
 
-        if (existingUser != null)
+        // Hiển thị thông tin user
+        public async Task<ApiResponse<List<GetAllUsersResponseDto>>> GetAllUsersAsync()
         {
-            return new ApiResponse<RegisterResponseDto>
+            //1. Lấy toàn bộ dữ liệu từ db
+            var users = await _userRepository.GetAllAsync(); // map sang UserRepository
+
+            //2.Map sang GetAllUsersAsync trả về cho Controller
+            return new ApiResponse<List<GetAllUsersResponseDto>>
             {
-                StatusCode = StatusCodes.Status400BadRequest,
-                Status = false,
-                Message = "Email đã tồn tại trong hệ thống",
-                Data = null!,
-                Errors = errors
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Hiển thị danh sách các user",
+                Data = users.Select(user => new GetAllUsersResponseDto
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email
+                }).ToList()
             };
         }
 
-        //3.Lưu người dùng 
-        var newUser = new User
+        public async Task<ApiResponse<LogoutResponseDto>> Logout(LogoutResquestDto request)
         {
-            Name = request.Name,
-            Email = request.Email,
-            passWord = _passwordService.HashPassword(request.Password)
-        };
+            //1. Validate kiểm trs đã có token chưa
+            var result = await _jwtService.logoutRefreshtoken(request.RefreshToken);
 
-        //4.Lưu thông tin người dùng
-        await _userRepository.AddUserAsync(newUser);
-
-        //5.Map sang RegisterResponseDto trả về cho Controller
-
-        return new ApiResponse<RegisterResponseDto>
-        {
-            StatusCode = StatusCodes.Status200OK,
-            Status = true,
-            Message = "Đăng ký thành công",
-            Data = new RegisterResponseDto
+            //2. Khi thất bại
+            if (!result)
             {
-                Id = newUser.Id,
-                Name = newUser.Name,
-                Email = newUser.Email,
+                return new ApiResponse<LogoutResponseDto>
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized,
+                    Status = false,
+                    Message = "Không tìm thấy token",
+                    Data = null!,
+                    Errors = new List<string> { "token không hợp lệ" }
+                };
             }
-        };
-    }
 
-
-    // Hiển thị thông tin user
-    public async Task<ApiResponse<List<GetAllUsersResponseDto>>> GetAllUsersAsync()
-    {
-        //1. Lấy toàn bộ dữ liệu từ db
-        var users = await _userRepository.GetAllAsync(); // map sang UserRepository
-
-        //2.Map sang GetAllUsersAsync trả về cho Controller
-        return new ApiResponse<List<GetAllUsersResponseDto>>
-        {
-            StatusCode = StatusCodes.Status200OK,
-            Status = true,
-            Message = "Hiển thị danh sách các user",
-            Data = users.Select(user => new GetAllUsersResponseDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email
-            }).ToList()
-        };
-    }
-
-    public async Task<ApiResponse<LogoutResponseDto>> Logout(LogoutResquestDto request)
-    {
-        //1. Validate kiểm trs đã có token chưa
-        var result = await _jwtService.logoutRefreshtoken(request.RefreshToken);
-
-        //2. Khi thất bại
-        if (!result)
-        {
+            //3. Map sang LogoutnResponseDto trả về cho Controller
             return new ApiResponse<LogoutResponseDto>
             {
-                StatusCode = StatusCodes.Status401Unauthorized,
-                Status = false,
-                Message = "Không tìm thấy token",
-                Data = null!,
-                Errors = new List<string> { "token không hợp lệ" }
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Đăng xuất thành công",
+                Data = new LogoutResponseDto
+                {
+                    Message = "Đăng xuất thành công"
+                },
             };
         }
-
-        //3. Map sang LogoutnResponseDto trả về cho Controller
-        return new ApiResponse<LogoutResponseDto>
-        {
-            StatusCode = StatusCodes.Status200OK,
-            Status = true,
-            Message = "Đăng xuất thành công",
-            Data = new LogoutResponseDto
-            {
-                Message = "Đăng xuất thành công"
-            },
-        };
     }
 }
+

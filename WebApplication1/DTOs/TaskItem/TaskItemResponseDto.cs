@@ -1,3 +1,5 @@
+namespace WebApplication1.DTOs.TaskItem;
+
 public class AddTaskItemResponseDto
 {
     public int Id { get; set; }

@@ -1,3 +1,5 @@
+namespace WebApplication1.DTOs.TaskItem;
+
 public class UpdateTaskItemResponseDto
 {
     public required string Title { get; set; } = string.Empty;

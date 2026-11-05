@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using WebApplication1.DTOs.Auth;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
-
 namespace WebApplication1.Service;
 
 public class JwtService
