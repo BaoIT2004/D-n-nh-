@@ -1,3 +1,4 @@
+namespace WebApplication1.DTOs.Project;
 
 public class GetAllProjectResponseDto
 {

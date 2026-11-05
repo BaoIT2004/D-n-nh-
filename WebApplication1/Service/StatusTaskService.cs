@@ -1,7 +1,7 @@
 
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
 using WebApplication1.DTOs.ApiResponse;
+using WebApplication1.DTOs.StatusTask;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
 
@@ -9,18 +9,14 @@ namespace WebApplication1.Services
 {
     public class StatusTaskService
     {
-        private readonly ApplicationContext _dbContext;
         private readonly StatusTaskRepository _statusTaskRepository;
-
         private readonly ProjectRepository _projectRepository;
 
         public StatusTaskService(
-           ApplicationContext dbcontext,
            StatusTaskRepository statusTaskRepository,
            ProjectRepository projectRepository
         )
         {
-            _dbContext = dbcontext;
             _statusTaskRepository = statusTaskRepository;
             _projectRepository = projectRepository;
         }
@@ -49,7 +45,7 @@ namespace WebApplication1.Services
 
             if (!canAcess)
             {
-                 return new ApiResponse<StatusTaskResponseDto>
+                return new ApiResponse<StatusTaskResponseDto>
                 {
                     StatusCode = StatusCodes.Status403Forbidden,
                     Status = false,
@@ -100,8 +96,8 @@ namespace WebApplication1.Services
                     Data = null!
                 };
             }
-           
-            //1.Lấy toàn bộ  trạng thái dự án 
+
+            //1.Lấy toàn bộ  trạng thái dự án
             var statusTask = await _statusTaskRepository.GetAllStatusProjectAsync(projectId, userId);
             //2.Map qua controller
 
@@ -145,7 +141,7 @@ namespace WebApplication1.Services
                 {
                     StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
-                    Message = "Không tìm thấy dự án",
+                    Message = "Không tìm thấy trạng thái",
                     Data = null!,
                 };
             }
@@ -156,12 +152,15 @@ namespace WebApplication1.Services
             {
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
-                Message = "xóa dự án thành công",
-                Data = null!,
+                Message = "xóa trạng thái thành công",
+                Data = new DaleteStatusTaskResponeDto
+                {
+                    Id = statusTaskId // trả về Id đã xóa
+                },
             };
         }
 
-        //4.Cập nhật 
+        //4.Cập nhật
         public async Task<ApiResponse<StatusTaskResponseDto>> UpdateStatusTaskAsync(
             int projectId,
             int userId,

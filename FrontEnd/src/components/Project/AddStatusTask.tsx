@@ -73,7 +73,7 @@ function BoardPage() {
       setmodal(!modal);
    }
 
-   //Thêm cột mới 
+   //Thêm cột mới
    const handleClickPlus = (columnId: number) => {
       if (openColumnId === columnId) {
          setOpenColumnId(null);      // đang mở đúng cột này → đóng lại
@@ -115,7 +115,6 @@ function BoardPage() {
       })
    }
 
-   
 
    return (
       <nav>

@@ -1,12 +1,11 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
 using WebApplication1.Services;
 namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [ApiController]
     public class TaskAttachmentsController : Controller
     {
 
@@ -16,8 +15,7 @@ namespace WebApplication1.Controllers
         {
             _taskAttachmentService = taskAttachmentService;
         }
-        
-        //Thêm 
+        //Thêm
         [HttpPost("{taskItemId}")]
         [Authorize]
         public async Task<IActionResult> AddTaskAttachment([FromForm] IFormFile file, int taskItemId)

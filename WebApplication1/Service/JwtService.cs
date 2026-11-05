@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using WebApplication1.DTOs.Auth;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
-
 namespace WebApplication1.Service;
 
 public class JwtService
@@ -18,7 +17,7 @@ public class JwtService
     private readonly IRefreshTokenRepository _refreshTokenRepository;
 
 
-    public JwtService(IConfiguration config ,UserRepository userRepository,IRefreshTokenRepository refreshTokenRepository) //hàm khởi tạo, nhận cấu hình từ ASP.NET Core thông qua Dependency Injection.
+    public JwtService(IConfiguration config, UserRepository userRepository, IRefreshTokenRepository refreshTokenRepository) //hàm khởi tạo, nhận cấu hình từ ASP.NET Core thông qua Dependency Injection.
     {
         _config = config;
         _refreshTokenRepository = refreshTokenRepository;
@@ -29,14 +28,15 @@ public class JwtService
     {
         var refreshTokenHash = HashRefreshToken(Token);
         var refreshToken = await _refreshTokenRepository.Get(refreshTokenHash);
-        if(refreshToken is null || refreshToken.Expiry < DateTime.UtcNow){
+        if (refreshToken is null || refreshToken.Expiry < DateTime.UtcNow)
+        {
             return null;
         }
 
         await _refreshTokenRepository.Delete(refreshToken);
 
         var user = await _userRepository.Get(refreshToken.UserId);
-        if(user is null) return null;
+        if (user is null) return null;
 
         return await GenerateToken(user);
 
@@ -65,8 +65,8 @@ public class JwtService
         );
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(token);  // chuyển đổi đối tượng JwtSecurityToken thành chuỗi JWT để gửi về cho Client.
-        
-        
+
+
         return new TokenResponseDto
         {
             AccessToken = accessToken,
@@ -112,7 +112,7 @@ public class JwtService
         var tokenHash = HashRefreshToken(token);
         var storedToken = await _refreshTokenRepository.Get(tokenHash);
 
-        if(storedToken is null)
+        if (storedToken is null)
         {
             return false;
         }

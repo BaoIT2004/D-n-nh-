@@ -1,11 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.Data;
-using WebApplication1.Service;
-using Middleware.Example;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Middleware.Example;
+using WebApplication1.Data;
 using WebApplication1.Repositories;
+using WebApplication1.Service;
 using WebApplication1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
