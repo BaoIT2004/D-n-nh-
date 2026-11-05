@@ -77,8 +77,11 @@ namespace WebApplication1.Services
                 Message = "Tạo dự án thành công",
                 Data = new ProjectResponseDto
                 {
-                    NameProject = project.NameProject,
-                    Status = project.Status
+                    Id = newProject.Id,
+                    NameProject = newProject.nameProject,
+                    Status = newProject.status,
+                    CreatedAt = newProject.CreatedAt,
+                    UserId = newProject.UserId
                 }
             };
         }
@@ -189,13 +192,16 @@ namespace WebApplication1.Services
                 Message = "Cập nhật thành công",
                 Data = new ProjectResponseDto
                 {
+                    Id = update.Id,
                     NameProject = update.nameProject,
-                    Status = update.status
+                    Status = update.status,
+                    CreatedAt = update.CreatedAt,
+                    UserId = update.UserId
                 }
             };
         }
 
-        //Xóa dự án 
+        //Xóa dự án
         public async Task<ApiResponse<DeleteProjectResponseDto>> DeleteProjectAsync(int id, int userId)
         {
             var errors = new List<string>();

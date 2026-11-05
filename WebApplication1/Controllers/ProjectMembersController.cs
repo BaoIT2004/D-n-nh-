@@ -3,7 +3,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
+using WebApplication1.DTOs.Member;
 using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
