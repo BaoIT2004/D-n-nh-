@@ -40,7 +40,7 @@ namespace WebApplication1.Service
             }
             if (string.IsNullOrWhiteSpace(request.WorkType))
             {
-                err.Add("không được để troog wordtype");
+                err.Add("không được để trong wordtype");
             }
             if (string.IsNullOrWhiteSpace(request.Degree))
             {
@@ -112,7 +112,7 @@ namespace WebApplication1.Service
                 {
                     StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
-                    Message = "Trạng thái không tồi tại",
+                    Message = "Trạng thái không tồn tại",
                     Data = null!
                 };
             }
@@ -151,7 +151,7 @@ namespace WebApplication1.Service
             }
             if (string.IsNullOrWhiteSpace(request.WorkType))
             {
-                err.Add("không được để troog wordtype");
+                err.Add("không được để trong wordtype");
             }
             if (string.IsNullOrWhiteSpace(request.Degree))
             {
@@ -232,7 +232,7 @@ namespace WebApplication1.Service
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     Status = false,
-                    Message = "Bạn không thể chuyển công việc qua dựa án khác",
+                    Message = "Bạn không thể chuyển công việc qua dự án khác",
                     Data = null!
                 };
             }
@@ -253,6 +253,7 @@ namespace WebApplication1.Service
                 Message = "Cập nhật thành công",
                 Data = new UpdateTaskItemResponseDto
                 {
+                    Id = taskItem.Id,
                     Title = taskItem.Title,
                     CreatedAt = taskItem.CreatedAt,
                     WorkType = taskItem.WorkType,

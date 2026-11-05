@@ -56,7 +56,7 @@ namespace WebApplication1.Services
                 };
             }
 
-            //Kiểm tra tệp được hổ trợ hay không
+            //Kiểm tra tệp được hỗ trợ hay không
             var extension = Path.GetExtension(file.FileName);
             if (!AllowedExtensions.Contains(extension))
             {
@@ -64,7 +64,7 @@ namespace WebApplication1.Services
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     Status = false,
-                    Message = "Tệp không hổ trợ",
+                    Message = "Tệp không hỗ trợ",
                     Data = null!,
                     Errors = new List<string>()
                 };
@@ -195,7 +195,7 @@ namespace WebApplication1.Services
                 {
                     StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
-                    Message = "bạn không có quyền truy cập coogn việc",
+                    Message = "bạn không có quyền truy cập công việc",
                     Data = false,
                     Errors = new List<string>()
                 };

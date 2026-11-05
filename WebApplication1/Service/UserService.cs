@@ -159,23 +159,35 @@ namespace WebApplication1.Service
 
 
         // Hiển thị thông tin user
-        public async Task<ApiResponse<List<GetAllUsersResponseDto>>> GetAllUsersAsync()
+        public async Task<ApiResponse<GetAllUsersResponseDto>> GetAllUsersAsync(int userId)
         {
             //1. Lấy toàn bộ dữ liệu từ db
-            var users = await _userRepository.GetAllAsync(); // map sang UserRepository
+            var user = await _userRepository.GetUserById(userId); // map sang UserRepository
+
+            if (user == null)
+            {
+                return new ApiResponse<GetAllUsersResponseDto>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy người dùng",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
 
             //2.Map sang GetAllUsersAsync trả về cho Controller
-            return new ApiResponse<List<GetAllUsersResponseDto>>
+            return new ApiResponse<GetAllUsersResponseDto>
             {
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
-                Message = "Hiển thị danh sách các user",
-                Data = users.Select(user => new GetAllUsersResponseDto
+                Message = "Hiển thị thông tin user",
+                Data = new GetAllUsersResponseDto
                 {
                     Id = user.Id,
                     Name = user.Name,
                     Email = user.Email
-                }).ToList()
+                }
             };
         }
 
@@ -208,6 +220,11 @@ namespace WebApplication1.Service
                     Message = "Đăng xuất thành công"
                 },
             };
+        }
+
+        internal async Task GetAllUsersAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }

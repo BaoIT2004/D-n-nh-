@@ -131,10 +131,10 @@ function AddStatusItem({
     <div>
       <div className="space-y-2">
         {taskItem.map((task) => (
-          <div key={task.statusId}>
+          <div key={task.id}>
             <div
               className="flex h-28 w-full flex-col rounded-lg border border-gray-300 bg-white p-3"
-              onClick={() => navigate(`/task-detail-modal/${task.statusId}`)}
+              onClick={() => navigate(`/task-detail-modal/${task.id}`)}
             >
               <div className="group flex items-center gap-2 mb-3">
                 <p className="line-clamp-1 flex-1 min-w-0 whitespace-pre-wrap wrap-break-word text-sm text-gray-800">
@@ -148,7 +148,7 @@ function AddStatusItem({
                   <button
                     className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
                     onClick={() => {
-                      setTaskItemId(task.statusId);
+                      setTaskItemId(task.id);
                       setTitle(task.title);
                       setWorkType(task.workType);
                       setDegree(task.degree);
@@ -161,12 +161,12 @@ function AddStatusItem({
                   </button>
 
                   <div
-                    className={`relative shrink-0 ${showSetting === task.statusId ? "z-50" : ""}`}
+                    className={`relative shrink-0 ${showSetting === task.id ? "z-50" : ""}`}
                   >
                     <button
                       onClick={() =>
                         setShowSetting(
-                          showSetting === task.statusId ? null : task.statusId, // toán tử 3 ngôi nếu showSetting = taskItemId thì trả về null ngược lại mở menutassk đó
+                          showSetting === task.id ? null : task.id, // toán tử 3 ngôi nếu showSetting = taskItemId thì trả về null ngược lại mở menutassk đó
                         )
                       }
                       className="opacity-0 transition-opacity group-hover:opacity-100"
@@ -174,7 +174,7 @@ function AddStatusItem({
                       <LiaEllipsisHSolid />
                     </button>
 
-                    {showSetting === task.statusId && (
+                    {showSetting === task.id && (
                       <>
                         <div
                           className="fixed inset-0 z-40"
@@ -184,7 +184,7 @@ function AddStatusItem({
                           <button
                             className="block w-full p-2 text-left hover:bg-gray-100"
                             onClick={() => {
-                              handleDeleteTaskItem(task.statusId);
+                              handleDeleteTaskItem(task.id);
                               setShowSetting(null);
                             }}
                           >

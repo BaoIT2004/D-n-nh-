@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.DTOs.Auth;
@@ -22,11 +23,12 @@ namespace WebApplication1.Controllers
         }
 
         // Hiển thị người dùng
-        [HttpGet]
+        [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> GetAllUser()
         {
-            var response = await _userService.GetAllUsersAsync();
+            var user = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _userService.GetAllUsersAsync(user);
             return StatusCode(response.StatusCode, response);
         }
 

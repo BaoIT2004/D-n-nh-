@@ -57,7 +57,6 @@ export function useCreateStaskItem() {
       queryClient.invalidateQueries({
         queryKey: ["taskItems", variable.statusId],
       });
-      console.log(data);
     },
     onError: (Error: Error) => {
       console.error(Error.message);
@@ -78,11 +77,11 @@ export function useUpdateTaskItem() {
       taskItemId,
     }: UseCreateStaskItem) => {
       const result = await updateTaskItem(
+        taskItemId,
         Title,
         createdAt,
         workType,
         degree,
-        taskItemId,
         statusId,
       );
       if (!result.success) {
@@ -95,7 +94,6 @@ export function useUpdateTaskItem() {
       queryClient.invalidateQueries({
         queryKey: ["taskItems", variable.statusId],
       });
-      console.log(data);
     },
     onError: (error: Error) => {
       console.error(error.message);
@@ -118,7 +116,6 @@ export function useDeleteTaskItem() {
       queryClient.invalidateQueries({
         queryKey: ["taskItems", variable.statusId],
       });
-      console.log(data);
     },
     onError: (error: Error) => {
       console.error(error.message);

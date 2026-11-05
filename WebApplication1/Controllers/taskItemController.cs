@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication1.DTOs.TaskItem;
+using WebApplication1.Service;
 namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]

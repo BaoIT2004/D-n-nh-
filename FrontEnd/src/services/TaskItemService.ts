@@ -58,11 +58,11 @@ export function deleteTaskItem(
 }
 
 export function updateTaskItem(
+  taskITemId: number,
   title: string,
   createdAt: string, // DateOnly
   workType: string,
   degree: string,
-  taskITemId: number,
   statusId: number,
 ): Promise<ServiceResult<UpdateTaskItem>> {
   // Kiểm tra đăng nhập chưa

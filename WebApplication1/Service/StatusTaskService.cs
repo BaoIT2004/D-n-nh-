@@ -141,7 +141,7 @@ namespace WebApplication1.Services
                 {
                     StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
-                    Message = "Không tìm thấy dự án",
+                    Message = "Không tìm thấy trạng thái",
                     Data = null!,
                 };
             }
@@ -152,8 +152,11 @@ namespace WebApplication1.Services
             {
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
-                Message = "xóa dự án thành công",
-                Data = null!,
+                Message = "xóa trạng thái thành công",
+                Data = new DaleteStatusTaskResponeDto
+                {
+                    Id = statusTaskId // trả về Id đã xóa
+                },
             };
         }
 

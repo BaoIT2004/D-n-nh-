@@ -36,6 +36,11 @@ namespace WebApplication1.Repositories
         {
             return _dbContext.Users.ToListAsync();  //ToListAsync() truy vấn lấy tất cả user từ db
         }
+
+        public Task<User?> GetUserById(int userId)
+        {
+            return _dbContext.Users.FirstOrDefaultAsync(user => user.Id == userId);
+        }
     }
 }
 

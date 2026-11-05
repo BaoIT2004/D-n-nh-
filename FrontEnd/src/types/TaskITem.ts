@@ -7,7 +7,7 @@ export type AddTaskItem = {
 };
 
 export type GetAllTaskItem = {
-  statusId: number;
+  id: number;
   title: string;
   createdAt: string;
   workType: string;
@@ -20,6 +20,7 @@ export type UpdateTaskItem = {
   createdAt: string;
   workType: string;
   degree: string;
+  statusId: number;
 };
 
 export type UpdateTaskItemResponse = {
@@ -28,5 +29,5 @@ export type UpdateTaskItemResponse = {
   createdAt: string;
   workType: string;
   degree: string;
+  statusId: number;
 };
-
