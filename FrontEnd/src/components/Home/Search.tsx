@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { PiCodesandboxLogoDuotone } from "react-icons/pi";
 import { IoMdHelpCircleOutline } from "react-icons/io";
-import { logoutUser } from "../../services/userService";
+import { logoutUser } from "../../services/UserService";
 import { useState } from 'react';
 
 
@@ -31,7 +31,7 @@ function Search() {
                 <input
                     type="text"
                     placeholder="Tìm kiếm"
-                    className="box-border h-[25px] w-[500px] rounded-lg border border-[#1F2937] px-5 text-[15px] leading-[normal]"
+                    className="box-border h-6.25 w-125 rounded-lg border border-[#1F2937] px-5 text-[15px] leading-[normal]"
                 />
 
                 <div className='flex items-center'>

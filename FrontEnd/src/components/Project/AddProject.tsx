@@ -1,52 +1,25 @@
 import { useState } from 'react';
-import { addMember, createProject } from '../../services/projectService'
-import { useNavigate, useParams } from 'react-router-dom';
+import { addMember } from '../../services/projectService'
 import toast from "react-hot-toast";
+import { useCreateProject } from '../../hooks/projects/use-create-project';
 
 
 function AddProject() {
     const [nameProject, setnameProject] = useState("");
     const [status, setStatus] = useState("private");
-    const navigate = useNavigate();
     const [memberId, setMemberId] = useState("");
-    const { projectId } = useParams();
+    const { mutate } = useCreateProject();
 
-
-
-    async function HandleNewProject() {
-        try {
-            const result = await createProject(nameProject, status);
-            if (result.success) {
+    async function HandleNewProject(){
+        mutate({nameProject, status},{
+              onSuccess: () => {
                 toast.success("Tạo dự án thành công.");
-                setTimeout(() => window.location.reload(), 500)
-                navigate("/");
-            } else {
-                toast.error(result.message);
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error("Không thể tạo dự án.");
-        }
-    }
-
-    async function HandleAddMember(projectId: number) {
-        if (!memberId.trim()) {
-            toast.error("Vui lòng nhập email người cần thêm.");
-            return;
-        }
-
-        try {
-            const result = await addMember(projectId, { userId: Number(memberId) });
-            if (result.success) {
-                toast.success("Thêm người thành công.");
-                setMemberId("");
-            } else {
-                toast.error(result.message);
-            }
-        } catch (err) {
-            console.error(err);
-            toast.error("Không thể thêm người.");
-        }
+                setnameProject("");
+            },
+            onError: (error) => {
+                toast.error(error.message);
+            },
+        });
     }
 
     return (

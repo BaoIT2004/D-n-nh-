@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './styles/global.css'
 import { Toaster } from 'react-hot-toast'
+import { Provides } from './App/providers'
 
 const rootElement = document.getElementById('root')
 
@@ -16,7 +17,9 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <Provides>
+        <App />
+      </Provides>
       <Toaster position="top-right" />
     </BrowserRouter>
   </StrictMode>,

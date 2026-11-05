@@ -1,28 +1,12 @@
-
-import { useEffect, useState } from "react";
-import { AllProject} from "../../services/projectService";
-import type { Project } from "../../types/project";
-import { getStoredUserId } from "../../services/Api";
+import { useProjects } from "../../hooks/projects/use-projects";
 
 function ProjectTable() {
-    const [project, setProject] = useState<Project[]>([]); 
 
-    useEffect(() => {
-        if (!localStorage.getItem("accessToken") || getStoredUserId() === null) {
-            return;
-        }
 
-        async function loadProjects() {
-            const result = await AllProject();
-            if (!result.success) {
-                alert(result.message);
-                return;
-            }
-            setProject(result.data ?? []);
-        }
-        void loadProjects();
-    }, []);
-
+    // lấy dữ liệu từ hook và đặt giá trị mặc định là mảng rỗng
+    // { data: project }: lấy thuộc tính data ra và đổi tên thành project.
+    // = []: nếu data là undefined (đang tải lần đầu hoặc lỗi) thì project sẽ là [].
+    const {data: project = []} = useProjects();
     return (
         <div className="p-5 w-330 h-165 border border-gray-400 rounded-2xl overflow-auto">
             <table className="w-full table-fixed text-sm text-left">
