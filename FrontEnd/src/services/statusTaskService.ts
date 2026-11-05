@@ -1,13 +1,13 @@
 import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
-import type { GetAllStatusTaask, StatusTask } from "../types/statusTask";
+import type { AddStatusTaskResponse, GetAllStatusTaask } from "../types/statusTask";
 
 
 //thêm
 export function AddStatusTask(
     statusTask: string,
     projectId: number,
-): Promise<ServiceResult<StatusTask>> {
-    return apiRequest<StatusTask>("/api/StatusTask", {
+): Promise<ServiceResult<AddStatusTaskResponse>> {
+    return apiRequest<AddStatusTaskResponse>("/api/StatusTask", {
         method: "POST",
         body: JSON.stringify({ statusTask, projectId }),
     });
@@ -28,7 +28,4 @@ export function GetAllStatusTask(
     }
     return apiRequest<GetAllStatusTaask[]>(`/api/statusTask/${projectId}`);
 }
-
-
-
 
