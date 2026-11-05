@@ -60,7 +60,6 @@ namespace WebApplication1.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-
         [AllowAnonymous]
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshRequestModel request)
