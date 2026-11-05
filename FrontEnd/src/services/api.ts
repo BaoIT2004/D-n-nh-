@@ -119,3 +119,4 @@ export function getStoredUserId(): number | null {
     const userId = Number(localStorage.getItem("userId"));
     return Number.isInteger(userId) && userId > 0 ? userId : null;
 }
+

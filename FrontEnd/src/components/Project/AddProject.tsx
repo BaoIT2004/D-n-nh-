@@ -1,25 +1,27 @@
 import { useState } from 'react';
-import { createProject } from '../services/projectService'
+import { createProject } from '../../services/ProjectService'
 import { useNavigate } from 'react-router-dom';
+import toast from "react-hot-toast";
 
 
-function addProject() {
+function AddProject() {
     const [nameProject, setnameProject] = useState("");
     const [status, setStatus] = useState("private");
     const navigate = useNavigate();
 
 
-    async function handleNewProject() {
+    async function HandleNewProject() {
         try {
             const result = await createProject(nameProject, status);
             if (result.success) {
+                toast.success("Tạo dự án thành công.");
                 navigate("/");
             } else {
-                alert(result.message);
+                toast.error(result.message);
             }
         } catch (err) {
             console.error(err);
-            alert("Không thể tạo dự án.");
+            toast.error("Không thể tạo dự án.");
         }
     }
 
@@ -54,7 +56,7 @@ function addProject() {
                     </select>
                     <div className="flex items-center gap-3 mt-3 ml-12">
                         <button className="border border-gray-200 rounded-md w-20 h-8 text-sm">Hủy</button>
-                        <button className="bg-[#1868DB] text-white w-20 h-8 rounded-md flex items-center justify-center text-sm" onClick={handleNewProject}>Tạo dự án</button>
+                        <button className="bg-[#1868DB] text-white w-20 h-8 rounded-md flex items-center justify-center text-sm" onClick={HandleNewProject}>Tạo dự án</button>
                     </div>
                 </div>
 
@@ -64,4 +66,4 @@ function addProject() {
 
 }
 
-export default addProject
+export default AddProject

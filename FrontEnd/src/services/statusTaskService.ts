@@ -1,12 +1,9 @@
-import { apiRequest, type ServiceResult } from "./api";
+import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
+import type { GetAllStatusTaask, StatusTask } from "../types/statusTask";
 
-export type StatusTask = {
-    id: number;
-    statusTask: string;
-    projectId: number;
-};
 
-export function addStatusTask(
+//thêm
+export function AddStatusTask(
     statusTask: string,
     projectId: number,
 ): Promise<ServiceResult<StatusTask>> {
@@ -15,3 +12,23 @@ export function addStatusTask(
         body: JSON.stringify({ statusTask, projectId }),
     });
 }
+
+//Hiển thị 
+export function GetAllStatusTask(
+    projectId: number,
+): Promise<ServiceResult<GetAllStatusTaask[]>>{
+
+    // Kiểm tra đăng nhập chưa
+    const userId = getStoredUserId();
+    if (!userId) {
+        return Promise.resolve({
+            success: false,
+            message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+        });
+    }
+    return apiRequest<GetAllStatusTaask[]>(`/api/statusTask/${projectId}`);
+}
+
+
+
+

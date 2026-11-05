@@ -1,20 +1,7 @@
-import { apiRequest, getStoredUserId, type ServiceResult } from "./api";
+import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
+import type { Project, ProjectResponse } from "../types/project";
 
-export type Project = {
-    id: number;
-    nameProject: string;
-    status: string;
-    createdAt: string;
-    userId: number;
-};
-
-type ProjectResponse = {
-    nameProject: string;
-    status: string;
-};
-
-export function allProject(): Promise<ServiceResult<Project[]>> {
-
+export function AllProject(): Promise<ServiceResult<Project[]>> {
     // người dùng đã đăng nhập chưa
     const userId = getStoredUserId();
     if (!userId) {
