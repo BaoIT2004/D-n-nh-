@@ -21,7 +21,7 @@ namespace WebApplication1.Controllers
             _projectMemberService = projectMemberService;
         }
 
-        // thêm người 
+        // thêm người
         [HttpPost("{projectId}/members")]
         [Authorize]
         public async Task<IActionResult> projectMember (int projectId, [FromBody] ProjectMembersRequestDto request)

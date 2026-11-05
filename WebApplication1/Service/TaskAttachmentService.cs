@@ -203,8 +203,7 @@ namespace WebApplication1.Services
             // environment.ContentRootPath: đường dẫn thư mục gốc của project backend.
             // "App_Data": thư mục chứa dữ liệu của ứng dụng.
             // "TaskAttachments": thư mục chứa các file đính kèm của TaskItem.
-            
-            var directory = Path.Combine(_environment.ContentRootPath, "App_data", "TaskAttachments"); 
+            var directory = Path.Combine(_environment.ContentRootPath, "App_Data", "TaskAttachments");
 
             // attachment.StoredFileName Là tên file được lưu trong database.
             // Path.GetFileName() Lấy riêng tên file, bỏ phần đường dẫn nếu có.

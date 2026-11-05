@@ -16,8 +16,7 @@ namespace WebApplication1.Controllers
         {
             _taskAttachmentService = taskAttachmentService;
         }
-        
-        //Thêm 
+        //Thêm
         [HttpPost("{taskItemId}")]
         [Authorize]
         public async Task<IActionResult> AddTaskAttachment([FromForm] IFormFile file, int taskItemId)

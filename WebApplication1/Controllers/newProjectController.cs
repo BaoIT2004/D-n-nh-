@@ -21,13 +21,13 @@ namespace WebApplication1.Controllers
             _projectService = projectService;
         }
 
-        // tạo dự án 
+        // tạo dự án
         [HttpPost]
-        [Authorize] // jwt hợp lệ mới tạo được project 
+        [Authorize] // jwt hợp lệ mới tạo được project
         public async Task<IActionResult> AddProject([FromBody] ProjectRequestDto project)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _projectService.AddNewProject(project, userId);    
+            var response = await _projectService.AddNewProject(project, userId);
             return StatusCode(response.StatusCode, response);
         }
 
@@ -65,7 +65,6 @@ namespace WebApplication1.Controllers
             var response = await _projectService.DeleteProjectAsync(id, userId);
             return StatusCode(response.StatusCode, response);
         }
-        
     }
 
 }
