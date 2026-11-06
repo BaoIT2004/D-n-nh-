@@ -79,7 +79,7 @@ function Login() {
               className="mt-1 h-10 w-full cursor-pointer rounded-md border-0 bg-[#1F2937] text-white"
               onClick={handleLogin}
             >
-              Đăng kí tài khoản
+              Đăng nhập tài khoản
             </button>
 
             <div className="mt-4 flex h-10 items-center justify-center">

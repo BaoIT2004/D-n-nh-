@@ -2,6 +2,7 @@ import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
 import type {
   AddTaskItem,
   GetAllTaskItem,
+  TaskItemDetail,
   UpdateTaskItem,
 } from "../types/TaskITem";
 
@@ -26,8 +27,9 @@ export function addTaskItem(
 }
 
 //Hiển thị
-export function GetAllTaskItems(
+export function getAllTaskItems(
   statusId: number,
+  // trả danh sách
 ): Promise<ServiceResult<GetAllTaskItem[]>> {
   // Kiểm tra đăng nhập chưa
   const userId = getStoredUserId();
@@ -38,6 +40,22 @@ export function GetAllTaskItems(
     });
   }
   return apiRequest<GetAllTaskItem[]>(`/api/TaskItem/${statusId}`, {
+    method: "GET",
+  });
+}
+
+export function getTaskItemById(
+  taskItemId: number,
+): Promise<ServiceResult<TaskItemDetail>> {
+  // trả chi tiết
+  const userId = getStoredUserId();
+  if (!userId) {
+    return Promise.resolve({
+      success: false,
+      message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+    });
+  }
+  return apiRequest<TaskItemDetail>(`/api/TaskItem/detail/${taskItemId}`, {
     method: "GET",
   });
 }

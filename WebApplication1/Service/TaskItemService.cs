@@ -80,7 +80,8 @@ namespace WebApplication1.Service
                 CreatedAt = request.CreatedAt,   // DateOnly
                 WorkType = request.WorkType,
                 Degree = request.Degree,
-                StatusId = statusTaskId
+                StatusId = statusTaskId,
+                CreatedByUserId = userId
             };
 
             await _taskItemRepositories.AddTaskItem(newTaskItem);
@@ -132,6 +133,54 @@ namespace WebApplication1.Service
                     WorkType = p.WorkType,
                     Degree = p.Degree
                 }).ToList()
+            };
+        }
+
+        //Hiển thị chi tiết
+        public async Task<ApiResponse<TaskItemDetailResponseDto>> GetTaskItemByIdAsync(int taskItemId, int userId)
+        {
+            var taskItem = await _taskItemRepositories.GetStatusItemAsync(taskItemId);
+            if (taskItem?.Status == null)
+            {
+                return new ApiResponse<TaskItemDetailResponseDto>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy công việc",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            var canAccess = await _projectRepository.CanAccessProjectAsync(taskItem.Status.ProjectId, userId);
+            if (!canAccess)
+            {
+                return new ApiResponse<TaskItemDetailResponseDto>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Status = false,
+                    Message = "Bạn không có quyền truy cập",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            return new ApiResponse<TaskItemDetailResponseDto>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Lấy thông tin công việc thành công",
+                Data = new TaskItemDetailResponseDto
+                {
+                    Id = taskItem.Id,
+                    Title = taskItem.Title,
+                    CreatedAt = taskItem.CreatedAt,
+                    WorkType = taskItem.WorkType,
+                    Degree = taskItem.Degree,
+                    StatusId = taskItem.StatusId,
+                    CreatedByEmail = taskItem.CreatedByUser?.Email
+                },
+                Errors = new List<string>()
             };
         }
 

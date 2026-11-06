@@ -21,3 +21,19 @@ export function AddFile(
     body: formData,
   });
 }
+
+export function GetFiles(
+  taskItemId: number,
+): Promise<ServiceResult<TaskAttachment[]>> {
+  const userId = getStoredUserId();
+  if (!userId) {
+    return Promise.resolve({
+      success: false,
+      message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+    });
+  }
+
+  return apiRequest<TaskAttachment[]>(`/api/TaskAttachments/${taskItemId}`, {
+    method: "GET",
+  });
+}

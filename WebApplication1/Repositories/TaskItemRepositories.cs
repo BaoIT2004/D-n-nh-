@@ -42,7 +42,8 @@ namespace WebApplication1.Repositories
 
         public async Task<TaskItem?> GetStatusItemAsync(int taskItemId)
         {
-            return await _dbcontext.TaskItem.Include(p => p.Status!.Project).FirstOrDefaultAsync(p => p.Id == taskItemId);
+            return await _dbcontext.TaskItem.Include(p => p.Status!.Project)
+            .Include(p => p.CreatedByUser).FirstOrDefaultAsync(p => p.Id == taskItemId);
         }
 
 

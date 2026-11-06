@@ -24,11 +24,12 @@ function AddStatusItem({
   statusId: number;
   isOpen: boolean;
 }) {
+  // cú pháp props có điều kiện Dùng khi component cần nhận dữ liệu từ component cha
   const [title, setTitle] = useState("");
   const [workType, setWorkType] = useState("Task");
   const [degree, setDegree] = useState("Thấp");
   const [createdAt, setCreatedAt] = useState<Date | null>(new Date());
-  const { data: taskItem = [] } = useTaskItems(statusId);
+  const { data: taskItem = [] } = useTaskItems(statusId); // hiển thị taskItem
   const [board, setBoard] = useState(false);
   const [taskItemId, setTaskItemId] = useState<number | null>(null); // tạo để nhớ khi sửa useState<number | null>: kiểu của giá trị là number (id của task) hoặc null (không sửa task nào).
   const [showSetting, setShowSetting] = useState<number | null>(null);
@@ -95,6 +96,9 @@ function AddStatusItem({
     );
   }
 
+
+
+  //xóa dự án
   function handleDeleteTaskItem(taskItemId: number) {
     deleteTaskItem(
       {

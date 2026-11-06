@@ -31,3 +31,13 @@ export type UpdateTaskItemResponse = {
   degree: string;
   statusId: number;
 };
+
+export type TaskItemDetail = {
+  id: number;
+  title: string;
+  createdAt: string;
+  workType: string;
+  degree: string;
+  statusId: number;
+  createdByEmail: string | null;
+};

@@ -36,6 +36,16 @@ namespace WebApplication1.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        //Hiển thị chi tiết hơn
+        [HttpGet("detail/{taskItemId}")]
+        [Authorize]
+        public async Task<IActionResult> GetTaskItemById(int taskItemId)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _taskItemService.GetTaskItemByIdAsync(taskItemId, userId);
+            return StatusCode(response.StatusCode, response);
+        }
+
         //chỉnh sửa
         [HttpPut("{taskItemId}")]
         [Authorize]

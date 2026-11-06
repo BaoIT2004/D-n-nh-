@@ -25,6 +25,17 @@ namespace WebApplication1.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+
+        //Hiển thị
+        [HttpGet("{taskItemId}")]
+        [Authorize]
+        public async Task<IActionResult> GetTaskAttachment(int taskItemId)
+        {
+            var user = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _taskAttachmentService.GetFileAsync(taskItemId, user);
+            return StatusCode(result.StatusCode, result);
+        }
+
         [HttpDelete("{attachmentId}")]
         [Authorize]
         public async Task<IActionResult> DeleteTaskAttachment(int attachmentId)

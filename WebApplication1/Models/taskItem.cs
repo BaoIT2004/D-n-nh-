@@ -13,4 +13,7 @@ public class TaskItem
     public int StatusId { get; set; }
     public AddStatusTask? Status { get; set; }
     public List<TaskAttachment> Attachments { get; set; } = new();
+
+    public int? CreatedByUserId { get; set; }
+    public User? CreatedByUser { get; set; }
 }

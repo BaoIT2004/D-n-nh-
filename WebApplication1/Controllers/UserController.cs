@@ -22,7 +22,7 @@ namespace WebApplication1.Controllers
             _userService = userService;
         }
 
-        // Hiển thị người dùng
+        // Hiển thị thông tin người dùng
         [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> GetAllUser()

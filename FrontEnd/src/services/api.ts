@@ -43,7 +43,9 @@ export async function apiRequest<T>(
     const { authenticated = true, ...requestOptions } = options;
     const headers = new Headers(requestOptions.headers);
 
-    if (requestOptions.body && !headers.has("Content-Type")) {
+    if (requestOptions.body instanceof FormData) {
+        headers.delete("Content-Type");
+    } else if (requestOptions.body && !headers.has("Content-Type")) {
         headers.set("Content-Type", "application/json");
     }
 
@@ -119,4 +121,3 @@ export function getStoredUserId(): number | null {
     const userId = Number(localStorage.getItem("userId"));
     return Number.isInteger(userId) && userId > 0 ? userId : null;
 }
-

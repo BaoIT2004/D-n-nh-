@@ -153,6 +153,56 @@ namespace WebApplication1.Services
             };
         }
 
+
+        //Hiển thị
+        public async Task<ApiResponse<List<TaskAttachmentResponseDto>>> GetFileAsync(int taskItemId, int userId)
+        {
+            var task = await _taskAttachmentRepository.GetTaskItemAsync(taskItemId);
+
+            if (task?.Status == null)
+            {
+                return new ApiResponse<List<TaskAttachmentResponseDto>>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy công việc",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            var canAccess = await _projectRepository.CanAccessProjectAsync(task.Status.ProjectId, userId);
+            if (!canAccess)
+            {
+                return new ApiResponse<List<TaskAttachmentResponseDto>>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Status = false,
+                    Message = "Bạn không có quyền truy cập task này",
+                    Data = null!,
+                    Errors = new List<string> { "Bạn không có quyền truy cập task này" }
+                };
+            }
+
+            var attachments = await _taskAttachmentRepository.GetTaskAttachmentsAsync(taskItemId);
+
+            return new ApiResponse<List<TaskAttachmentResponseDto>>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Lấy danh sách tệp đính kèm thành công",
+                Data = attachments.Select(attachment => new TaskAttachmentResponseDto
+                {
+                    Id = attachment.Id,
+                    FileName = attachment.FileName,
+                    UploadedAt = attachment.UploadedAt,
+                    ContentType = attachment.ContentType,
+                    TaskItemId = attachment.TaskItemId
+                }).ToList(),
+                Errors = new List<string>()
+            };
+        }
+
         //Xóa file vào dự án
         public async Task<ApiResponse<bool>> DeleteAsync(int attachmentId, int userId)
         {
