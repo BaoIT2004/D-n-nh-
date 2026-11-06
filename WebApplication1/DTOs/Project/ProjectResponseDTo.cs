@@ -8,7 +8,7 @@ public class ProjectResponseDto
 
     public string Status { get; set; } = string.Empty;
 
-    public DateTime CreatedAt { get; set;}
+    public DateTime CreatedAt { get; set; }
 
     public int UserId { get; set; }
 }

@@ -1,9 +1,9 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
+using WebApplication1.DTOs.Auth;
 using WebApplication1.Models;
 using WebApplication1.Service;
-using WebApplication1.DTOs.Auth;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
@@ -11,33 +11,29 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class UserController : Controller
     {
-        private readonly ApplicationContext dbContext;
-        private readonly PasswordService passwordService;
         private readonly JwtService _jwtService;
         private readonly UserService _userService;
 
         public UserController(
-            ApplicationContext dbContext,
-            PasswordService passwordService,
             JwtService jwtService,
             UserService userService)
         {
-            this.dbContext = dbContext;
-            this.passwordService = passwordService;
             _jwtService = jwtService;
             _userService = userService;
         }
 
-        // Hiển thị người dùng
-        [HttpGet]
+        // Hiển thị thông tin người dùng
+        [HttpGet("me")]
+        [Authorize]
         public async Task<IActionResult> GetAllUser()
         {
-            var response = await _userService.GetAllUsersAsync();
+            var user = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _userService.GetAllUsersAsync(user);
             return StatusCode(response.StatusCode, response);
         }
 
 
-        // Đăng ký tài khoản 
+        // Đăng ký tài khoản
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
@@ -66,7 +62,6 @@ namespace WebApplication1.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-
         [AllowAnonymous]
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshRequestModel request)
@@ -88,10 +83,5 @@ namespace WebApplication1.Controllers
                 refreshToken = token.RefreshToken
             });
         }
-
-
-
-        
-
     }
 }

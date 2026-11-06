@@ -1,5 +1,6 @@
 
 using WebApplication1.DTOs.ApiResponse;
+using WebApplication1.DTOs.TaskItem;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
 
@@ -55,7 +56,7 @@ namespace WebApplication1.Services
                 };
             }
 
-            //Kiểm tra tệp được hổ trợ hay không
+            //Kiểm tra tệp được hỗ trợ hay không
             var extension = Path.GetExtension(file.FileName);
             if (!AllowedExtensions.Contains(extension))
             {
@@ -63,7 +64,7 @@ namespace WebApplication1.Services
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     Status = false,
-                    Message = "Tệp không hổ trợ",
+                    Message = "Tệp không hỗ trợ",
                     Data = null!,
                     Errors = new List<string>()
                 };
@@ -152,6 +153,56 @@ namespace WebApplication1.Services
             };
         }
 
+
+        //Hiển thị
+        public async Task<ApiResponse<List<TaskAttachmentResponseDto>>> GetFileAsync(int taskItemId, int userId)
+        {
+            var task = await _taskAttachmentRepository.GetTaskItemAsync(taskItemId);
+
+            if (task?.Status == null)
+            {
+                return new ApiResponse<List<TaskAttachmentResponseDto>>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy công việc",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            var canAccess = await _projectRepository.CanAccessProjectAsync(task.Status.ProjectId, userId);
+            if (!canAccess)
+            {
+                return new ApiResponse<List<TaskAttachmentResponseDto>>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Status = false,
+                    Message = "Bạn không có quyền truy cập task này",
+                    Data = null!,
+                    Errors = new List<string> { "Bạn không có quyền truy cập task này" }
+                };
+            }
+
+            var attachments = await _taskAttachmentRepository.GetTaskAttachmentsAsync(taskItemId);
+
+            return new ApiResponse<List<TaskAttachmentResponseDto>>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Lấy danh sách tệp đính kèm thành công",
+                Data = attachments.Select(attachment => new TaskAttachmentResponseDto
+                {
+                    Id = attachment.Id,
+                    FileName = attachment.FileName,
+                    UploadedAt = attachment.UploadedAt,
+                    ContentType = attachment.ContentType,
+                    TaskItemId = attachment.TaskItemId
+                }).ToList(),
+                Errors = new List<string>()
+            };
+        }
+
         //Xóa file vào dự án
         public async Task<ApiResponse<bool>> DeleteAsync(int attachmentId, int userId)
         {
@@ -194,7 +245,7 @@ namespace WebApplication1.Services
                 {
                     StatusCode = StatusCodes.Status404NotFound,
                     Status = false,
-                    Message = "bạn không có quyền truy cập coogn việc",
+                    Message = "bạn không có quyền truy cập công việc",
                     Data = false,
                     Errors = new List<string>()
                 };
@@ -203,8 +254,7 @@ namespace WebApplication1.Services
             // environment.ContentRootPath: đường dẫn thư mục gốc của project backend.
             // "App_Data": thư mục chứa dữ liệu của ứng dụng.
             // "TaskAttachments": thư mục chứa các file đính kèm của TaskItem.
-            
-            var directory = Path.Combine(_environment.ContentRootPath, "App_data", "TaskAttachments"); 
+            var directory = Path.Combine(_environment.ContentRootPath, "App_Data", "TaskAttachments");
 
             // attachment.StoredFileName Là tên file được lưu trong database.
             // Path.GetFileName() Lấy riêng tên file, bỏ phần đường dẫn nếu có.

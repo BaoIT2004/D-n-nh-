@@ -1,3 +1,5 @@
+namespace WebApplication1.DTOs.Member;
+
 public class ProjectMembersResponseDto
 {
     public int Id { get; set; }

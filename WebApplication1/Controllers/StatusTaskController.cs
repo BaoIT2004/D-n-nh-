@@ -1,8 +1,7 @@
-
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
+using WebApplication1.DTOs.StatusTask;
 using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
@@ -11,13 +10,10 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class StatusTaskController : Controller
     {
-        private readonly ApplicationContext dbContext;
         private readonly StatusTaskService _statustTaskervice;
         public StatusTaskController(
-            ApplicationContext dbContext,
             StatusTaskService statusTaskService)
         {
-            this.dbContext = dbContext;
             _statustTaskervice = statusTaskService;
         }
 
@@ -31,9 +27,8 @@ namespace WebApplication1.Controllers
             var response = await _statustTaskervice.AddNewStatusTaskAsync(request, userId);
             return StatusCode(response.StatusCode, response);
         }
-        
 
-        //Hiển thị 
+        //Hiển thị
         [HttpGet("{projectId}")]
         [Authorize]
         public async Task<IActionResult> AllStatusTasks(int projectId)
@@ -46,18 +41,18 @@ namespace WebApplication1.Controllers
         //Cập nhật
         [HttpPut("update/{projectId}/{statusTaskId}")]
         [Authorize]
-        public async Task<IActionResult> UpdateStatusTask(int projectId, int statusTaskId, [FromBody] UpdateStatusTaskRequestDto request  )
+        public async Task<IActionResult> UpdateStatusTask(int projectId, int statusTaskId, [FromBody] UpdateStatusTaskRequestDto request)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var response = await _statustTaskervice.UpdateStatusTaskAsync(projectId, userId, statusTaskId, request);
-            return StatusCode(response.StatusCode , response);
+            return StatusCode(response.StatusCode, response);
         }
 
 
         //Xóa
         [HttpDelete("delete/{projectId}/{statusTaskId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteStatusTask([FromBody] int projectId, int statusTaskId)
+        public async Task<IActionResult> DeleteStatusTask(int projectId, int statusTaskId)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var response = await _statustTaskervice.DeleteStatusTaskAsync(projectId, userId, statusTaskId);

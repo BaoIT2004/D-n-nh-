@@ -1,45 +1,52 @@
 import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
-import type { MemberResponse, Project, ProjectResponse } from "../types/project";
+import type {
+  MemberResponse,
+  Project,
+  ProjectResponse,
+} from "../types/project";
 
 export function AllProject(): Promise<ServiceResult<Project[]>> {
-    // người dùng đã đăng nhập chưa
-    const userId = getStoredUserId();
-    if (!userId) {
-        return Promise.resolve({
-            success: false,
-            message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
-        });
-    }
+  // người dùng đã đăng nhập chưa
+  const userId = getStoredUserId();
+  if (!userId) {
+    return Promise.resolve({
+      success: false,
+      message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+    });
+  }
 
-    return apiRequest<Project[]>(`/api/newProject/${userId}`);
+  return apiRequest<Project[]>(`/api/newProject/${userId}`);
 }
-
 
 //Tạo dự án
 export function createProject(
-    nameProject: string,
-    status: string,
+  nameProject: string,
+  status: string,
 ): Promise<ServiceResult<ProjectResponse>> {
-    const userId = getStoredUserId();
-    if (!userId) {
-        return Promise.resolve({
-            success: false,
-            message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
-        });
-    }
-
-    return apiRequest<ProjectResponse>("/api/newProject", {
-        method: "POST",
-        body: JSON.stringify({ nameProject, status, userId }),
+  const userId = getStoredUserId();
+  if (!userId) {
+    return Promise.resolve({
+      success: false,
+      message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
     });
+  }
+
+  return apiRequest<ProjectResponse>("/api/newProject", {
+    method: "POST",
+    body: JSON.stringify({ nameProject, status, userId }),
+  });
 }
 
 export function addMember(
-    projectId: number,  // result = await addMember(projectId, {userId: memberId}); (// file: use-create-post)
-    request: object,
+  projectId: number, // result = await addMember(projectId, {userId: memberId}); (// file: use-create-post)
+  request: object,
 ): Promise<ServiceResult<MemberResponse>> {
-    return apiRequest<MemberResponse>(`/api/ProjectMembers/${projectId}/members`, {
-        method: "POST",
-        body: JSON.stringify(request),
-    });
+  return apiRequest<MemberResponse>(
+    `/api/ProjectMembers/${projectId}/members`,
+    {
+      method: "POST",
+      body: JSON.stringify(request),
+    },
+  );
 }
+
