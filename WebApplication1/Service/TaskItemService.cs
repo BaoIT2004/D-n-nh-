@@ -118,7 +118,7 @@ namespace WebApplication1.Service
                 };
             }
 
-            var getAll = await _taskItemRepositories.GetAllTaskItemAsync(statusId, userId);
+            var getAll = await _taskItemRepositories.GetAllTaskItemAsync(statusId);
 
             return new ApiResponse<List<AddTaskItemResponseDto>>
             {

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.DTOs.ApiResponse;
 using WebApplication1.DTOs.Project;
@@ -46,7 +47,7 @@ namespace WebApplication1.Services
                 };
             }
 
-            var user = _dbContext.Users.Any(user => user.Id == userId);
+            var user = await _dbContext.Users.AnyAsync(user => user.Id == userId);
             if (!user)
             {
                 return new ApiResponse<ProjectResponseDto>

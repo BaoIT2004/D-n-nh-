@@ -41,9 +41,23 @@ namespace WebApplication1.Services
                 };
             }
 
-            var canAcess = await _projectRepository.CanAccessProjectAsync(request.ProjectId, userId);
+            var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+            if (project == null)
+            {
+                return new ApiResponse<StatusTaskResponseDto>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy dự án",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
 
-            if (!canAcess)
+
+            var canAccess = await _projectRepository.CanAccessProjectAsync(request.ProjectId, userId);
+
+            if (!canAccess)
             {
                 return new ApiResponse<StatusTaskResponseDto>
                 {
@@ -133,7 +147,7 @@ namespace WebApplication1.Services
             }
 
 
-            var deleteStatusTaskById = await _statusTaskRepository.getStatusTaskAsync(statusTaskId, projectId);
+            var deleteStatusTaskById = await _statusTaskRepository.GetStatusTaskAsync(statusTaskId, projectId);
 
             if (deleteStatusTaskById == null)
             {
@@ -182,7 +196,7 @@ namespace WebApplication1.Services
             }
 
             //2. Tìm status task
-            var updateStatusTask = await _statusTaskRepository.getStatusTaskAsync(statusTaskId, projectId);
+            var updateStatusTask = await _statusTaskRepository.GetStatusTaskAsync(statusTaskId, projectId);
 
             if (updateStatusTask == null)
             {

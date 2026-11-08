@@ -52,7 +52,7 @@ namespace WebApplication1.Services
             }
 
             //có thể truy cập được không
-            var canAccess = await _projectRepository.CanAccessProjectAsync(task!.Status!.ProjectId, userId);
+            var canAccess = await _projectRepository.CanAccessProjectAsync(task.Status.ProjectId, userId);
             if (!canAccess)
             {
                 return new ApiResponse<TaskAttachmentResponseDto>
@@ -91,7 +91,7 @@ namespace WebApplication1.Services
 
             //Kiểm tra tệp được hỗ trợ hay không
             var extension = Path.GetExtension(file.FileName);
-            if (!AllowedExtensions.Contains(extension))
+            if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
             {
                 return new ApiResponse<TaskAttachmentResponseDto>
                 {
@@ -127,9 +127,20 @@ namespace WebApplication1.Services
             // CreateNew nghĩa là chỉ tạo file mới; nếu file đã tồn tại thì ném IOException, không ghi đè.
             // file.CopyToAsync(stream): file là IFormFile (file người dùng upload). Dòng này sao chép nội dung file đó vào stream, tức là ghi xuống đĩa. Dùng async để không chặn thread khi đang ghi.
             //await using: khi chạy xong khối { }, stream tự được đóng và giải phóng (flush dữ liệu, trả handle file) theo kiểu bất đồng bộ. Không cần gọi Close() thủ công
-            await using (var stream = new FileStream(filePath, FileMode.CreateNew))
+            try
             {
-                await file.CopyToAsync(stream);
+                await using (var stream = new FileStream(filePath, FileMode.CreateNew))
+                {
+                    await file.CopyToAsync(stream);
+                }
+            }
+            catch
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+                throw;
             }
 
 

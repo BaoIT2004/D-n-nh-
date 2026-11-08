@@ -47,6 +47,18 @@ namespace WebApplication1.Services
                 };
             }
 
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                return new ApiResponse<ProjectMembersResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Email không được để trống",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
             var user = await _projectMemberRepository.GetUserByEmailAsync(request.Email);
 
             if (user == null)

@@ -24,15 +24,12 @@ namespace WebApplication1.Repositories
             await _dbcontext.SaveChangesAsync();
         }
 
-        public async Task<List<TaskItem>> GetAllTaskItemAsync(int statusId, int userId)
+        public async Task<List<TaskItem>> GetAllTaskItemAsync(int statusId)
         {
-            return await _dbcontext.TaskItem.Where(task => task.StatusId == statusId &&
-            (task.Status!.Project!.UserId == userId ||
-            task.Status!.Project!.ProjectMembers.Any(member => member.UserId == userId))).ToListAsync(); //TaskItem không có UserId trực tiếp, nên phải đi qua Status rồi Project mới biết task này thuộc user nào
+            return await _dbcontext.TaskItem
+                .Where(task => task.StatusId == statusId)
+                .ToListAsync();
         }
-
-
-
 
         public async Task UpdateTaskItemAsync(TaskItem taskItem)
         {
@@ -40,19 +37,21 @@ namespace WebApplication1.Repositories
             await _dbcontext.SaveChangesAsync();
         }
 
+        // Include(p => p.Status): lấy thông tin Status.
+        // ThenInclude(status => status!.Project): lấy tiếp Project thuộc Status.
+        // Include(p => p.CreatedByUser): lấy người tạo Task.
         public async Task<TaskItem?> GetStatusItemAsync(int taskItemId)
         {
-            return await _dbcontext.TaskItem.Include(p => p.Status!.Project)
-            .Include(p => p.CreatedByUser).FirstOrDefaultAsync(p => p.Id == taskItemId);
+            return await _dbcontext.TaskItem
+                .Include(p => p.Status)
+                .ThenInclude(status => status!.Project)
+                .Include(p => p.CreatedByUser)
+                .FirstOrDefaultAsync(p => p.Id == taskItemId);
         }
-
-
-        public async Task<TaskItem?> TaskItemAsync(int statusId)
+        public async Task<TaskItem?> GetTaskItemByStatusIdAsync(int statusId)
         {
             return await _dbcontext.TaskItem.FirstOrDefaultAsync(p => p.StatusId == statusId);
         }
-
-
         public async Task DeleteTaskItemReposity(TaskItem taskItem)
         {
             _dbcontext.TaskItem.Remove(taskItem);

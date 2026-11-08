@@ -126,7 +126,7 @@ namespace WebApplication1.Service
                     Status = false,
                     Message = "Email đã tồn tại trong hệ thống",
                     Data = null!,
-                    Errors = errors
+                    Errors = new List<string> { "Email đã tồn tại trong hệ thống" }
                 };
             }
 
@@ -191,10 +191,10 @@ namespace WebApplication1.Service
             };
         }
 
-        public async Task<ApiResponse<LogoutResponseDto>> Logout(LogoutRequestDto request)
+        public async Task<ApiResponse<LogoutResponseDto>> LogoutAsync(LogoutRequestDto request)
         {
             //1. Validate kiểm trs đã có token chưa
-            var result = await _jwtService.logoutRefreshtoken(request.RefreshToken);
+            var result = await _jwtService.LogoutRefreshTokenAsync(request.RefreshToken);
 
             //2. Khi thất bại
             if (!result)
@@ -220,11 +220,6 @@ namespace WebApplication1.Service
                     Message = "Đăng xuất thành công"
                 },
             };
-        }
-
-        internal async Task GetAllUsersAsync()
-        {
-            throw new NotImplementedException();
         }
     }
 }

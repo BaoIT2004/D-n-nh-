@@ -13,12 +13,6 @@ namespace WebApplication1.Repositories
             _dbContext = dbContext;
         }
 
-        public Task<User?> Get(int userId)
-        {
-            return _dbContext.Users.FirstOrDefaultAsync(user => user.Id == userId);
-        }
-
-
         //Lấy dữ liệu → thường trả về Task<User?>, vì có dữ liệu cần nhận.
         public Task<User?> GetByEmailAsync(string email)
         {

@@ -34,7 +34,7 @@ namespace WebApplication1.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<AddStatusTask?> getStatusTaskAsync(int statusTaskId, int projectId)
+        public async Task<AddStatusTask?> GetStatusTaskAsync(int statusTaskId, int projectId)
         {
             return await _dbContext.AddStatusTasks.FirstOrDefaultAsync(p => p.Id == statusTaskId && p.ProjectId == projectId);
         }

@@ -35,7 +35,7 @@ public class JwtService
 
         await _refreshTokenRepository.Delete(refreshToken);
 
-        var user = await _userRepository.Get(refreshToken.UserId);
+        var user = await _userRepository.GetByIdAsync(refreshToken.UserId);
         if (user is null) return null;
 
         return await GenerateToken(user);
@@ -102,7 +102,7 @@ public class JwtService
     }
 
     // Logout
-    public async Task<bool> logoutRefreshtoken(string token)
+    public async Task<bool> LogoutRefreshTokenAsync(string token)
     {
         if (string.IsNullOrWhiteSpace(token))
         {

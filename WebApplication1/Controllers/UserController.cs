@@ -57,7 +57,7 @@ namespace WebApplication1.Controllers
         [Authorize]
         public async Task<IActionResult> Logout([FromBody] LogoutRequestDto request)
         {
-            var response = await _userService.Logout(request);
+            var response = await _userService.LogoutAsync(request);
 
             return StatusCode(response.StatusCode, response);
         }
