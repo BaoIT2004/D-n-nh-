@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 namespace WebApplication1.Models;
 
+[Index(nameof(Email), IsUnique = true)]  // không cho trùng email
 public class User
 {
     public int Id { get; set; }

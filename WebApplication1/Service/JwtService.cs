@@ -35,7 +35,7 @@ public class JwtService
 
         await _refreshTokenRepository.Delete(refreshToken);
 
-        var user = await _userRepository.GetByIdAsync(refreshToken.UserId);
+        var user = await _userRepository.GetUserById(refreshToken.UserId);
         if (user is null) return null;
 
         return await GenerateToken(user);
