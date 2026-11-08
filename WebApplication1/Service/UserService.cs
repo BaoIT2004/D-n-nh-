@@ -159,7 +159,7 @@ namespace WebApplication1.Service
 
 
         // Hiển thị thông tin user
-        public async Task<ApiResponse<GetAllUsersResponseDto>> GetAllUsersAsync(int userId)
+        public async Task<ApiResponse<GetAllUsersResponseDto>> GetCurrentUserAsync(int userId)
         {
             //1. Lấy toàn bộ dữ liệu từ db
             var user = await _userRepository.GetUserById(userId); // map sang UserRepository
@@ -191,7 +191,7 @@ namespace WebApplication1.Service
             };
         }
 
-        public async Task<ApiResponse<LogoutResponseDto>> Logout(LogoutResquestDto request)
+        public async Task<ApiResponse<LogoutResponseDto>> Logout(LogoutRequestDto request)
         {
             //1. Validate kiểm trs đã có token chưa
             var result = await _jwtService.logoutRefreshtoken(request.RefreshToken);

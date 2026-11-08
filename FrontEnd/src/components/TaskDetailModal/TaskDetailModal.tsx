@@ -6,6 +6,7 @@ import { CiBookmark } from "react-icons/ci";
 import { RiTaskLine } from "react-icons/ri";
 import {
   useAddFile,
+  useDownLoadFile,
   useGetFiles,
 } from "../../hooks/tasks/use-add-Task-Attachment";
 import { useRef, useState } from "react";
@@ -18,9 +19,11 @@ export default function TaskDetailModal() {
   const { mutate: addFile } = useAddFile();
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const { data: filesData } = useGetFiles(Number(id));
-  console.log(filesData);
   const files = filesData?.success ? filesData.data : [];
+
+  const downloadMutation = useDownLoadFile();
 
   if (isLoading) return <p>Đang tải task...</p>;
   if (isError || !task) return <p>Không tải được task.</p>;
@@ -136,7 +139,17 @@ export default function TaskDetailModal() {
                       key={f.id}
                       className="flex items-center justify-between rounded-md border border-gray-200 px-3 py-2 text-sm"
                     >
-                      <span className="truncate">{f.fileName}</span>
+                      <button
+                        className="truncate text-left text-blue-600 hover:underline disabled:opacity-50"
+                        onClick={() =>
+                          downloadMutation.mutate(
+                            { fileId: f.id, fileName: f.fileName },
+                            { onError: (e) => toast.error(e.message) },
+                          )
+                        }
+                      >
+                        {f.fileName}
+                      </button>
                       <span className="text-xs text-gray-500">
                         {new Date(f.uploadedAt).toLocaleDateString("vi-VN")}
                       </span>

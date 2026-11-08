@@ -185,7 +185,7 @@ namespace WebApplication1.Service
         }
 
         // cập nhật
-        public async Task<ApiResponse<UpdateTaskItemResponseDto>> UpdateTaskItemService(UpdateTaskItemRequestDto request, int userId, int taskItemId)
+        public async Task<ApiResponse<UpdateTaskItemResponseDto>> UpdateTaskItemAsync(UpdateTaskItemRequestDto request, int userId, int taskItemId)
         {
             //1. validate dữ liệu
             var err = new List<string>();

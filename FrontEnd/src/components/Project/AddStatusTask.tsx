@@ -22,6 +22,7 @@ function BoardPage() {
   const { data: statusTasks = [] } = useStatusTasks(projectIdNumber);
   const queryClient = useQueryClient();
   const { data: projects = [] } = useProjects();
+  const currentProject = projects.find((p) => p.id === projectIdNumber); // lấy status của tạo dự án
 
   // thêm cột
   const [openColumnId, setOpenColumnId] = useState<number | null>(null);
@@ -144,21 +145,23 @@ function BoardPage() {
                 </p>
               </div>
 
-              <div>
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm email"
-                  className="text-sm border border-gray-400 w-55 h-9 pl-1 rounded-md"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)} // nhập nội dung hiện tại
-                />
-                <button
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 ml-2"
-                  onClick={handAddMember}
-                >
-                  Thêm
-                </button>
-              </div>
+              {currentProject && currentProject.status !== "private" && (
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm email"
+                    className="text-sm border border-gray-400 w-55 h-9 pl-1 rounded-md"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)} // nhập nội dung hiện tại
+                  />
+                  <button
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 ml-2"
+                    onClick={handAddMember}
+                  >
+                    Thêm
+                  </button>
+                </div>
+              )}
 
               {/* tạo đưởng kẻ ngang */}
               <hr className="border-t border-gray-300 -mx-6 my-5" />

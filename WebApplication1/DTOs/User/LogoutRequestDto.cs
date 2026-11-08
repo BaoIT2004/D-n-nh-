@@ -1,6 +1,6 @@
 namespace WebApplication1.DTOs.Auth;
 
-public class LogoutResquestDto
+public class LogoutRequestDto
 {
     public string RefreshToken { get; set; } = string.Empty;
 }

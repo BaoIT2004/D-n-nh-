@@ -25,10 +25,10 @@ namespace WebApplication1.Controllers
         // Hiển thị thông tin người dùng
         [HttpGet("me")]
         [Authorize]
-        public async Task<IActionResult> GetAllUser()
+        public async Task<IActionResult> GetCurrentUser()
         {
-            var user = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _userService.GetAllUsersAsync(user);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _userService.GetCurrentUserAsync(userId);
             return StatusCode(response.StatusCode, response);
         }
 
@@ -53,9 +53,9 @@ namespace WebApplication1.Controllers
         }
 
         //Đăng xuất
-        [AllowAnonymous]
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromBody] LogoutResquestDto request)
+        [Authorize]
+        public async Task<IActionResult> Logout([FromBody] LogoutRequestDto request)
         {
             var response = await _userService.Logout(request);
 
@@ -64,7 +64,7 @@ namespace WebApplication1.Controllers
 
         [AllowAnonymous]
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] RefreshRequestModel request)
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequestDto request)
         {
             if (string.IsNullOrWhiteSpace(request.RefreshToken))
             {

@@ -52,7 +52,7 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> UpdateTaskItem(int taskItemId, [FromBody] UpdateTaskItemRequestDto request)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _taskItemService.UpdateTaskItemService(request, userId, taskItemId);
+            var response = await _taskItemService.UpdateTaskItemAsync(request, userId, taskItemId);
             return StatusCode(response.StatusCode, response);
         }
 
