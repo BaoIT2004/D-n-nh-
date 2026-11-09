@@ -6,12 +6,9 @@ import { useState } from 'react';
 
 
 function Search() {
-
-
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const email = localStorage.getItem("email")
-
     const handleLogout = async () => {
         const result = await logoutUser();
         if (!result.success) {
@@ -36,7 +33,6 @@ function Search() {
 
                 <div className='flex items-center'>
                     <IoMdHelpCircleOutline title="Trợ giúp" className='absolute ml-55 text-[18px]'/>
-                    
                 </div>
 
             <div className="absolute right-10 mr-10 ml-auto flex items-center gap-3.75 text-[13px]">

@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 namespace WebApplication1.Models;
 
+[Index(nameof(Email), IsUnique = true)]  // không cho trùng email
 public class User
 {
     public int Id { get; set; }
@@ -8,7 +10,7 @@ public class User
     public string Email { get; set; } = "";
     public string passWord { get; set; } = "";
 
-    public ICollection<newProject> Projects {get; set;} = new List<newProject>();
+    public ICollection<newProject> Projects { get; set; } = new List<newProject>();
 
     public ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
 }

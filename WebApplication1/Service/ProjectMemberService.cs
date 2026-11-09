@@ -1,4 +1,5 @@
 using WebApplication1.DTOs.ApiResponse;
+using WebApplication1.DTOs.Member;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
 
@@ -41,6 +42,18 @@ namespace WebApplication1.Services
                     StatusCode = StatusCodes.Status403Forbidden,
                     Status = false,
                     Message = "Chỉ chủ dự án mới được mời thành viên",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                return new ApiResponse<ProjectMembersResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Email không được để trống",
                     Data = null!,
                     Errors = new List<string>()
                 };

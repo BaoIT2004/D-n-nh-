@@ -1,12 +1,11 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
 using WebApplication1.Services;
 namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [ApiController]
     public class TaskAttachmentsController : Controller
     {
 
@@ -16,9 +15,10 @@ namespace WebApplication1.Controllers
         {
             _taskAttachmentService = taskAttachmentService;
         }
-        
-        //Thêm 
+
+        //Thêm
         [HttpPost("{taskItemId}")]
+        [RequestSizeLimit(10 * 1024 * 1024)] //10mb
         [Authorize]
         public async Task<IActionResult> AddTaskAttachment([FromForm] IFormFile file, int taskItemId)
         {
@@ -27,6 +27,32 @@ namespace WebApplication1.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
+        //Hiển thị
+        [HttpGet("{taskItemId}")]
+        [Authorize]
+        public async Task<IActionResult> GetTaskAttachment(int taskItemId)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _taskAttachmentService.GetFileAsync(taskItemId, userId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        // lưu file
+        [HttpGet("download/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DownloadFile(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _taskAttachmentService.DownloadAsync(id, userId);
+
+            if (!result.Status || result.Data == null)
+            {
+                return StatusCode(result.StatusCode, result);
+            }
+            return File(result.Data.FileContent, result.Data.ContentType, result.Data.FileName);
+        }
+
+        //Xóa
         [HttpDelete("{attachmentId}")]
         [Authorize]
         public async Task<IActionResult> DeleteTaskAttachment(int attachmentId)

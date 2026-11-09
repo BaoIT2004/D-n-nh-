@@ -1,6 +1,7 @@
+namespace WebApplication1.DTOs.StatusTask;
 
 public class StatusTaskRequestDto
 {
-    public string StatusTask {get;set;}= string.Empty;
-    public int ProjectId {get;set;}
+    public string StatusTask { get; set; } = string.Empty;
+    public int ProjectId { get; set; }
 }

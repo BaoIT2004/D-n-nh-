@@ -1,8 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.DTOs.ApiResponse;
+using WebApplication1.DTOs.Project;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
-using WebApplication1.DTOs.Project;
 
 namespace WebApplication1.Services
 {
@@ -46,7 +47,7 @@ namespace WebApplication1.Services
                 };
             }
 
-            var user = _dbContext.Users.Any(user => user.Id == userId);
+            var user = await _dbContext.Users.AnyAsync(user => user.Id == userId);
             if (!user)
             {
                 return new ApiResponse<ProjectResponseDto>
@@ -77,8 +78,11 @@ namespace WebApplication1.Services
                 Message = "Tạo dự án thành công",
                 Data = new ProjectResponseDto
                 {
-                    NameProject = project.NameProject,
-                    Status = project.Status
+                    Id = newProject.Id,
+                    NameProject = newProject.nameProject,
+                    Status = newProject.status,
+                    CreatedAt = newProject.CreatedAt,
+                    UserId = newProject.UserId
                 }
             };
         }
@@ -189,13 +193,16 @@ namespace WebApplication1.Services
                 Message = "Cập nhật thành công",
                 Data = new ProjectResponseDto
                 {
+                    Id = update.Id,
                     NameProject = update.nameProject,
-                    Status = update.status
+                    Status = update.status,
+                    CreatedAt = update.CreatedAt,
+                    UserId = update.UserId
                 }
             };
         }
 
-        //Xóa dự án 
+        //Xóa dự án
         public async Task<ApiResponse<DeleteProjectResponseDto>> DeleteProjectAsync(int id, int userId)
         {
             var errors = new List<string>();

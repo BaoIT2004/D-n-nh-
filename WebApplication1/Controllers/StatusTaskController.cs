@@ -1,70 +1,60 @@
+    using System.Security.Claims;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using WebApplication1.DTOs.StatusTask;
+    using WebApplication1.Services;
 
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
-using WebApplication1.Services;
-
-namespace WebApplication1.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class StatusTaskController : Controller
+    namespace WebApplication1.Controllers
     {
-        private readonly ApplicationContext dbContext;
-        private readonly StatusTaskService _statustTaskervice;
-        public StatusTaskController(
-            ApplicationContext dbContext,
-            StatusTaskService statusTaskService)
+        [Route("api/[controller]")]
+        [ApiController]
+        public class StatusTaskController : Controller
         {
-            this.dbContext = dbContext;
-            _statustTaskervice = statusTaskService;
+            private readonly StatusTaskService _statusTaskService;
+            public StatusTaskController(
+                StatusTaskService statusTaskService)
+            {
+                _statusTaskService = statusTaskService;
+            }
+
+            //Thêm trạng thái
+            [HttpPost]
+            [Authorize]
+            public async Task<IActionResult> AddStatusTask([FromBody] StatusTaskRequestDto request)
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var response = await _statusTaskService.AddNewStatusTaskAsync(request, userId);
+                return StatusCode(response.StatusCode, response);
+            }
+
+            //Hiển thị
+            [HttpGet("{projectId}")]
+            [Authorize]
+            public async Task<IActionResult> GetAllStatusTasks(int projectId)
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var response = await _statusTaskService.GetAllStatusTasksAsync(projectId, userId);
+                return StatusCode(response.StatusCode, response);
+            }
+
+            //Cập nhật
+            [HttpPut("update/{projectId}/{statusTaskId}")]
+            [Authorize]
+            public async Task<IActionResult> UpdateStatusTask(int projectId, int statusTaskId, [FromBody] UpdateStatusTaskRequestDto request)
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var response = await _statusTaskService.UpdateStatusTaskAsync(projectId, userId, statusTaskId, request);
+                return StatusCode(response.StatusCode, response);
+            }
+
+            //Xóa
+            [HttpDelete("delete/{projectId}/{statusTaskId}")]
+            [Authorize]
+            public async Task<IActionResult> DeleteStatusTask(int projectId, int statusTaskId)
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var response = await _statusTaskService.DeleteStatusTaskAsync(projectId, userId, statusTaskId);
+                return StatusCode(response.StatusCode, response);
+            }
         }
-
-
-        //Thêm trạng thái
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> AddStatusTask([FromBody] StatusTaskRequestDto request)
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _statustTaskervice.AddNewStatusTaskAsync(request, userId);
-            return StatusCode(response.StatusCode, response);
-        }
-        
-
-        //Hiển thị 
-        [HttpGet("{projectId}")]
-        [Authorize]
-        public async Task<IActionResult> AllStatusTasks(int projectId)
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _statustTaskervice.GetAllStatusTasksAsync(projectId, userId);
-            return StatusCode(response.StatusCode, response);
-        }
-
-        //Cập nhật
-        [HttpPut("update/{projectId}/{statusTaskId}")]
-        [Authorize]
-        public async Task<IActionResult> UpdateStatusTask(int projectId, int statusTaskId, [FromBody] UpdateStatusTaskRequestDto request  )
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _statustTaskervice.UpdateStatusTaskAsync(projectId, userId, statusTaskId, request);
-            return StatusCode(response.StatusCode , response);
-        }
-
-
-        //Xóa
-        [HttpDelete("delete/{projectId}/{statusTaskId}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteStatusTask([FromBody] int projectId, int statusTaskId)
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _statustTaskervice.DeleteStatusTaskAsync(projectId, userId, statusTaskId);
-            return StatusCode(response.StatusCode, response);
-        }
-
     }
-
-
-}

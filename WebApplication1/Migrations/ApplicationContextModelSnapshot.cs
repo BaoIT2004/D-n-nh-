@@ -111,6 +111,9 @@ namespace WebApplication1.Migrations
                     b.Property<DateOnly>("CreatedAt")
                         .HasColumnType("date");
 
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Degree")
                         .IsRequired()
                         .HasColumnType("text");
@@ -127,6 +130,8 @@ namespace WebApplication1.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("StatusId");
 
@@ -154,6 +159,9 @@ namespace WebApplication1.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -259,11 +267,17 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
                 {
+                    b.HasOne("WebApplication1.Models.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId");
+
                     b.HasOne("WebApplication1.Models.AddStatusTask", "Status")
                         .WithMany("Tasks")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("Status");
                 });

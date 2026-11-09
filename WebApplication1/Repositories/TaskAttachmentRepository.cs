@@ -24,6 +24,14 @@ namespace WebApplication1.Repositories
             return _dbContext.TaskAttachments.FirstOrDefaultAsync(a => a.Id == attachmentId);
         }
 
+        public Task<List<TaskAttachment>> GetTaskAttachmentsAsync(int taskItemId)
+        {
+            return _dbContext.TaskAttachments
+                .Where(attachment => attachment.TaskItemId == taskItemId)
+                .OrderByDescending(attachment => attachment.UploadedAt)
+                .ToListAsync();
+        }
+
         // 1. Thêm
         public async Task AddTaskAttachmentAsync(TaskAttachment attachment)
         {

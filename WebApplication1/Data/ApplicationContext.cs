@@ -6,13 +6,13 @@ public class ApplicationContext(  // constructor
     DbContextOptions<ApplicationContext> options) : DbContext(options)
 {
 
-    public DbSet<User> Users {get; set;} // quản lý các objject user
-    public DbSet<newProject>Projects{get; set;} // quản lý các objject tạo ra dự án
+    public DbSet<User> Users { get; set; } // quản lý các objject user
+    public DbSet<newProject> Projects { get; set; } // quản lý các objject tạo ra dự án
     public DbSet<refreshToken> RefreshTokens { get; set; }
 
-    public DbSet<TaskItem> TaskItem {get;set;}
+    public DbSet<TaskItem> TaskItem { get; set; }
 
-    public DbSet<AddStatusTask> AddStatusTasks {get;set;}
+    public DbSet<AddStatusTask> AddStatusTasks { get; set; }
 
     public DbSet<ProjectMember> ProjectMembers { get; set; }
 
