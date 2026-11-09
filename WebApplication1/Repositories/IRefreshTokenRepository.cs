@@ -4,8 +4,8 @@ namespace WebApplication1.Repositories
 {
     public interface IRefreshTokenRepository
     {
-        Task Create(refreshToken token);
-        Task Delete(refreshToken refreshToken);
-        Task<refreshToken?> Get(string token);
+        Task Create(RefreshToken token);
+        Task Delete(RefreshToken refreshToken);
+        Task<RefreshToken?> Get(string token);
     }
 }

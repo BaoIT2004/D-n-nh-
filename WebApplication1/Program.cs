@@ -49,13 +49,19 @@ builder.Services.AddScoped<TaskAttachmentRepository>();
 builder.Services.AddScoped<TaskAttachmentService>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+
 // core kết nối với react
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod();
+            policy.WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()  // Cho phép frontend gửi mọi loại HTTP Header lên backend.
+            .AllowAnyMethod()  // Cho phép frontend sử dụng tất cả HTTP Method.
+            .AllowCredentials();// Cho phép frontend gửi thông tin xác thực (credentials) kèm theo request
         }
     );
 }
