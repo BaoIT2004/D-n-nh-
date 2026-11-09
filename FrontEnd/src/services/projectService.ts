@@ -1,13 +1,13 @@
-import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
+import { apiRequest, type ServiceResult } from "./Api";
 import type {
   MemberResponse,
   Project,
   ProjectResponse,
 } from "../types/project";
 
-export function AllProject(): Promise<ServiceResult<Project[]>> {
+//Hiển thị project
+export function AllProject(userId: number): Promise<ServiceResult<Project[]>> {
   // người dùng đã đăng nhập chưa
-  const userId = getStoredUserId();
   if (!userId) {
     return Promise.resolve({
       success: false,
@@ -20,10 +20,10 @@ export function AllProject(): Promise<ServiceResult<Project[]>> {
 
 //Tạo dự án
 export function createProject(
+  userId: number,
   nameProject: string,
   status: string,
 ): Promise<ServiceResult<ProjectResponse>> {
-  const userId = getStoredUserId();
   if (!userId) {
     return Promise.resolve({
       success: false,
@@ -37,6 +37,7 @@ export function createProject(
   });
 }
 
+// thêm thành viên
 export function addMember(
   projectId: number, // result = await addMember(projectId, {userId: memberId}); (// file: use-create-post)
   request: object,
@@ -49,4 +50,3 @@ export function addMember(
     },
   );
 }
-

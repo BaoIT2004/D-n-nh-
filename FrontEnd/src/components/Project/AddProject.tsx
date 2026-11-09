@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useCreateProject } from "../../hooks/projects/use-create-project";
 
 function AddProject() {
-  const [nameProject, setnameProject] = useState("");
+  const [nameProject, setNameProject] = useState("");
   const [status, setStatus] = useState("private");
   const { mutate } = useCreateProject();
 
@@ -13,7 +13,7 @@ function AddProject() {
       {
         onSuccess: () => {
           toast.success("Tạo dự án thành công.");
-          setnameProject("");
+          setNameProject("");
         },
         onError: (error) => {
           toast.error(error.message);
@@ -42,7 +42,7 @@ function AddProject() {
             placeholder="Nhập tên dự án"
             className="text-sm border border-gray-400 w-55 h-9 pl-1 rounded-md"
             value={nameProject}
-            onChange={(e) => setnameProject(e.target.value)}
+            onChange={(e) => setNameProject(e.target.value)}
           />
 
           <label htmlFor="" className="text-sm">

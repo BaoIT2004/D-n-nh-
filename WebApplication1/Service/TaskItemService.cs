@@ -12,15 +12,21 @@ namespace WebApplication1.Service
         private readonly StatusTaskRepository _statusTaskRepository;
 
         private readonly ProjectRepository _projectRepository;
+        private readonly TaskAttachmentRepository _taskAttachmentRepository;
+        private readonly IWebHostEnvironment _environment;
 
         public TaskItemService(
         TaskItemRepositories taskItemRepositories,
         StatusTaskRepository statusTaskRepository,
-        ProjectRepository projectRepository)
+        ProjectRepository projectRepository,
+        TaskAttachmentRepository taskAttachmentRepository,
+        IWebHostEnvironment environment)
         {
             _taskItemRepositories = taskItemRepositories;
             _statusTaskRepository = statusTaskRepository;
             _projectRepository = projectRepository;
+            _taskAttachmentRepository = taskAttachmentRepository;
+            _environment = environment;
         }
 
 
@@ -61,18 +67,32 @@ namespace WebApplication1.Service
 
             //kiểm tra xem người dùng và trạng thái task có đúng không
             var response = await _statusTaskRepository.GetStatusTaskById(statusTaskId);
-            if (response == null || !await _projectRepository.CanAccessProjectAsync(response.ProjectId, userId))
+            if (response == null)
             {
                 return new ApiResponse<AddTaskItemResponseDto>
                 {
-                    StatusCode = StatusCodes.Status404NotFound,
+                    StatusCode = 404,
                     Status = false,
                     Message = "Trạng thái không tồn tại",
-                    Data = null!,
-                    Errors = err
+                    Data = null!
                 };
             }
 
+            var canAccess = await _projectRepository.CanAccessProjectAsync(
+                response.ProjectId,
+                userId
+            );
+
+            if (!canAccess)
+            {
+                return new ApiResponse<AddTaskItemResponseDto>
+                {
+                    StatusCode = 403,
+                    Status = false,
+                    Message = "Bạn không có quyền truy cập dự án",
+                    Data = null!
+                };
+            }
             // tạo mới
             var newTaskItem = new TaskItem
             {
@@ -225,15 +245,13 @@ namespace WebApplication1.Service
 
             if (taskItem == null || taskItem.Status == null)
             {
+                return new ApiResponse<UpdateTaskItemResponseDto>
                 {
-                    return new ApiResponse<UpdateTaskItemResponseDto>
-                    {
-                        StatusCode = StatusCodes.Status404NotFound,
-                        Status = false,
-                        Message = "Không tìm thấy công việc",
-                        Data = null!,
-                    };
-                }
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy công việc",
+                    Data = null!,
+                };
             }
 
 
@@ -341,7 +359,37 @@ namespace WebApplication1.Service
                 };
             }
 
-            //Xóa dự án
+            // Lấy danh sách file đính kèm của Task
+            // Lấy danh sách file đính kèm của Task
+            var attachments = await _taskAttachmentRepository.GetTaskAttachmentsAsync(taskItemId);
+            // Đường dẫn thư mục lưu file
+            var directory = Path.Combine(_environment.ContentRootPath,"App_Data","TaskAttachments");
+            try
+            {
+                // Duyệt qua từng file đính kèm
+                foreach (var attachment in attachments)
+                {
+                    // Lấy đường dẫn file
+                    var filePath = Path.Combine(directory, Path.GetFileName(attachment.StoredFileName));
+                    // Kiểm tra file có tồn tại không
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        // Xóa file
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return new ApiResponse<bool>
+                {
+                    StatusCode = 500,
+                    Status = false,
+                    Message = "Không thể xóa file đính kèm.",
+                    Data = false
+                };
+            }
+            //Xóa công việc
             await _taskItemRepositories.DeleteTaskItemReposity(taskItem);
 
             return new ApiResponse<bool>

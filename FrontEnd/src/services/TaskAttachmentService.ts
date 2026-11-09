@@ -1,7 +1,8 @@
 import type { TaskAttachment } from "../types/TaskAttachment";
 import {
   apiRequest,
-  getStoredUserId,
+  getAccessToken,
+  refreshAccessToken,
   API_BASE_URL,
   type ServiceResult,
 } from "./Api";
@@ -10,13 +11,6 @@ export function AddFile(
   taskItemId: number,
   file: File,
 ): Promise<ServiceResult<TaskAttachment>> {
-  const userId = getStoredUserId();
-  if (!userId) {
-    return Promise.resolve({
-      success: false,
-      message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
-    });
-  }
   const formData = new FormData();
   formData.append("file", file); // khớp tên IFormFile ở backend
   return apiRequest<TaskAttachment>(`/api/TaskAttachments/${taskItemId}`, {
@@ -28,29 +22,34 @@ export function AddFile(
 export function GetFiles(
   taskItemId: number,
 ): Promise<ServiceResult<TaskAttachment[]>> {
-  const userId = getStoredUserId();
-  if (!userId) {
-    return Promise.resolve({
-      success: false,
-      message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
-    });
-  }
-
   return apiRequest<TaskAttachment[]>(`/api/TaskAttachments/${taskItemId}`, {
     method: "GET",
   });
 }
 
-export async function DowloadFile(
+export async function DownloadFile(
   fileId: number,
   fileName: string,
 ): Promise<ServiceResult<Blob>> {
-  const token = localStorage.getItem("accessToken");
+  let token = getAccessToken();
+
+  if (!token) {
+    const refreshed = await refreshAccessToken();
+    if (!refreshed) {
+      return { success: false, message: "Phiên đăng nhập đã hết hạn." };
+    }
+    token = getAccessToken();
+  }
+
+  if (!token) {
+    return { success: false, message: "Không lấy được access token." };
+  }
   const res = await fetch(
     `${API_BASE_URL}/api/TaskAttachments/download/${fileId}`,
     {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
+      credentials: "include", //tác dụng yêu cầu trình duyệt gửi Cookie kèm theo request khi gọi API.
     },
   );
 

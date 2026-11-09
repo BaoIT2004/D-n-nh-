@@ -19,7 +19,8 @@ function SidebarLeft({ onCreateClick }: SidebarLeftProps) {
   const [open, setOpen] = useState(true);
   const [board, setBoard] = useState(true);
   const navigate = useNavigate();
-  const { data: project = [] } = useProjects();
+  const { data: project = [], error, isLoading } = useProjects();
+  console.log({ project, error, isLoading });
   const menuItem = [
     {
       icons: <IoHomeOutline size={20} />,
@@ -67,23 +68,25 @@ function SidebarLeft({ onCreateClick }: SidebarLeftProps) {
         {menuItem.map((item, index) => {
           if (item.isProject) {
             return (
-              <div
+              <li
                 key={index}
-                className={`overflow-hidden transition-all duration-500 ${board ? "max-h-96" : "max-h-0"}`}
+                className={`overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden transition-all duration-500 ${
+                  board && open ? "max-h-96" : "max-h-0"
+                }`}
               >
-                {project.map((p) => (
-                  <li
-                    key={p.id}
-                    onClick={() => {
-                      navigate(`/BoardPage/${p.id}`);
-                    }}
-                    className="ml-4 pl-4 gap-1 py-1 border-l border-[#D1D5DB] text-[13px] text-gray-600 cursor-pointer hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap overflow-hidden transition-all duration-500 flex items-center font-normal"
-                  >
-                    {item.icons}
-                    {p.nameProject}
-                  </li>
-                ))}
-              </div>
+                <ul>
+                  {project.map((p) => (
+                    <li
+                      key={p.id}
+                      onClick={() => navigate(`/BoardPage/${p.id}`)}
+                      className="ml-4 pl-4 gap-1 py-1 border-l border-[#D1D5DB] text-[13px] text-gray-600 cursor-pointer hover:bg-blue-50 hover:text-blue-600 whitespace-nowrap overflow-hidden flex items-center font-normal"
+                    >
+                      {item.icons}
+                      {p.nameProject}
+                    </li>
+                  ))}
+                </ul>
+              </li>
             );
           }
           return (
