@@ -93,6 +93,35 @@ namespace WebApplication1.Service
                     Data = null!
                 };
             }
+
+            // kiểm tra task cha có tồn tại không
+            if (request.ParentId != null)
+            {
+                var parent = await _taskItemRepositories.GetTaskItemAsync(request.ParentId.Value);
+                if (parent == null)
+                {
+                    return new ApiResponse<AddTaskItemResponseDto>
+                    {
+                        StatusCode = 404,
+                        Status = false,
+                        Message = "Task cha không tồn tại",
+                        Data = null!
+                    };
+                }
+
+                //kiểm tra taslk cha phải cùng 1 project
+                if (parent.Status!.ProjectId != response.ProjectId)
+                {
+                    return new ApiResponse<AddTaskItemResponseDto>
+                    {
+                        StatusCode = 400,
+                        Status = false,
+                        Message = "Task cha không thuộc dự án này",
+                        Data = null!
+                    };
+                }
+            }
+
             // tạo mới
             var newTaskItem = new TaskItem
             {
@@ -101,7 +130,8 @@ namespace WebApplication1.Service
                 WorkType = request.WorkType,
                 Degree = request.Degree,
                 StatusId = statusTaskId,
-                CreatedByUserId = userId
+                CreatedByUserId = userId,
+                ParentId = request.ParentId,
             };
 
             await _taskItemRepositories.AddTaskItem(newTaskItem);
@@ -118,6 +148,7 @@ namespace WebApplication1.Service
                     CreatedAt = newTaskItem.CreatedAt,
                     WorkType = newTaskItem.WorkType,
                     Degree = newTaskItem.Degree,
+                    ParentId = newTaskItem.ParentId
                 }
             };
         }
@@ -198,7 +229,17 @@ namespace WebApplication1.Service
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
                     StatusId = taskItem.StatusId,
-                    CreatedByEmail = taskItem.CreatedByUser?.Email
+                    CreatedByEmail = taskItem.CreatedByUser?.Email,
+                    ParentId = taskItem.ParentId,
+                    SubTasks = taskItem.SubTasks.Select(s => new AddTaskItemResponseDto
+                    {
+                        Id = s.Id,
+                        Title = s.Title,
+                        CreatedAt = s.CreatedAt,
+                        WorkType = s.WorkType,
+                        Degree = s.Degree,
+                        ParentId = s.ParentId
+                    }).ToList()
                 },
                 Errors = new List<string>()
             };
@@ -363,7 +404,7 @@ namespace WebApplication1.Service
             // Lấy danh sách file đính kèm của Task
             var attachments = await _taskAttachmentRepository.GetTaskAttachmentsAsync(taskItemId);
             // Đường dẫn thư mục lưu file
-            var directory = Path.Combine(_environment.ContentRootPath,"App_Data","TaskAttachments");
+            var directory = Path.Combine(_environment.ContentRootPath, "App_Data", "TaskAttachments");
             try
             {
                 // Duyệt qua từng file đính kèm

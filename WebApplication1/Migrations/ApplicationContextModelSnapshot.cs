@@ -142,6 +142,9 @@ namespace WebApplication1.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AssigneeId")
+                        .HasColumnType("integer");
+
                     b.Property<DateOnly>("CreatedAt")
                         .HasColumnType("date");
 
@@ -151,6 +154,9 @@ namespace WebApplication1.Migrations
                     b.Property<string>("Degree")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -165,7 +171,11 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssigneeId");
+
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("StatusId");
 
@@ -284,9 +294,17 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
                 {
+                    b.HasOne("WebApplication1.Models.User", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeId");
+
                     b.HasOne("WebApplication1.Models.User", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId");
+
+                    b.HasOne("WebApplication1.Models.TaskItem", "Parent")
+                        .WithMany("SubTasks")
+                        .HasForeignKey("ParentId");
 
                     b.HasOne("WebApplication1.Models.AddStatusTask", "Status")
                         .WithMany("Tasks")
@@ -294,7 +312,11 @@ namespace WebApplication1.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Assignee");
+
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("Parent");
 
                     b.Navigation("Status");
                 });
@@ -318,6 +340,8 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
                 {
                     b.Navigation("Attachments");
+
+                    b.Navigation("SubTasks");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.User", b =>

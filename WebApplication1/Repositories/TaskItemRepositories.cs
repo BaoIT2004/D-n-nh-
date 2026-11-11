@@ -27,7 +27,7 @@ namespace WebApplication1.Repositories
         public async Task<List<TaskItem>> GetAllTaskItemAsync(int statusId)
         {
             return await _dbcontext.TaskItem
-                .Where(task => task.StatusId == statusId)
+                .Where(task => task.StatusId == statusId && task.ParentId == null) //ParentId == null là điều kiện lọc task gốc. Trong DB, task gốc không có cha nên cột ParentId để null; subtask thì ParentId mang Id của cha.
                 .ToListAsync();
         }
 
@@ -46,6 +46,7 @@ namespace WebApplication1.Repositories
                 .Include(p => p.Status)
                 .ThenInclude(status => status!.Project)
                 .Include(p => p.CreatedByUser)
+                .Include(p => p.SubTasks)
                 .FirstOrDefaultAsync(p => p.Id == taskItemId);
         }
         public async Task<TaskItem?> GetTaskItemByStatusIdAsync(int statusId)
@@ -56,6 +57,11 @@ namespace WebApplication1.Repositories
         {
             _dbcontext.TaskItem.Remove(taskItem);
             await _dbcontext.SaveChangesAsync();
+        }
+
+        public Task<TaskItem?> GetTaskItemAsync(int taskItemId)
+        {
+            return _dbcontext.TaskItem.Include(t => t.Status).FirstOrDefaultAsync(task => task.Id == taskItemId);
         }
     }
 }
