@@ -27,8 +27,9 @@ namespace WebApplication1.Repositories
         public async Task<List<TaskItem>> GetAllTaskItemAsync(int statusId)
         {
             return await _dbcontext.TaskItem
-                .Where(task => task.StatusId == statusId && task.ParentId == null) //ParentId == null là điều kiện lọc task gốc. Trong DB, task gốc không có cha nên cột ParentId để null; subtask thì ParentId mang Id của cha.
-                .ToListAsync();
+            .Include(task => task.Status)
+            .Where(task => task.StatusId == statusId && task.ParentId == null) //ParentId == null là điều kiện lọc task gốc. Trong DB, task gốc không có cha nên cột ParentId để null; subtask thì ParentId mang Id của cha.
+            .ToListAsync();
         }
 
         public async Task UpdateTaskItemAsync(TaskItem taskItem)
@@ -47,6 +48,7 @@ namespace WebApplication1.Repositories
                 .ThenInclude(status => status!.Project)
                 .Include(p => p.CreatedByUser)
                 .Include(p => p.SubTasks)
+                .ThenInclude(s => s.Status)
                 .FirstOrDefaultAsync(p => p.Id == taskItemId);
         }
         public async Task<TaskItem?> GetTaskItemByStatusIdAsync(int statusId)

@@ -135,7 +135,6 @@ namespace WebApplication1.Service
             };
 
             await _taskItemRepositories.AddTaskItem(newTaskItem);
-
             return new ApiResponse<AddTaskItemResponseDto>
             {
                 StatusCode = StatusCodes.Status200OK,
@@ -146,7 +145,7 @@ namespace WebApplication1.Service
                     Id = newTaskItem.Id,
                     Title = newTaskItem.Title,
                     CreatedAt = newTaskItem.CreatedAt,
-                    WorkType = newTaskItem.WorkType,
+                    Status = response.StatusTask,
                     Degree = newTaskItem.Degree,
                     ParentId = newTaskItem.ParentId
                 }
@@ -181,7 +180,7 @@ namespace WebApplication1.Service
                     Id = p.Id,
                     Title = p.Title,
                     CreatedAt = p.CreatedAt,
-                    WorkType = p.WorkType,
+                    Status = p.Status?.StatusTask ?? string.Empty,
                     Degree = p.Degree
                 }).ToList()
             };
@@ -236,7 +235,7 @@ namespace WebApplication1.Service
                         Id = s.Id,
                         Title = s.Title,
                         CreatedAt = s.CreatedAt,
-                        WorkType = s.WorkType,
+                        Status = s.Status?.StatusTask ?? string.Empty,
                         Degree = s.Degree,
                         ParentId = s.ParentId
                     }).ToList()
@@ -250,7 +249,6 @@ namespace WebApplication1.Service
         {
             //1. validate dữ liệu
             var err = new List<string>();
-
             if (string.IsNullOrWhiteSpace(request.Title))
             {
                 err.Add("Không để trống tên");
@@ -267,8 +265,6 @@ namespace WebApplication1.Service
             {
                 err.Add("không được để trống degree");
             }
-
-
             if (err.Count > 0)
             {
                 return new ApiResponse<UpdateTaskItemResponseDto>
@@ -280,10 +276,7 @@ namespace WebApplication1.Service
                     Errors = err
                 };
             }
-
-
             var taskItem = await _taskItemRepositories.GetStatusItemAsync(taskItemId);
-
             if (taskItem == null || taskItem.Status == null)
             {
                 return new ApiResponse<UpdateTaskItemResponseDto>
@@ -294,7 +287,6 @@ namespace WebApplication1.Service
                     Data = null!,
                 };
             }
-
 
             var canAccess = await _projectRepository.CanAccessProjectAsync(taskItem.Status.ProjectId, userId);
             if (!canAccess)

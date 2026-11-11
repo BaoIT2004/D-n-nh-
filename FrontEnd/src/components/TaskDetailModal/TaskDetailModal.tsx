@@ -11,6 +11,7 @@ import {
 } from "../../hooks/tasks/use-add-Task-Attachment";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 export default function TaskDetailModal() {
   const navigate = useNavigate();
@@ -24,6 +25,8 @@ export default function TaskDetailModal() {
   const files = filesData?.success ? filesData.data : [];
 
   const downloadMutation = useDownLoadFile();
+
+  const [open, setOpen] = useState(true); //đóng mở giao diện
 
   if (isLoading) return <p>Đang tải task...</p>;
   if (isError || !task) return <p>Không tải được task.</p>;
@@ -43,6 +46,7 @@ export default function TaskDetailModal() {
     },
   ];
 
+  // thêm file
   function handleChange() {
     if (!file) {
       toast.error("Chưa chọn file");
@@ -71,7 +75,7 @@ export default function TaskDetailModal() {
       <section
         aria-labelledby="task-detail-title"
         aria-modal="true"
-        className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white shadow-xl"
+        className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl" //overflow-hidden cố định
         role="dialog"
       >
         <header className="flex items-center justify-between border-b border-slate-300 px-6 py-3 text-sm">
@@ -91,8 +95,8 @@ export default function TaskDetailModal() {
           </button>
         </header>
 
-        <div className="grid md:grid-cols-[1fr_320px]">
-          <div className="space-y-6 p-6 md:border-r border-slate-300 md:border-slate-300">
+        <div className="grid min-h-0 flex-1 md:grid-cols-[1fr_320px]">
+          <div className="min-h-0 space-y-6 overflow-y-auto p-6 md:border-r md:border-slate-300 scrollbar-none [&::-webkit-scrollbar]:hidden">
             <h1
               className="text-2xl font-semibold text-gray-900"
               id="task-detail-title"
@@ -160,15 +164,68 @@ export default function TaskDetailModal() {
             </section>
 
             <section>
-              <h2 className="mb-1 text-sm font-semibold text-gray-800">
-                Subtasks
-              </h2>
-              <button
-                className="rounded px-2 py-1 text-sm text-gray-500 hover:bg-gray-100"
-                type="button"
-              >
-                + Add subtask
-              </button>
+              <div className="max-w-2xl font-sans">
+                {/* Header */}
+                <div className="flex items-center gap-2">
+                  <button
+                    className={`text-gray-600 ml-1.5 duration-500 cursor-pointer ${open ? "" : "-rotate-180"}`}
+                    onClick={() => setOpen(!open)}
+                  >
+                    <IoMdArrowDropdown />
+                  </button>
+                  <h3 className="flex-1 text-lg font-semibold">Subtasks</h3>
+                  <button className="rounded px-2 text-xl text-gray-600 hover:bg-gray-100">
+                    +
+                  </button>
+                </div>
+
+                {/* Thanh tiến độ */}
+                <div className="my-3 flex items-center gap-3">
+                  <div className="h-2 flex-1 overflow-hidden rounded bg-gray-400">
+                    <div
+                      className="h-full bg-lime-600"
+                      style={{ width: "50%" }}
+                    />
+                  </div>
+                  <span className="text-sm text-gray-500">50% Done</span>
+                </div>
+
+                {/* Bảng danh sách */}
+
+                <div
+                  className={`overflow-hidden transition-all duration-500 ease-in-out ${open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
+                >
+                  {open && (
+                    <div className="overflow-hidden rounded-lg border border-gray-200">
+                      <div className="grid grid-cols-[1fr_120px_160px_140px] border-b border-gray-200 bg-gray-50 text-sm font-semibold text-gray-600">
+                        <div className="px-3 py-2">Work</div>
+                        <div className="border-l border-gray-200 px-3 py-2">
+                          Priority
+                        </div>
+                        <div className="border-l border-gray-200 px-3 py-2">
+                          Assignee
+                        </div>
+                        <div className="border-l border-gray-200 px-3 py-2">
+                          Status
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 border-b border-gray-200 px-3 py-3 hover:bg-gray-50">
+                        <a className="cursor-pointer text-blue-600 line-through">
+                          PROJ-21
+                        </a>
+                        <span>Database</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 px-3 py-3 hover:bg-gray-50">
+                        <a className="cursor-pointer text-blue-600 hover:underline">
+                          PROJ-22
+                        </a>
+                        <span>DB</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </section>
           </div>
 
