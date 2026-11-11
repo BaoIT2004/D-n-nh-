@@ -22,7 +22,7 @@ namespace WebApplication1.Repositories
         //p.UserId == UserId: hỏi “project này của ai?
         public Task<List<newProject>> GetAllProjectAsync(int userId)
         {
-            return _dbContext.Projects.Where(p => p.UserId == userId || p.ProjectMembers
+            return _dbContext.Projects.Include(p => p.User).Where(p => p.UserId == userId || p.ProjectMembers
                 .Any(member => member.UserId == userId))
                 .ToListAsync();
         }

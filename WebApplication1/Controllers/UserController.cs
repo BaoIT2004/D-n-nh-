@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.DTOs.Auth;
@@ -20,6 +21,29 @@ namespace WebApplication1.Controllers
         {
             _jwtService = jwtService;
             _userService = userService;
+        }
+
+
+        private void SetRefreshCookie(string refreshToken)  // private chỉ dùng đươc trong class
+        {
+            //Thêm Cookie vào HTTP Response để gửi về trình duyệt (tên cookie , giá trị lưu cookie , cấu hình cookie)
+            Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            {
+                HttpOnly = true,  //JavaScript không thể đọc Cookie bằng document.cookie. Giúp hạn chế tấn công XSS lấy Refresh Token.
+                Secure = true,  //	Chỉ gửi Cookie qua kết nối HTTPS.
+                SameSite = SameSiteMode.Strict,  //Hạn chế gửi Cookie trong các request xuất phát từ website khác, giúp chống CSRF.
+                Expires = DateTime.UtcNow.AddDays(7)  //Cookie hết hạn sau 7 ngày kể từ thời điểm hiện tại.
+            });
+        }
+
+        private void DeleteRefreshCookie()
+        {
+            Response.Cookies.Delete("refreshToken", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });  // gửi yêu cầu xóa cookies về trình duyệt (tên cookie là RefreshToken)
         }
 
         // Hiển thị thông tin người dùng
@@ -49,39 +73,46 @@ namespace WebApplication1.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
             var response = await _userService.LoginAsync(request);
+
+            if (response.StatusCode == 200)
+            {
+                SetRefreshCookie(response.Data.RefreshToken);// Lưu Refresh Token vào Cookie HttpOnly
+                response.Data.RefreshToken = null!;  // Không trả Refresh Token trong JSON Response
+            }
             return StatusCode(response.StatusCode, response);
         }
 
         //Đăng xuất
         [HttpPost("logout")]
-        [Authorize]
-        public async Task<IActionResult> Logout([FromBody] LogoutRequestDto request)
+        [AllowAnonymous]
+        public async Task<IActionResult> Logout()
         {
-            var response = await _userService.LogoutAsync(request);
+            var refreshToken = Request.Cookies["refreshToken"];
+            var response = await _userService.LogoutAsync(refreshToken ?? string.Empty);
 
+            DeleteRefreshCookie();
             return StatusCode(response.StatusCode, response);
         }
 
         [AllowAnonymous]
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] RefreshRequestDto request)
+        public async Task<IActionResult> Refresh()
         {
-            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return Unauthorized("Không có refresh token");
+
+            var response = await _userService.RefreshAsync(refreshToken);
+
+            if (response.StatusCode != 200)
             {
-                return BadRequest("token không hợp lệ");
+                DeleteRefreshCookie();
+                return StatusCode(response.StatusCode, response);
             }
 
-            var token = await _jwtService.ValidateToken(request.RefreshToken);
-            if (token is null)
-            {
-                return Unauthorized("Refresh token không hợp lệ hoặc đã hết hạn");
-            }
-
-            return Ok(new
-            {
-                accessToken = token.AccessToken,
-                refreshToken = token.RefreshToken
-            });
+            SetRefreshCookie(response.Data.RefreshToken);
+            response.Data.RefreshToken = null!;
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

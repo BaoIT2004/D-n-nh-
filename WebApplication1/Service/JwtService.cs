@@ -8,7 +8,7 @@ using WebApplication1.Models;
 using WebApplication1.Repositories;
 namespace WebApplication1.Service;
 
-public class JwtService
+  public class JwtService
 {
 
     // khai báo lớn jwt
@@ -84,9 +84,9 @@ public class JwtService
     {
         var refreshTokenValidityDays = _config.GetValue<int>("Jwt:RefreshTokenDays");
         var tokenValue = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-        var refreshToken = new refreshToken
+        var refreshToken = new RefreshToken
         {
-            Tokens = HashRefreshToken(tokenValue),
+            TokenHash = HashRefreshToken(tokenValue),
             Expiry = DateTime.UtcNow.AddDays(refreshTokenValidityDays),
             UserId = userId
         };
