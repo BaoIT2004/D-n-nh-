@@ -12,6 +12,8 @@ import {
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { IoMdArrowDropdown } from "react-icons/io";
+import { AiOutlineEnter } from "react-icons/ai";
+import { useProjectMembers } from "../../hooks/TaskDetail/use-task-detail";
 
 export default function TaskDetailModal() {
   const navigate = useNavigate();
@@ -20,13 +22,14 @@ export default function TaskDetailModal() {
   const { mutate: addFile } = useAddFile();
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const { data: filesData } = useGetFiles(Number(id));
   const files = filesData?.success ? filesData.data : [];
-
   const downloadMutation = useDownLoadFile();
-
   const [open, setOpen] = useState(true); //đóng mở giao diện
+  const [showInput, setShowInput] = useState(false);
+
+  const { data: members = [] } = useProjectMembers(task?.projectId ?? 0);
+  const [openMembers, setOpenMembers] = useState(false);
 
   if (isLoading) return <p>Đang tải task...</p>;
   if (isError || !task) return <p>Không tải được task.</p>;
@@ -174,7 +177,11 @@ export default function TaskDetailModal() {
                     <IoMdArrowDropdown />
                   </button>
                   <h3 className="flex-1 text-lg font-semibold">Subtasks</h3>
-                  <button className="rounded px-2 text-xl text-gray-600 hover:bg-gray-100">
+                  <button
+                    className="rounded px-2 text-xl text-gray-600 hover:bg-gray-100"
+                    onClick={() => setShowInput(true)}
+                    type="button"
+                  >
                     +
                   </button>
                 </div>
@@ -189,9 +196,7 @@ export default function TaskDetailModal() {
                   </div>
                   <span className="text-sm text-gray-500">50% Done</span>
                 </div>
-
                 {/* Bảng danh sách */}
-
                 <div
                   className={`overflow-hidden transition-all duration-500 ease-in-out ${open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
                 >
@@ -202,9 +207,15 @@ export default function TaskDetailModal() {
                         <div className="border-l border-gray-200 px-3 py-2">
                           Priority
                         </div>
+
                         <div className="border-l border-gray-200 px-3 py-2">
                           Assignee
                         </div>
+
+                        <div className="border-l border-gray-200 px-3 py-2">
+                          Status
+                        </div>
+
                         <div className="border-l border-gray-200 px-3 py-2">
                           Status
                         </div>
@@ -215,16 +226,29 @@ export default function TaskDetailModal() {
                         </a>
                         <span>Database</span>
                       </div>
-
-                      <div className="flex items-center gap-2 px-3 py-3 hover:bg-gray-50">
-                        <a className="cursor-pointer text-blue-600 hover:underline">
-                          PROJ-22
-                        </a>
-                        <span>DB</span>
-                      </div>
                     </div>
                   )}
                 </div>
+                {showInput && (
+                  <div>
+                    <div className="flex items-center gap-2 rounded-md border-2 border-blue-400 px-3 py-1.5 mt-5 text-sm outline-none">
+                      <input
+                        type="text"
+                        placeholder="Nhập tên dự án"
+                        className="w-full outline-none"
+                      />
+                      <button className="rounded-[5px] bg-blue-600 ml-auto px-1.5 py-1.5 text-sm text-white hover:bg-blue-700">
+                        <AiOutlineEnter />
+                      </button>
+                    </div>
+                    <button
+                      className="text-xs cursor-pointer ml-154 mt-3"
+                      onClick={() => setShowInput(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
             </section>
           </div>
@@ -236,18 +260,39 @@ export default function TaskDetailModal() {
                 Details
               </h2>
               <dl className="space-y-5 p-4">
-                <div className="flex justify-between">
+                <div className="relative flex justify-between">
                   <dt className="mb-1 text-xs font-medium text-gray-500">
                     Assignee
                   </dt>
-                  <dd className="text-gray-500">Unassigned</dd>
-                </div>
+                  <dd className="text-right">
+                    <button
+                      type="button"
+                      onClick={() => setOpenMembers(!openMembers)}
+                      className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100"
+                    >
+                      Unassigned
+                    </button>
 
-                <div className="flex justify-between">
-                  <dt className="mb-1 text-xs font-medium text-gray-500">
-                    Parent
-                  </dt>
-                  <dd className="text-gray-500">Add parent</dd>
+                    {openMembers && (
+                      <ul className="absolute right-0 top-8 z-10 max-h-48 w-64 overflow-y-auto rounded-md border border-gray-200 bg-white text-left shadow-lg">
+                        {members.length === 0 ? (
+                          <li className="px-3 py-2 text-gray-500">
+                            Không có thành viên
+                          </li>
+                        ) : (
+                          members.map((m) => (
+                            <li
+                              key={m.id}
+                              className="cursor-pointer px-3 py-2 hover:bg-gray-100"
+                              onClick={() => setOpenMembers(false)}
+                            >
+                              {m.email}
+                            </li>
+                          ))
+                        )}
+                      </ul>
+                    )}
+                  </dd>
                 </div>
 
                 <div className="flex justify-between">

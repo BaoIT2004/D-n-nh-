@@ -39,5 +39,6 @@ export type TaskItemDetail = {
   workType: string;
   degree: string;
   statusId: number;
+  projectId: number;
   createdByEmail: string | null;
 };

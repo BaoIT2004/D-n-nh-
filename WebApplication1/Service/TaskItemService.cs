@@ -228,6 +228,7 @@ namespace WebApplication1.Service
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
                     StatusId = taskItem.StatusId,
+                    ProjectId = taskItem.Status?.ProjectId ?? 0,  //ProjectId của Status, và nếu Status là null thì dùng 0 thay vì báo lỗi.
                     CreatedByEmail = taskItem.CreatedByUser?.Email,
                     ParentId = taskItem.ParentId,
                     SubTasks = taskItem.SubTasks.Select(s => new AddTaskItemResponseDto
