@@ -32,11 +32,11 @@ namespace WebApplication1.Repositories
             .ToListAsync();
         }
 
-        public async Task UpdateTaskItemAsync(TaskItem taskItem)
-        {
-            _dbcontext.TaskItem.Update(taskItem);
-            await _dbcontext.SaveChangesAsync();
-        }
+            public async Task UpdateTaskItemAsync(TaskItem taskItem)
+            {
+                _dbcontext.TaskItem.Update(taskItem);
+                await _dbcontext.SaveChangesAsync();
+            }
 
         // Include(p => p.Status): lấy thông tin Status.
         // ThenInclude(status => status!.Project): lấy tiếp Project thuộc Status.
@@ -47,6 +47,7 @@ namespace WebApplication1.Repositories
                 .Include(p => p.Status)
                 .ThenInclude(status => status!.Project)
                 .Include(p => p.CreatedByUser)
+                .Include(p => p.Assignee)
                 .Include(p => p.SubTasks)
                 .ThenInclude(s => s.Status)
                 .FirstOrDefaultAsync(p => p.Id == taskItemId);

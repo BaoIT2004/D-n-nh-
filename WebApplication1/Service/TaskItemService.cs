@@ -12,6 +12,7 @@ namespace WebApplication1.Service
         private readonly StatusTaskRepository _statusTaskRepository;
 
         private readonly ProjectRepository _projectRepository;
+        private readonly ProjectMemberRepository _projectMemberRepository;
         private readonly TaskAttachmentRepository _taskAttachmentRepository;
         private readonly IWebHostEnvironment _environment;
 
@@ -19,12 +20,14 @@ namespace WebApplication1.Service
         TaskItemRepositories taskItemRepositories,
         StatusTaskRepository statusTaskRepository,
         ProjectRepository projectRepository,
+        ProjectMemberRepository projectMemberRepository,
         TaskAttachmentRepository taskAttachmentRepository,
         IWebHostEnvironment environment)
         {
             _taskItemRepositories = taskItemRepositories;
             _statusTaskRepository = statusTaskRepository;
             _projectRepository = projectRepository;
+            _projectMemberRepository = projectMemberRepository;
             _taskAttachmentRepository = taskAttachmentRepository;
             _environment = environment;
         }
@@ -231,6 +234,8 @@ namespace WebApplication1.Service
                     ProjectId = taskItem.Status?.ProjectId ?? 0,  //ProjectId của Status, và nếu Status là null thì dùng 0 thay vì báo lỗi.
                     CreatedByEmail = taskItem.CreatedByUser?.Email,
                     ParentId = taskItem.ParentId,
+                    AssigneeId = taskItem.AssigneeId,
+                    AssigneeEmail = taskItem.Assignee?.Email,
                     SubTasks = taskItem.SubTasks.Select(s => new AddTaskItemResponseDto
                     {
                         Id = s.Id,
@@ -432,6 +437,79 @@ namespace WebApplication1.Service
                 Status = true,
                 Message = "Xóa công việc thành công",
                 Data = true
+            };
+        }
+
+        public async Task<ApiResponse<UpdateAssigneeResponseDto>> UpdateAssigneeAsync(int taskItemId, int userId, UpdateAssigneeRequestDto request)
+        {
+            // 1. Tìm task
+            var taskItem = await _taskItemRepositories.GetStatusItemAsync(taskItemId);
+            if (taskItem == null || taskItem.Status == null)
+            {
+                return new ApiResponse<UpdateAssigneeResponseDto>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy công việc",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            // 2. Kiểm tra người gọi có thuộc dự án không
+            var projectId = taskItem.Status.ProjectId;
+            var canAccess = await _projectRepository.CanAccessProjectAsync(projectId, userId);
+            if (!canAccess)
+            {
+                return new ApiResponse<UpdateAssigneeResponseDto>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Status = false,
+                    Message = "Bạn không có quyền truy cập dự án",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            // 3. Kiểm tra người được giao có thuộc dự án không
+            string? assigneeEmail = null;
+            if (request.AssigneeId != null)
+            {
+                var users = await _projectMemberRepository.GetProjectUsersAsync(projectId);
+                var assignee = users.FirstOrDefault(u => u.Id == request.AssigneeId);
+
+                if (assignee == null)
+                {
+                    return new ApiResponse<UpdateAssigneeResponseDto>
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Status = false,
+                        Message = "Người được giao không thuộc dự án",
+                        Data = null!,
+                        Errors = new List<string>()
+                    };
+                }
+
+                assigneeEmail = assignee.Email;
+            }
+
+                // 4. Lưu (AssigneeId = null nghĩa là bỏ giao)
+                taskItem.AssigneeId = request.AssigneeId;
+                await _taskItemRepositories.UpdateTaskItemAsync(taskItem);
+
+            // 5. Trả kết quả
+            return new ApiResponse<UpdateAssigneeResponseDto>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Cập nhật người thực hiện thành công",
+                Data = new UpdateAssigneeResponseDto
+                {
+                    TaskItemId = taskItem.Id,
+                    AssigneeId = taskItem.AssigneeId,
+                    AssigneeEmail = assigneeEmail
+                },
+                Errors = new List<string>()
             };
         }
     }

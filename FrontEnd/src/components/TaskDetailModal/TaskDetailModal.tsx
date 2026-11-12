@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { AiOutlineEnter } from "react-icons/ai";
 import { useProjectMembers } from "../../hooks/TaskDetail/use-task-detail";
+import { useUpdateAssignee } from "../../hooks/TaskDetail/use-update-Assignee";
 
 export default function TaskDetailModal() {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export default function TaskDetailModal() {
   const [showInput, setShowInput] = useState(false);
 
   const { data: members = [] } = useProjectMembers(task?.projectId ?? 0);
+  const { mutate: changeAssignee } = useUpdateAssignee(Number(id));
   const [openMembers, setOpenMembers] = useState(false);
 
   if (isLoading) return <p>Đang tải task...</p>;
@@ -71,6 +73,15 @@ export default function TaskDetailModal() {
         },
       },
     );
+  }
+
+  //Hàm chọn người thực hiện
+  function handleSelect(assigneeId: number | null) {
+    changeAssignee(assigneeId, {
+      onSuccess: () => toast.success("Cập nhật thành công"),
+      onError: (e) => toast.error(e.message),
+    });
+    setOpenMembers(false);
   }
 
   return (
@@ -216,9 +227,6 @@ export default function TaskDetailModal() {
                           Status
                         </div>
 
-                        <div className="border-l border-gray-200 px-3 py-2">
-                          Status
-                        </div>
                       </div>
                       <div className="flex items-center gap-2 border-b border-gray-200 px-3 py-3 hover:bg-gray-50">
                         <a className="cursor-pointer text-blue-600 line-through">
@@ -260,8 +268,8 @@ export default function TaskDetailModal() {
                 Details
               </h2>
               <dl className="space-y-5 p-4">
-                <div className="relative flex justify-between">
-                  <dt className="mb-1 text-xs font-medium text-gray-500">
+                <div className="relative flex items-center justify-between">
+                  <dt className="text-xs font-medium text-gray-500">
                     Assignee
                   </dt>
                   <dd className="text-right">
@@ -270,26 +278,26 @@ export default function TaskDetailModal() {
                       onClick={() => setOpenMembers(!openMembers)}
                       className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100"
                     >
-                      Unassigned
+                      {task.assigneeEmail ?? "Unassigned"}
                     </button>
 
                     {openMembers && (
-                      <ul className="absolute right-0 top-8 z-10 max-h-48 w-64 overflow-y-auto rounded-md border border-gray-200 bg-white text-left shadow-lg">
-                        {members.length === 0 ? (
-                          <li className="px-3 py-2 text-gray-500">
-                            Không có thành viên
+                      <ul className="absolute right-0 top-8 z-10 w-64 rounded-md border bg-white text-left shadow-lg">
+                        <li
+                          className="cursor-pointer px-3 py-2 text-gray-500 hover:bg-gray-100"
+                          onClick={() => handleSelect(null)}
+                        >
+                          Unassigned
+                        </li>
+                        {members.map((m) => (
+                          <li
+                            key={m.id}
+                            className="cursor-pointer px-3 py-2 hover:bg-gray-100"
+                            onClick={() => handleSelect(m.id)}
+                          >
+                            {m.email}
                           </li>
-                        ) : (
-                          members.map((m) => (
-                            <li
-                              key={m.id}
-                              className="cursor-pointer px-3 py-2 hover:bg-gray-100"
-                              onClick={() => setOpenMembers(false)}
-                            >
-                              {m.email}
-                            </li>
-                          ))
-                        )}
+                        ))}
                       </ul>
                     )}
                   </dd>
