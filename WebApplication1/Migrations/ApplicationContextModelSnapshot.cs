@@ -155,7 +155,7 @@ namespace WebApplication1.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateOnly>("DueDate")
+                    b.Property<DateOnly?>("DueDate")
                         .HasColumnType("date");
 
                     b.Property<int?>("ParentId")

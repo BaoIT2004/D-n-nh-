@@ -201,6 +201,7 @@ namespace WebApplication1.Service
                     Id = taskItem.Id,
                     Title = taskItem.Title,
                     CreatedAt = taskItem.CreatedAt,
+                    DueDate = taskItem.DueDate,
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
                     StatusId = taskItem.StatusId,
