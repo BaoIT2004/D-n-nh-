@@ -1,11 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateAssignee } from "../../services/updateAssignee";
 
-export function useUpdateAssignee(taskItemId: number) {
+type UpdateAssigneeInput = {
+  taskItemId: number;
+  assigneeId: number | null;
+  parentTaskId: number | null;
+};
+
+export function useUpdateAssignee() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (assigneeId: number | null) => {
+    mutationFn: async ({
+      taskItemId,
+      assigneeId,
+    }: UpdateAssigneeInput) => {
       const result = await updateAssignee(taskItemId, assigneeId);
 
       if (!result.success) {
@@ -14,8 +23,18 @@ export function useUpdateAssignee(taskItemId: number) {
 
       return result.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["taskItem", taskItemId] });
+    onSuccess: (_data, input) => {
+      queryClient.invalidateQueries({
+        queryKey: ["taskItem", input.taskItemId],
+      });
+      if (
+        input.parentTaskId !== null &&
+        input.parentTaskId !== input.taskItemId
+      ) {
+        queryClient.invalidateQueries({
+          queryKey: ["taskItem", input.parentTaskId],
+        });
+      }
     },
   });
 }

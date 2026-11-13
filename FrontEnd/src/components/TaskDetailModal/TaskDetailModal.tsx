@@ -15,6 +15,11 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import { AiOutlineEnter } from "react-icons/ai";
 import { useProjectMembers } from "../../hooks/TaskDetail/use-task-detail";
 import { useUpdateAssignee } from "../../hooks/TaskDetail/use-update-Assignee";
+import {
+  useCreateTaskItem,
+  useUpdateTaskItem,
+} from "../../hooks/tasks/use-task-item-mutations";
+import DatePicker from "react-datepicker";
 
 export default function TaskDetailModal() {
   const navigate = useNavigate();
@@ -27,14 +32,27 @@ export default function TaskDetailModal() {
   const files = filesData?.success ? filesData.data : [];
   const downloadMutation = useDownLoadFile();
   const [open, setOpen] = useState(true); //đóng mở giao diện
-  const [showInput, setShowInput] = useState(false);
+  const [isSubtaskInputOpen, setIsSubtaskInputOpen] = useState(false);
 
   const { data: members = [] } = useProjectMembers(task?.projectId ?? 0);
-  const { mutate: changeAssignee } = useUpdateAssignee(Number(id));
-  const [openMembers, setOpenMembers] = useState(false);
+  const { mutate: changeAssignee } = useUpdateAssignee();
+
+  const [isTaskAssigneeMenuOpen, setIsTaskAssigneeMenuOpen] = useState(false);
+  const [openSubtaskAssigneeId, setOpenSubtaskAssigneeId] = useState<
+    number | null
+  >(null);
+  const { mutate: updateTaskItem } = useUpdateTaskItem();
+
+  const [subTitle, setSubTitle] = useState("");
+  const { mutate: createMutation } = useCreateTaskItem();
 
   if (isLoading) return <p>Đang tải task...</p>;
   if (isError || !task) return <p>Không tải được task.</p>;
+  const currentTask = task;
+  //hiển thị màu đỏ trang khá
+  const isOverdue = task.dueDate
+    ? new Date(task.dueDate) < new Date(task.createdAt)
+    : false;
 
   const menuItem = [
     {
@@ -76,13 +94,84 @@ export default function TaskDetailModal() {
   }
 
   //Hàm chọn người thực hiện
-  function handleSelect(assigneeId: number | null) {
-    changeAssignee(assigneeId, {
-      onSuccess: () => toast.success("Cập nhật thành công"),
-      onError: (e) => toast.error(e.message),
-    });
-    setOpenMembers(false);
+  function updateTaskAssignee(
+    taskItemId: number,
+    assigneeId: number | null,
+    parentTaskId: number | null,
+  ) {
+    changeAssignee(
+      { taskItemId, assigneeId, parentTaskId },
+      {
+        onSuccess: () => toast.success("Cập nhật thành công"),
+        onError: (e) => toast.error(e.message),
+      },
+    );
   }
+
+  function handleSelectTaskAssignee(assigneeId: number | null) {
+    updateTaskAssignee(currentTask.id, assigneeId, currentTask.parentId);
+    setIsTaskAssigneeMenuOpen(false);
+  }
+
+  function handleSelectSubtaskAssignee(
+    taskItemId: number,
+    assigneeId: number | null,
+  ) {
+    updateTaskAssignee(taskItemId, assigneeId, currentTask.id);
+    setOpenSubtaskAssigneeId(null);
+  }
+
+  function handleDueDateChange(dueDate: string) {
+    if (!dueDate) {
+      toast.error("Ngày hết hạn không được để trống");
+      return;
+    }
+
+    updateTaskItem(
+      {
+        title: currentTask.title,
+        createdAt: currentTask.createdAt.slice(0, 10),
+        dueDate: dueDate,
+        workType: currentTask.workType,
+        degree: currentTask.degree,
+        taskItemId: currentTask.id,
+        statusId: currentTask.statusId,
+      },
+      {
+        onSuccess: () => {
+          toast.success("ngày hết hạn đã cập nhật");
+        },
+        onError: (Error) => {
+          toast.error(Error.message);
+        },
+      },
+    );
+  }
+
+  // thêm Subtasks
+  const handleAddSubtask = () => {
+    const title = subTitle.trim();
+    if (!title) return;
+
+    createMutation(
+      {
+        title,
+        createdAt: new Date().toLocaleDateString("sv-SE"), // yyyy-MM-dd
+        workType: "Task",
+        degree: "Medium", // đổi theo giá trị backend của bạn
+        statusId: task.statusId, // cùng status với task cha
+        parentId: Number(id), // id của task cha (từ useParams)
+      },
+      {
+        onSuccess: () => {
+          toast.success("Thêm thành công");
+          setSubTitle("");
+          setIsSubtaskInputOpen(false);
+        },
+        onError: (e) => toast.error(e.message),
+      },
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -190,7 +279,7 @@ export default function TaskDetailModal() {
                   <h3 className="flex-1 text-lg font-semibold">Subtasks</h3>
                   <button
                     className="rounded px-2 text-xl text-gray-600 hover:bg-gray-100"
-                    onClick={() => setShowInput(true)}
+                    onClick={() => setIsSubtaskInputOpen(true)}
                     type="button"
                   >
                     +
@@ -209,10 +298,10 @@ export default function TaskDetailModal() {
                 </div>
                 {/* Bảng danh sách */}
                 <div
-                  className={`overflow-hidden transition-all duration-500 ease-in-out ${open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}
+                  className={`transition-all duration-500 ease-in-out ${open ? "opacity-100" : "hidden"}`}
                 >
                   {open && (
-                    <div className="overflow-hidden rounded-lg border border-gray-200">
+                    <div className="rounded-lg border border-gray-200">
                       <div className="grid grid-cols-[1fr_120px_160px_140px] border-b border-gray-200 bg-gray-50 text-sm font-semibold text-gray-600">
                         <div className="px-3 py-2">Work</div>
                         <div className="border-l border-gray-200 px-3 py-2">
@@ -226,32 +315,81 @@ export default function TaskDetailModal() {
                         <div className="border-l border-gray-200 px-3 py-2">
                           Status
                         </div>
+                      </div>
 
-                      </div>
-                      <div className="flex items-center gap-2 border-b border-gray-200 px-3 py-3 hover:bg-gray-50">
-                        <a className="cursor-pointer text-blue-600 line-through">
-                          PROJ-21
-                        </a>
-                        <span>Database</span>
-                      </div>
+                      {task.subTasks.map((st) => (
+                        <div
+                          key={st.id}
+                          className="grid grid-cols-[1fr_120px_160px_140px] border-b border-gray-200 text-sm hover:bg-gray-50"
+                        >
+                          <div className="px-3 py-2">
+                            <span className="text-blue-600">TASK-{st.id}</span>{" "}
+                            {st.title}
+                          </div>
+                          <div className="px-3 py-2">{st.degree}</div>
+                          <div className="relative px-3 py-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setOpenSubtaskAssigneeId((current) =>
+                                  current === st.id ? null : st.id,
+                                )
+                              }
+                              className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100"
+                            >
+                              {st.assigneeEmail ?? "Unassigned"}
+                            </button>
+                            {openSubtaskAssigneeId === st.id && (
+                              <ul className="absolute left-0 top-full z-10 w-64 rounded-md border bg-white text-left shadow-lg">
+                                <li
+                                  className="cursor-pointer px-3 py-2 text-gray-500 hover:bg-gray-100"
+                                  onClick={() =>
+                                    handleSelectSubtaskAssignee(st.id, null)
+                                  }
+                                >
+                                  Unassigned
+                                </li>
+                                {members.map((m) => (
+                                  <li
+                                    key={m.id}
+                                    className="cursor-pointer px-3 py-2 hover:bg-gray-100"
+                                    onClick={() =>
+                                      handleSelectSubtaskAssignee(st.id, m.id)
+                                    }
+                                  >
+                                    {m.email}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                          <div className="px-3 py-2">{st.status}</div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
-                {showInput && (
+                {/* đánh dấu */}
+                {isSubtaskInputOpen && (
                   <div>
                     <div className="flex items-center gap-2 rounded-md border-2 border-blue-400 px-3 py-1.5 mt-5 text-sm outline-none">
                       <input
                         type="text"
                         placeholder="Nhập tên dự án"
                         className="w-full outline-none"
+                        onChange={(e) => setSubTitle(e.target.value)}
                       />
-                      <button className="rounded-[5px] bg-blue-600 ml-auto px-1.5 py-1.5 text-sm text-white hover:bg-blue-700">
+                      <button
+                        className="rounded-[5px] bg-blue-600 ml-auto px-1.5 py-1.5 text-sm text-white hover:bg-blue-700"
+                        onClick={handleAddSubtask}
+                      >
                         <AiOutlineEnter />
                       </button>
                     </div>
+
                     <button
                       className="text-xs cursor-pointer ml-154 mt-3"
-                      onClick={() => setShowInput(false)}
+                      onClick={() => setIsSubtaskInputOpen(false)}
                     >
                       Cancel
                     </button>
@@ -275,17 +413,18 @@ export default function TaskDetailModal() {
                   <dd className="text-right">
                     <button
                       type="button"
-                      onClick={() => setOpenMembers(!openMembers)}
+                      onClick={() =>
+                        setIsTaskAssigneeMenuOpen(!isTaskAssigneeMenuOpen)
+                      }
                       className="rounded px-2 py-1 text-gray-600 hover:bg-gray-100"
                     >
                       {task.assigneeEmail ?? "Unassigned"}
                     </button>
-
-                    {openMembers && (
+                    {isTaskAssigneeMenuOpen && (
                       <ul className="absolute right-0 top-8 z-10 w-64 rounded-md border bg-white text-left shadow-lg">
                         <li
                           className="cursor-pointer px-3 py-2 text-gray-500 hover:bg-gray-100"
-                          onClick={() => handleSelect(null)}
+                          onClick={() => handleSelectTaskAssignee(null)}
                         >
                           Unassigned
                         </li>
@@ -293,7 +432,7 @@ export default function TaskDetailModal() {
                           <li
                             key={m.id}
                             className="cursor-pointer px-3 py-2 hover:bg-gray-100"
-                            onClick={() => handleSelect(m.id)}
+                            onClick={() => handleSelectTaskAssignee(m.id)}
                           >
                             {m.email}
                           </li>
@@ -341,14 +480,35 @@ export default function TaskDetailModal() {
                   <dt className="mb-1 text-xs font-medium text-gray-500">
                     Start date
                   </dt>
-                  <dd className="text-gray-500">Add date</dd>
+                  <dd className="text-gray-500">
+                    {/*set form ngày tháng năm*/}
+                    {new Date(task.createdAt).toLocaleDateString("vi-VN")}
+                  </dd>
                 </div>
 
                 <div className="flex justify-between">
                   <dt className="mb-1 text-xs font-medium text-gray-500">
                     Due date
                   </dt>
-                  <dd className="text-gray-500">{task.createdAt}</dd>
+                  <dd className="text-gray-500">
+                    <DatePicker
+                      selected={
+                        task.dueDate ? new Date(task.dueDate) : new Date()
+                      }
+                      onChange={(
+                        d: Date | null, //d là ngày người dùng vừa chọn : Date | null là khai báo kiểu cho TypeScript: d là một đối tượng Date, hoặc null (khi người dùng xóa ô ngày).
+                      ) =>
+                        d && handleDueDateChange(d.toLocaleDateString("sv-SE"))
+                      }
+                      dateFormat="dd/MM/yyyy"
+                      minDate={new Date()} //ngày nhỏ nhất được phép chọn trong DatePicker
+                      className={`w-24 cursor-pointer rounded border px-1 text-right outline-none ${
+                        isOverdue
+                          ? "border-red-500 bg-red-50 text-red-600"
+                          : "border-transparent bg-transparent text-gray-500"
+                      }`}
+                    />
+                  </dd>
                 </div>
 
                 <div className="flex justify-between">
