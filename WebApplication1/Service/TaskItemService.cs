@@ -210,14 +210,16 @@ namespace WebApplication1.Service
                     ParentId = taskItem.ParentId,
                     AssigneeId = taskItem.AssigneeId,
                     AssigneeEmail = taskItem.Assignee?.Email,
-                    SubTasks = taskItem.SubTasks.Select(s => new AddTaskItemResponseDto
+                    SubTasks = taskItem.SubTasks.Select(s => new SubTaskResponseDto
                     {
                         Id = s.Id,
                         Title = s.Title,
                         CreatedAt = s.CreatedAt,
                         Status = s.Status?.StatusTask ?? string.Empty,
                         Degree = s.Degree,
-                        ParentId = s.ParentId
+                        ParentId = s.ParentId,
+                        AssigneeId = s.AssigneeId,
+                        AssigneeEmail = s.Assignee?.Email
                     }).ToList()
                 },
                 Errors = new List<string>()

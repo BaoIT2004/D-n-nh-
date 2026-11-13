@@ -12,7 +12,7 @@ public class TaskItemDetailResponseDto
     public int ProjectId { get; set; }
     public string CreatedByEmail { get; set; } = string.Empty;
     public int? ParentId { get; set; }
-    public List<AddTaskItemResponseDto> SubTasks { get; set; } = new();
+    public List<SubTaskResponseDto> SubTasks { get; set; } = new();
 
     public int? AssigneeId { get; set; }
     public string? AssigneeEmail { get; set; }

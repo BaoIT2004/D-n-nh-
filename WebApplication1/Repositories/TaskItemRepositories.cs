@@ -50,8 +50,12 @@ namespace WebApplication1.Repositories
                 .Include(p => p.Assignee)
                 .Include(p => p.SubTasks)
                 .ThenInclude(s => s.Status)
+                .Include(p => p.SubTasks)
+                .ThenInclude(s => s.Assignee)
                 .FirstOrDefaultAsync(p => p.Id == taskItemId);
         }
+
+
         public async Task<TaskItem?> GetTaskItemByStatusIdAsync(int statusId)
         {
             return await _dbcontext.TaskItem.FirstOrDefaultAsync(p => p.StatusId == statusId);
