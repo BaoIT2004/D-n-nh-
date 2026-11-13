@@ -67,6 +67,40 @@ namespace WebApplication1.Migrations
                     b.ToTable("ProjectMembers");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("Expiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReplacedByTokenHash")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.TaskAttachment", b =>
                 {
                     b.Property<int>("Id")
@@ -108,6 +142,9 @@ namespace WebApplication1.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AssigneeId")
+                        .HasColumnType("integer");
+
                     b.Property<DateOnly>("CreatedAt")
                         .HasColumnType("date");
 
@@ -117,6 +154,12 @@ namespace WebApplication1.Migrations
                     b.Property<string>("Degree")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateOnly?>("DueDate")
+                        .HasColumnType("date");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
@@ -131,7 +174,11 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssigneeId");
+
                     b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("StatusId");
 
@@ -196,34 +243,6 @@ namespace WebApplication1.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.refreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Expiry")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("RefreshToken")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Tokens")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.AddStatusTask", b =>
                 {
                     b.HasOne("WebApplication1.Models.newProject", "Project")
@@ -254,6 +273,17 @@ namespace WebApplication1.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.RefreshToken", b =>
+                {
+                    b.HasOne("WebApplication1.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.TaskAttachment", b =>
                 {
                     b.HasOne("WebApplication1.Models.TaskItem", "TaskItem")
@@ -267,9 +297,17 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
                 {
+                    b.HasOne("WebApplication1.Models.User", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeId");
+
                     b.HasOne("WebApplication1.Models.User", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId");
+
+                    b.HasOne("WebApplication1.Models.TaskItem", "Parent")
+                        .WithMany("SubTasks")
+                        .HasForeignKey("ParentId");
 
                     b.HasOne("WebApplication1.Models.AddStatusTask", "Status")
                         .WithMany("Tasks")
@@ -277,7 +315,11 @@ namespace WebApplication1.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Assignee");
+
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("Parent");
 
                     b.Navigation("Status");
                 });
@@ -293,17 +335,6 @@ namespace WebApplication1.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.refreshToken", b =>
-                {
-                    b.HasOne("WebApplication1.Models.User", "userId")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("userId");
-                });
-
             modelBuilder.Entity("WebApplication1.Models.AddStatusTask", b =>
                 {
                     b.Navigation("Tasks");
@@ -312,6 +343,8 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.TaskItem", b =>
                 {
                     b.Navigation("Attachments");
+
+                    b.Navigation("SubTasks");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.User", b =>

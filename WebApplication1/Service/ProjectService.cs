@@ -111,13 +111,14 @@ namespace WebApplication1.Services
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
                 Message = "Hiển thị thông tin của dự án",
-                Data = projects.Select(project => new GetAllProjectResponseDto
+                Data = projects.OrderBy(p => p.CreatedAt).Select(project => new GetAllProjectResponseDto
                 {
                     Id = project.Id,
                     NameProject = project.nameProject,
                     Status = project.status,
                     CreatedAt = project.CreatedAt,
-                    UserId = project.UserId
+                    UserId = project.UserId,
+                    Email = project.User?.Email ?? ""  // nếu user null trả về "" còn không null trả về ??
                 }).ToList()
             };
         }
@@ -203,11 +204,11 @@ namespace WebApplication1.Services
         }
 
         //Xóa dự án
-        public async Task<ApiResponse<DeleteProjectResponseDto>> DeleteProjectAsync(int id, int userId)
+        public async Task<ApiResponse<DeleteProjectResponseDto>> DeleteProjectAsync(int projectId, int userId)
         {
             var errors = new List<string>();
             //1.Tìm dự án cần xóa
-            var deleteProject = await _projectRepository.GetProjectByIdAsync(id);
+            var deleteProject = await _projectRepository.GetProjectByIdAsync(projectId);
 
             //2.Kiểm tra project có tồn tại không
 

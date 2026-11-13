@@ -3,9 +3,17 @@ import toast from "react-hot-toast";
 import { useCreateProject } from "../../hooks/projects/use-create-project";
 
 function AddProject() {
-  const [nameProject, setnameProject] = useState("");
+  const [nameProject, setNameProject] = useState("");
   const [status, setStatus] = useState("private");
   const { mutate } = useCreateProject();
+  const [showForm, setShowForm] = useState(true);
+
+  function handleCancel() {
+    setShowForm(false);
+  }
+  if (!showForm) {
+    return null;
+  }
 
   async function HandleNewProject() {
     mutate(
@@ -13,7 +21,7 @@ function AddProject() {
       {
         onSuccess: () => {
           toast.success("Tạo dự án thành công.");
-          setnameProject("");
+          setNameProject("");
         },
         onError: (error) => {
           toast.error(error.message);
@@ -23,7 +31,7 @@ function AddProject() {
   }
 
   return (
-    <nav className="w-72 h-[40vh] bg-blue-50 p-3">
+    <nav className="w-72 h-screen bg-blue-50 p-3">
       <div className="w-65 h-75 bg-white shadow-sm mx-auto border border-gray-200 rounded-md">
         <div className="p-3 flex flex-col">
           <h1 className="font-bold">Tạo dự án mới</h1>
@@ -42,7 +50,7 @@ function AddProject() {
             placeholder="Nhập tên dự án"
             className="text-sm border border-gray-400 w-55 h-9 pl-1 rounded-md"
             value={nameProject}
-            onChange={(e) => setnameProject(e.target.value)}
+            onChange={(e) => setNameProject(e.target.value)}
           />
 
           <label htmlFor="" className="text-sm">
@@ -60,7 +68,10 @@ function AddProject() {
             <option value="public">Công khai</option>
           </select>
           <div className="flex items-center gap-3 mt-3 ml-12">
-            <button className="border border-gray-200 rounded-md w-20 h-8 text-sm">
+            <button
+              className="border border-gray-200 rounded-md w-20 h-8 text-sm"
+              onClick={handleCancel}
+            >
               Hủy
             </button>
             <button

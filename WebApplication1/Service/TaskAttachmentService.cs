@@ -29,16 +29,16 @@ namespace WebApplication1.Services
         private const long MaxFileSize = 10 * 1024 * 1024;
 
         private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
-        {
-            ".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".docx", ".xlsx", ".txt", ".xls"
-        };
+            {
+                ".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".docx", ".xlsx", ".txt", ".xls"
+            };
 
         //thêm file vào dự án
         public async Task<ApiResponse<TaskAttachmentResponseDto>> UploadAsync(int taskItemId, int userId, IFormFile? file)
         {
 
             // tìm task
-            var task = await _taskAttachmentRepository.GetTaskItemAsync(taskItemId);
+            var task = await _taskAttachmentRepository.GetTaskItemByIdAsync(taskItemId);
             if (task?.Status == null)
             {
                 return new ApiResponse<TaskAttachmentResponseDto>
@@ -191,7 +191,7 @@ namespace WebApplication1.Services
         //Hiển thị
         public async Task<ApiResponse<List<TaskAttachmentResponseDto>>> GetFileAsync(int taskItemId, int userId)
         {
-            var task = await _taskAttachmentRepository.GetTaskItemAsync(taskItemId);
+            var task = await _taskAttachmentRepository.GetTaskItemByIdAsync(taskItemId);
 
             if (task?.Status == null)
             {
@@ -256,7 +256,7 @@ namespace WebApplication1.Services
 
 
             // tìm công việc
-            var task = await _taskAttachmentRepository.GetTaskItemAsync(attachment.TaskItemId);
+            var task = await _taskAttachmentRepository.GetTaskItemByIdAsync(attachment.TaskItemId);
 
             if (task?.Status == null)
             {
@@ -295,18 +295,44 @@ namespace WebApplication1.Services
 
             var filePath = Path.Combine(directory, Path.GetFileName(attachment.StoredFileName));
 
-            await _taskAttachmentRepository.DeleteAttachmentAsync(attachment);
-            if (File.Exists(filePath)) // File.Exists hàm có sẵn trogn C# kiểm tra xem có file hay không
+            try
             {
-                try
+                if (File.Exists(filePath)) // File.Exists hàm có sẵn trogn C# kiểm tra xem có file hay không
                 {
                     File.Delete(filePath);
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Không xóa được file {FilePath}", filePath);
-                }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Không xóa được file {FilePath}", filePath);
+                return new ApiResponse<bool>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Status = false,
+                    Message = "Không thể xóa file trên máy chủ. Vui lòng thử lại.",
+                    Data = false,
+                    Errors = new List<string> { "Lỗi xóa file vật lý" }
+                };
+            }
+
+            //B2: Xóa dữ liệu trong Database
+            try
+            {
+                await _taskAttachmentRepository.DeleteAttachmentAsync(attachment);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Không thể xóa thông tin attachment");
+
+                return new ApiResponse<bool>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Status = false,
+                    Message = "File đã xóa nhưng không thể xóa thông tin trong Database. Vui lòng thử lại.",
+                    Data = false
+                };
+            }
+
             return new ApiResponse<bool>
             {
                 StatusCode = StatusCodes.Status200OK,
@@ -334,7 +360,7 @@ namespace WebApplication1.Services
                 };
             }
 
-            var task = await _taskAttachmentRepository.GetTaskItemAsync(attachment.TaskItemId);
+            var task = await _taskAttachmentRepository.GetTaskItemByIdAsync(attachment.TaskItemId);
             if (task?.Status == null)
             {
                 return new ApiResponse<FileDownloadDtoResponse>
