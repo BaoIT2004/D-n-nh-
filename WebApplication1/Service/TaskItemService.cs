@@ -489,13 +489,12 @@ namespace WebApplication1.Service
                         Errors = new List<string>()
                     };
                 }
-
                 assigneeEmail = assignee.Email;
             }
 
-                // 4. Lưu (AssigneeId = null nghĩa là bỏ giao)
-                taskItem.AssigneeId = request.AssigneeId;
-                await _taskItemRepositories.UpdateTaskItemAsync(taskItem);
+            // 4. Lưu (AssigneeId = null nghĩa là bỏ giao)
+            taskItem.AssigneeId = request.AssigneeId;
+            await _taskItemRepositories.UpdateTaskItemAsync(taskItem);
 
             // 5. Trả kết quả
             return new ApiResponse<UpdateAssigneeResponseDto>
