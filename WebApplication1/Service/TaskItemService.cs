@@ -2,20 +2,16 @@ using WebApplication1.DTOs.ApiResponse;
 using WebApplication1.DTOs.TaskItem;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
-
 namespace WebApplication1.Service
 {
     public class TaskItemService
     {
         private readonly TaskItemRepositories _taskItemRepositories;
-
         private readonly StatusTaskRepository _statusTaskRepository;
-
         private readonly ProjectRepository _projectRepository;
         private readonly ProjectMemberRepository _projectMemberRepository;
         private readonly TaskAttachmentRepository _taskAttachmentRepository;
         private readonly IWebHostEnvironment _environment;
-
         public TaskItemService(
         TaskItemRepositories taskItemRepositories,
         StatusTaskRepository statusTaskRepository,
@@ -31,31 +27,15 @@ namespace WebApplication1.Service
             _taskAttachmentRepository = taskAttachmentRepository;
             _environment = environment;
         }
-
-
         //thêm
         public async Task<ApiResponse<AddTaskItemResponseDto>> AddTaskItem(AddTaskItemRequestDto request, int userId, int statusTaskId)
         {
             //1. validate dữ liệu
             var err = new List<string>();
-
             if (string.IsNullOrWhiteSpace(request.Title))
             {
                 err.Add("Không để trống tên");
             }
-            if (request.CreatedAt == default)
-            {
-                err.Add("không để trống ngày tháng năm");
-            }
-            if (string.IsNullOrWhiteSpace(request.WorkType))
-            {
-                err.Add("không được để trong wordtype");
-            }
-            if (string.IsNullOrWhiteSpace(request.Degree))
-            {
-                err.Add("không được để trống degree");
-            }
-
             if (err.Count > 0)
             {
                 return new ApiResponse<AddTaskItemResponseDto>
@@ -85,7 +65,6 @@ namespace WebApplication1.Service
                 response.ProjectId,
                 userId
             );
-
             if (!canAccess)
             {
                 return new ApiResponse<AddTaskItemResponseDto>
@@ -111,7 +90,6 @@ namespace WebApplication1.Service
                         Data = null!
                     };
                 }
-
                 //kiểm tra taslk cha phải cùng 1 project
                 if (parent.Status!.ProjectId != response.ProjectId)
                 {
@@ -124,7 +102,6 @@ namespace WebApplication1.Service
                     };
                 }
             }
-
             // tạo mới
             var newTaskItem = new TaskItem
             {
@@ -136,7 +113,6 @@ namespace WebApplication1.Service
                 CreatedByUserId = userId,
                 ParentId = request.ParentId,
             };
-
             await _taskItemRepositories.AddTaskItem(newTaskItem);
             return new ApiResponse<AddTaskItemResponseDto>
             {
@@ -159,7 +135,6 @@ namespace WebApplication1.Service
         public async Task<ApiResponse<List<AddTaskItemResponseDto>>> GetAllTaskItem(int statusId, int userId)
         {
             var status = await _statusTaskRepository.GetStatusTaskById(statusId);
-
             if (status == null || !await _projectRepository.CanAccessProjectAsync(status.ProjectId, userId)) //status.Project?.UserId != userId:Kiểm tra xem Project chứa Status này có thuộc về người dùng đang đăng nhập hay không.
             {
                 return new ApiResponse<List<AddTaskItemResponseDto>>
@@ -170,9 +145,7 @@ namespace WebApplication1.Service
                     Data = null!
                 };
             }
-
             var getAll = await _taskItemRepositories.GetAllTaskItemAsync(statusId);
-
             return new ApiResponse<List<AddTaskItemResponseDto>>
             {
                 StatusCode = StatusCodes.Status200OK,
@@ -184,6 +157,7 @@ namespace WebApplication1.Service
                     Title = p.Title,
                     CreatedAt = p.CreatedAt,
                     Status = p.Status?.StatusTask ?? string.Empty,
+                    WorkType = p.WorkType,
                     Degree = p.Degree
                 }).ToList()
             };
@@ -204,7 +178,6 @@ namespace WebApplication1.Service
                     Errors = new List<string>()
                 };
             }
-
             var canAccess = await _projectRepository.CanAccessProjectAsync(taskItem.Status.ProjectId, userId);
             if (!canAccess)
             {
@@ -282,6 +255,7 @@ namespace WebApplication1.Service
                     Errors = err
                 };
             }
+
             var taskItem = await _taskItemRepositories.GetStatusItemAsync(taskItemId);
             if (taskItem == null || taskItem.Status == null)
             {
@@ -320,7 +294,6 @@ namespace WebApplication1.Service
             }
 
             var canAccessTargetProject = await _projectRepository.CanAccessProjectAsync(targetStatus.ProjectId, userId);
-
             if (!canAccessTargetProject)
             {
                 return new ApiResponse<UpdateTaskItemResponseDto>
@@ -343,9 +316,25 @@ namespace WebApplication1.Service
                 };
             }
 
+            // chỉ kiểm tra khi người dùng đã nhập ngày kết thúc
+            if (request.DueDate != default)
+            {
+                if (request.DueDate < request.CreatedAt)
+                {
+                    return new ApiResponse<UpdateTaskItemResponseDto>
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Status = false,
+                        Message = "Ngày kết thúc không được trước ngày bắt đầu",
+                        Data = null!
+                    };
+                }
+            }
+
             // Chỉ cập nhật sau khi đã kiểm tra quyền
             taskItem.Title = request.Title;
             taskItem.CreatedAt = request.CreatedAt;
+            taskItem.DueDate = request.DueDate;
             taskItem.WorkType = request.WorkType;
             taskItem.Degree = request.Degree;
             taskItem.StatusId = request.StatusId;
@@ -362,6 +351,7 @@ namespace WebApplication1.Service
                     Id = taskItem.Id,
                     Title = taskItem.Title,
                     CreatedAt = taskItem.CreatedAt,
+                    DueDate = taskItem.DueDate,
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
                     StatusId = taskItem.StatusId
