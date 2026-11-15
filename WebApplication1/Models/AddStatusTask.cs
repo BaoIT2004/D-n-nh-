@@ -1,7 +1,7 @@
 
 namespace WebApplication1.Models;
 
-public class AddStatusTask
+public class AddStatusTask : BaseEntity
 {
     public int Id { get; set; }
     public required string StatusTask { get; set; }

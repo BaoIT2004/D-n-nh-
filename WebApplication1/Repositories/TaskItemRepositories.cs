@@ -20,8 +20,15 @@ namespace WebApplication1.Repositories
 
         public async Task AddTaskItem(TaskItem taskItem)
         {
-            await _dbcontext.TaskItem.AddAsync(taskItem);
-            await _dbcontext.SaveChangesAsync();
+            try
+            {
+                await _dbcontext.TaskItem.AddAsync(taskItem);
+                await _dbcontext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi: ", ex);
+            }
         }
 
         public async Task<List<TaskItem>> GetAllTaskItemAsync(int statusId)
@@ -32,11 +39,11 @@ namespace WebApplication1.Repositories
             .ToListAsync();
         }
 
-            public async Task UpdateTaskItemAsync(TaskItem taskItem)
-            {
-                _dbcontext.TaskItem.Update(taskItem);
-                await _dbcontext.SaveChangesAsync();
-            }
+        public async Task UpdateTaskItemAsync(TaskItem taskItem)
+        {
+            _dbcontext.TaskItem.Update(taskItem);
+            await _dbcontext.SaveChangesAsync();
+        }
 
         // Include(p => p.Status): lấy thông tin Status.
         // ThenInclude(status => status!.Project): lấy tiếp Project thuộc Status.

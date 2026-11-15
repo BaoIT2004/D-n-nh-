@@ -106,7 +106,7 @@ namespace WebApplication1.Service
             var newTaskItem = new TaskItem
             {
                 Title = request.Title,
-                CreatedAt = request.CreatedAt,   // DateOnly
+                StartDate = request.StartDate,   // DateOnly
                 WorkType = request.WorkType,
                 Degree = request.Degree,
                 StatusId = statusTaskId,
@@ -123,7 +123,7 @@ namespace WebApplication1.Service
                 {
                     Id = newTaskItem.Id,
                     Title = newTaskItem.Title,
-                    CreatedAt = newTaskItem.CreatedAt,
+                    CreatedAt = newTaskItem.StartDate,
                     Status = response.StatusTask,
                     Degree = newTaskItem.Degree,
                     ParentId = newTaskItem.ParentId
@@ -155,7 +155,7 @@ namespace WebApplication1.Service
                 {
                     Id = p.Id,
                     Title = p.Title,
-                    CreatedAt = p.CreatedAt,
+                    CreatedAt = p.StartDate,
                     Status = p.Status?.StatusTask ?? string.Empty,
                     WorkType = p.WorkType,
                     Degree = p.Degree
@@ -200,7 +200,7 @@ namespace WebApplication1.Service
                 {
                     Id = taskItem.Id,
                     Title = taskItem.Title,
-                    CreatedAt = taskItem.CreatedAt,
+                    CreatedAt = taskItem.StartDate,
                     DueDate = taskItem.DueDate,
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
@@ -214,7 +214,7 @@ namespace WebApplication1.Service
                     {
                         Id = s.Id,
                         Title = s.Title,
-                        CreatedAt = s.CreatedAt,
+                        CreatedAt = s.StartDate,
                         Status = s.Status?.StatusTask ?? string.Empty,
                         Degree = s.Degree,
                         ParentId = s.ParentId,
@@ -336,7 +336,7 @@ namespace WebApplication1.Service
 
             // Chỉ cập nhật sau khi đã kiểm tra quyền
             taskItem.Title = request.Title;
-            taskItem.CreatedAt = request.CreatedAt;
+            taskItem.StartDate = request.CreatedAt;
             taskItem.DueDate = request.DueDate;
             taskItem.WorkType = request.WorkType;
             taskItem.Degree = request.Degree;
@@ -353,7 +353,7 @@ namespace WebApplication1.Service
                 {
                     Id = taskItem.Id,
                     Title = taskItem.Title,
-                    CreatedAt = taskItem.CreatedAt,
+                    CreatedAt = taskItem.StartDate,
                     DueDate = taskItem.DueDate,
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,

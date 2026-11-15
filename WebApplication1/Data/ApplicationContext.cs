@@ -60,6 +60,9 @@ public class ApplicationContext(  // constructor
         //!p.DelFlag nghĩa là DelFlag phải là false.
         modelBuilder.Entity<newProject>().HasQueryFilter(p => !p.DelFlag);
         modelBuilder.Entity<ProjectManger>().HasQueryFilter(pm => !pm.Project.DelFlag);
+        modelBuilder.Entity<AddStatusTask>().HasQueryFilter(ad => !ad.Project!.DelFlag);
+        modelBuilder.Entity<TaskItem>().HasQueryFilter(taskItem => !taskItem.DelFlag);
+        modelBuilder.Entity<TaskAttachment>()
+            .HasQueryFilter(attachment => !attachment.TaskItem!.DelFlag);
     }
-
 }
