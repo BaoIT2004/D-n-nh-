@@ -40,6 +40,7 @@ export type TaskItemSubtask = {
   parentId: number | null;
   assigneeId: number | null;
   assigneeEmail: string | null;
+  description: string | null;
 };
 
 export type TaskItemDetail = {
@@ -56,4 +57,5 @@ export type TaskItemDetail = {
   subTasks: TaskItemSubtask[];
   assigneeId: number | null;
   assigneeEmail: string | null;
+  description: string | null;
 };

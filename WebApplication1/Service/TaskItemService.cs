@@ -76,11 +76,6 @@ namespace WebApplication1.Service
                 };
             }
 
-            if (request.StartDate == default)
-            {
-                err.Add("Ngày bắt đầu không được để trống");
-            }
-
             // kiểm tra task cha có tồn tại không
             if (request.ParentId != null)
             {
@@ -119,6 +114,7 @@ namespace WebApplication1.Service
                 StatusId = statusTaskId,
                 CreatedByUserId = userId,
                 ParentId = request.ParentId,
+                Description = request.Description
             };
             await _taskItemRepositories.AddTaskItem(newTaskItem);
             return new ApiResponse<AddTaskItemResponseDto>
@@ -217,6 +213,7 @@ namespace WebApplication1.Service
                     ParentId = taskItem.ParentId,
                     AssigneeId = taskItem.AssigneeId,
                     AssigneeEmail = taskItem.Assignee?.Email,
+                    Description = taskItem.Description,
                     SubTasks = taskItem.SubTasks.Select(s => new SubTaskResponseDto
                     {
                         Id = s.Id,
@@ -348,6 +345,7 @@ namespace WebApplication1.Service
             taskItem.WorkType = request.WorkType;
             taskItem.Degree = request.Degree;
             taskItem.StatusId = request.StatusId;
+            taskItem.Description = request.Description;
 
             await _taskItemRepositories.UpdateTaskItemAsync(taskItem);
 
@@ -364,7 +362,8 @@ namespace WebApplication1.Service
                     DueDate = taskItem.DueDate,
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
-                    StatusId = taskItem.StatusId
+                    StatusId = taskItem.StatusId,
+                    Description = taskItem.Description,
                 }
             };
         }

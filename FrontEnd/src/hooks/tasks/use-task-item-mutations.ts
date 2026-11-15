@@ -12,16 +12,18 @@ type CreateTaskItemInput = {
   degree: string;
   statusId: number;
   parentId: number | null;
+  description: string | null;
 };
 
 type UpdateTaskItemInput = {
   title: string;
   startDate: string; // DateOnly
-  dueDate: string;
+  dueDate: string | null;
   workType: string;
   degree: string;
   taskItemId: number;
   statusId: number;
+  description: string | null;
 };
 
 type DeleteTaskItemInput = {
@@ -83,6 +85,7 @@ export function useUpdateTaskItem() {
       degree,
       statusId,
       taskItemId,
+      description,
     }: UpdateTaskItemInput) => {
       const result = await updateTaskItem(
         taskItemId,
@@ -92,6 +95,7 @@ export function useUpdateTaskItem() {
         workType,
         degree,
         statusId,
+        description ?? "", // có thể null
       );
       if (!result.success) {
         throw new Error(result.message);

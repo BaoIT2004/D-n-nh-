@@ -16,4 +16,5 @@ public class TaskItemDetailResponseDto
 
     public int? AssigneeId { get; set; }
     public string? AssigneeEmail { get; set; }
+    public string? Description { get; set; } = string.Empty;
 }

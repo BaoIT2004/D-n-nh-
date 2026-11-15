@@ -60,6 +60,7 @@ function AddStatusItem({
         degree,
         statusId,
         parentId: null,
+        description: null,
       },
       {
         onSuccess: () => {
@@ -89,6 +90,7 @@ function AddStatusItem({
         degree,
         taskItemId,
         statusId,
+        description: null,
       },
       {
         onSuccess: () => {
@@ -105,7 +107,7 @@ function AddStatusItem({
     );
   }
 
-  //xóa dự án
+  //xóa dự áns
   function handleDeleteTaskItem(taskItemId: number) {
     deleteTaskItem(
       {

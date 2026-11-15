@@ -8,4 +8,5 @@ public class UpdateTaskItemRequestDto
     public string WorkType { get; set; } = string.Empty;
     public string Degree { get; set; } = string.Empty;
     public int StatusId { get; set; }
+    public string Description { get; set; } = string.Empty;
 }

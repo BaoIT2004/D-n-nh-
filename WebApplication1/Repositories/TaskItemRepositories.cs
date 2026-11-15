@@ -69,7 +69,7 @@ namespace WebApplication1.Repositories
         }
         public async Task DeleteTaskItemReposity(TaskItem taskItem)
         {
-            _dbcontext.TaskItem.Remove(taskItem);
+            taskItem.DelFlag = true;
             await _dbcontext.SaveChangesAsync();
         }
 

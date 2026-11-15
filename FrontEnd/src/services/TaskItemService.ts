@@ -9,7 +9,7 @@ import type {
 // Thêm
 export function addTaskItem(
   title: string,
-  startDate : string, // DateOnly
+  startDate: string, // DateOnly
   workType: string,
   degree: string,
   statusId: number,
@@ -19,7 +19,7 @@ export function addTaskItem(
     method: "POST",
     body: JSON.stringify({
       Title: title,
-      StartDate: startDate ,
+      StartDate: startDate,
       WorkType: workType,
       Degree: degree,
       StatusId: statusId,
@@ -58,10 +58,11 @@ export function updateTaskItem(
   taskItemId: number,
   title: string,
   startDate: string, // DateOnly
-  dueDate: string,
+  dueDate: string | null,
   workType: string,
   degree: string,
   statusId: number,
+  description: string,
 ): Promise<ServiceResult<UpdateTaskItemResponse>> {
   return apiRequest<UpdateTaskItemResponse>(`/api/TaskItem/${taskItemId}`, {
     method: "PUT",
@@ -72,6 +73,7 @@ export function updateTaskItem(
       workType,
       degree,
       statusId,
+      description,
     }),
   });
 }

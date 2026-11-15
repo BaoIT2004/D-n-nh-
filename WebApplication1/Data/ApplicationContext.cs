@@ -62,7 +62,6 @@ public class ApplicationContext(  // constructor
         modelBuilder.Entity<ProjectManger>().HasQueryFilter(pm => !pm.Project.DelFlag);
         modelBuilder.Entity<AddStatusTask>().HasQueryFilter(ad => !ad.Project!.DelFlag);
         modelBuilder.Entity<TaskItem>().HasQueryFilter(taskItem => !taskItem.DelFlag);
-        modelBuilder.Entity<TaskAttachment>()
-            .HasQueryFilter(attachment => !attachment.TaskItem!.DelFlag);
+        modelBuilder.Entity<TaskAttachment>().HasQueryFilter(attachment => !attachment.TaskItem!.DelFlag);
     }
 }

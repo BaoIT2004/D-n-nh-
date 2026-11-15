@@ -10,7 +10,7 @@ import {
   useDownLoadFile,
   useGetFiles,
 } from "../../hooks/tasks/use-add-Task-Attachment";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { AiOutlineEnter } from "react-icons/ai";
@@ -45,12 +45,21 @@ export default function TaskDetailModal() {
   const [openSubtaskAssigneeId, setOpenSubtaskAssigneeId] = useState<
     number | null
   >(null);
-  const { mutate: updateTaskItem } = useUpdateTaskItem();
+  const { mutate: updateTaskItem, isPending: isUpdatingTask } =
+    useUpdateTaskItem();
 
   const [subTitle, setSubTitle] = useState("");
   const { mutate: createMutation } = useCreateTaskItem();
 
   const { mutate: deleteFile } = useDeleteFile();
+
+  const [description, setDescription] = useState("");
+  useEffect(() => {
+    //Dùng để thực hiện một đoạn code khi component được render hoặc khi dữ liệu phụ thuộc thay đổi.
+    if (task) {
+      setDescription(task.description ?? ""); //Dùng để lấy description từ Task đưa vào state.
+    }
+  }, [task]); //dependency array (mảng phụ thuộc).
 
   //kéo các cột
   const [colWidths, setColWidths] = useState([300, 120, 160, 140]); // px
@@ -76,6 +85,26 @@ export default function TaskDetailModal() {
   if (isLoading) return <p>Đang tải task...</p>;
   if (isError || !task) return <p>Không tải được task.</p>;
   const currentTask = task;
+
+  function saveDescription() {
+    updateTaskItem(
+      {
+        taskItemId: currentTask.id,
+        title: currentTask.title,
+        startDate: currentTask.startDate.slice(0, 10),
+        dueDate: currentTask.dueDate,
+        workType: currentTask.workType,
+        degree: currentTask.degree,
+        statusId: currentTask.statusId,
+        description,
+      },
+      {
+        onSuccess: () => toast.success("Đã lưu mô tả"),
+        onError: (error) => toast.error(error.message),
+      },
+    );
+  }
+
   //hiển thị màu đỏ trang khá
   const isOverdue = task.dueDate
     ? new Date(task.dueDate) < new Date(task.startDate)
@@ -172,6 +201,7 @@ export default function TaskDetailModal() {
         degree: currentTask.degree,
         taskItemId: currentTask.id,
         statusId: currentTask.statusId,
+        description: description,
       },
       {
         onSuccess: () => {
@@ -196,7 +226,8 @@ export default function TaskDetailModal() {
         workType: "Task",
         degree: "Medium", // đổi theo giá trị backend của bạn
         statusId: task.statusId, // cùng status với task cha
-        parentId: Number(id), // id của task cha (từ useParams)
+        parentId: Number(id),
+        description: null,
       },
       {
         onSuccess: () => {
@@ -248,10 +279,17 @@ export default function TaskDetailModal() {
                 Description
               </h2>
               <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className="w-full resize-y rounded-lg border border-gray-300 p-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 placeholder="Add a description..."
                 rows={4}
               />
+              <div className="flex">
+                <button className="mt-2 ml-auto rounded bg-[#29903b] px-4 py-2 text-white disabled:opacity-50">
+                  Save
+                </button>
+              </div>
             </section>
 
             <section>
