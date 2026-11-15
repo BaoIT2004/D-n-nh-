@@ -43,4 +43,23 @@ public class ApplicationContext(  // constructor
         return base.SaveChangesAsync(ct);
     }
 
+    //xóa ẩn dựa án
+
+    //Note
+    //protected: chỉ người trong gia đinh mới dùng được class con dùng được
+    //overide: DbContext đã có sẵn hàm OnModelCreating (để trống). Bạn viết lại nó để thêm quy tắc riêng.
+    //void không trả về giá trị
+    //ModelBuilder modelBuilder: EF đưa công cụ xây mô hình Mọi cấu hình đều làm qua biến này.
+    //
+    protected override void OnModelCreating(ModelBuilder modelBuilder)  //
+    {
+        base.OnModelCreating(modelBuilder);
+        //tôi muốn cấu hình cho entity newProject” (bảng Projects).
+        //gắn một điều kiện lọc cho bảng này.
+        //p là một project.
+        //!p.DelFlag nghĩa là DelFlag phải là false.
+        modelBuilder.Entity<newProject>().HasQueryFilter(p => !p.DelFlag);
+        modelBuilder.Entity<ProjectMember>().HasQueryFilter(pm => !pm.Project.DelFlag);
+    }
+
 }

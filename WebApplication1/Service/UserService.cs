@@ -137,6 +137,7 @@ namespace WebApplication1.Service
             //4.Lưu thông tin người dùng
             await _userRepository.AddUserAsync(newUser);
             //5.Map sang RegisterResponseDto trả về cho Controller
+
             return new ApiResponse<RegisterResponseDto>
             {
                 StatusCode = StatusCodes.Status200OK,
