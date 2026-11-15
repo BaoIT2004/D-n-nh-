@@ -15,6 +15,6 @@ public class newProject : BaseEntity
     // public ICollection<taskItem> TaskItems {get; set;} = new List<taskItem>();
     // Một dự án có nhiều trạng thái khác nhau
     public ICollection<AddStatusTask> StatusTasks { get; set; } = new List<AddStatusTask>();
-    public ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
+    public ICollection<ProjectManger> ProjectMembers { get; set; } = new List<ProjectManger>();
 
 }

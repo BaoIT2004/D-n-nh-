@@ -44,7 +44,7 @@ namespace WebApplication1.Migrations
                     b.ToTable("AddStatusTasks");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.ProjectMember", b =>
+            modelBuilder.Entity("WebApplication1.Models.ProjectManger", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,7 +52,22 @@ namespace WebApplication1.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("DelFlag")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedId")
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
@@ -284,7 +299,7 @@ namespace WebApplication1.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.ProjectMember", b =>
+            modelBuilder.Entity("WebApplication1.Models.ProjectManger", b =>
                 {
                     b.HasOne("WebApplication1.Models.newProject", "Project")
                         .WithMany("ProjectMembers")

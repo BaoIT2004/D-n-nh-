@@ -1,6 +1,6 @@
 namespace WebApplication1.Models;
 
-public class ProjectMember
+public class ProjectManger : BaseEntity
 {
     public int Id { get; set; }
     public int ProjectId { get; set; }

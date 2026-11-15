@@ -86,7 +86,7 @@ namespace WebApplication1.Services
                 };
             }
 
-            var members = new ProjectMember
+            var members = new ProjectManger
             {
                 ProjectId = projectId,
                 UserId = user.Id
@@ -129,7 +129,7 @@ namespace WebApplication1.Services
             var canAccess = await _projectRepository.CanAccessProjectAsync(projectId, userId);
             if (!canAccess)
             {
-                 return new ApiResponse<List<GetMemberResponseDTo>>
+                return new ApiResponse<List<GetMemberResponseDTo>>
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
                     Status = false,

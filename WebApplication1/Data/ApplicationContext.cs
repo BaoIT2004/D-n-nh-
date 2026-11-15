@@ -16,7 +16,7 @@ public class ApplicationContext(  // constructor
 
     public DbSet<AddStatusTask> AddStatusTasks { get; set; }
 
-    public DbSet<ProjectMember> ProjectMembers { get; set; }
+    public DbSet<ProjectManger> ProjectMembers { get; set; }
 
     public DbSet<TaskAttachment> TaskAttachments { get; set; }
 
@@ -59,7 +59,7 @@ public class ApplicationContext(  // constructor
         //p là một project.
         //!p.DelFlag nghĩa là DelFlag phải là false.
         modelBuilder.Entity<newProject>().HasQueryFilter(p => !p.DelFlag);
-        modelBuilder.Entity<ProjectMember>().HasQueryFilter(pm => !pm.Project.DelFlag);
+        modelBuilder.Entity<ProjectManger>().HasQueryFilter(pm => !pm.Project.DelFlag);
     }
 
 }

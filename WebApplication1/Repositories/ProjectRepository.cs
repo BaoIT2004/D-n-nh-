@@ -46,7 +46,6 @@ namespace WebApplication1.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-
         public Task<bool> CanAccessProjectAsync(int projectId, int userId)
         {
             return _dbContext.Projects.AnyAsync(project =>

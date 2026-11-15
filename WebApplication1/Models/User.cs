@@ -12,5 +12,5 @@ public class User : BaseEntity
 
     public ICollection<newProject> Projects { get; set; } = new List<newProject>();
 
-    public ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
+    public ICollection<ProjectManger> ProjectMembers { get; set; } = new List<ProjectManger>();
 }
