@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 namespace WebApplication1.Models;
 
 [Index(nameof(Email), IsUnique = true)]  // không cho trùng email
-public class User
+public class User : BaseEntity
 {
     public int Id { get; set; }
     // [Required(ErrorMessage = "Không để trống tên")]

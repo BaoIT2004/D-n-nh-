@@ -272,7 +272,6 @@ namespace WebApplication1.Services
 
             // có thể truy cập được không
             var canAccess = await _projectRepository.CanAccessProjectAsync(task.Status.ProjectId, userId);
-
             if (!canAccess)
             {
                 return new ApiResponse<bool>

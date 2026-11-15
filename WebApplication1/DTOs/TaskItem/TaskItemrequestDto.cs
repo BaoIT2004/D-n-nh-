@@ -3,6 +3,7 @@ namespace WebApplication1.DTOs.TaskItem;
 public class AddTaskItemRequestDto
 {
     public required string Title { get; set; }
+    public string Description { get; set; } = string.Empty;
     public string WorkType { get; set; } = string.Empty;
     public string Degree { get; set; } = string.Empty;
     public int StatusId { get; set; }

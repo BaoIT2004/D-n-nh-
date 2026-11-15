@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Middleware.Example;
 using WebApplication1.Data;
+using WebApplication1.MiddleWare;
 using WebApplication1.Repositories;
 using WebApplication1.Service;
 using WebApplication1.Services;
@@ -66,6 +67,8 @@ builder.Services.AddCors(options =>
     );
 }
 );
+//mdw
+builder.Services.AddHttpContextAccessor();
 // kết nối với database
 builder.Services.AddDbContext<ApplicationContext>(
     Options => Options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")
@@ -73,17 +76,11 @@ builder.Services.AddDbContext<ApplicationContext>(
 );
 
 var app = builder.Build();
-// xây dựng middleware
-app.UseMiddleware<RequestCultureMiddleware>();
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
+app.UseMiddleware<RequestCultureMiddleware>();// đầu tiên, để bắt lỗi của mọi thứ phía sau
 //kết nối FE BE
 app.UseCors("AllowReactApp");
-app.UseAuthentication();
+app.UseAuthentication(); // VD kiểm tra khách
+app.UseMiddleware<CurrentUserMiddleware>(); // // sau UseAuthentication, VD CurrentUserMiddleware giống Bảo vệ ghi tên vào sổ
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

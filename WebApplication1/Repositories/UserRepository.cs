@@ -26,6 +26,20 @@ namespace WebApplication1.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task UpdateUserAsync(User user)
+        {
+            try
+            {
+                _dbContext.Users.Update(user);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine("LỖI: " + ex.InnerException?.Message);
+                throw;
+            }
+        }
+
         public Task<List<User>> GetAllAsync() //List<User>: Danh sách nhiều user
         {
             return _dbContext.Users.ToListAsync();  //ToListAsync() truy vấn lấy tất cả user từ db
@@ -35,6 +49,8 @@ namespace WebApplication1.Repositories
         {
             return _dbContext.Users.FirstOrDefaultAsync(user => user.Id == userId);
         }
+
+
     }
 }
 

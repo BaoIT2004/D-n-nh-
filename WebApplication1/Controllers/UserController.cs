@@ -66,6 +66,14 @@ namespace WebApplication1.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [HttpPut("update")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUser(UpdateUserRequestDTo request)
+        {
+            var response = await _userService.UpdateUser(request);
+            return StatusCode(response.StatusCode, response);
+        }
+
 
         // Đăng nhập tài khoản
         [HttpPost("login")]

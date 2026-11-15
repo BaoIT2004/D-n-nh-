@@ -63,10 +63,8 @@ namespace WebApplication1.Service
                     Errors = new List<string> { "Email hoặc mật khẩu không đúng" }
                 };
             }
-
             // 4. Tạo cặp AccessToken & RefreshToken
             var token = await _jwtService.GenerateToken(user);
-
             // 5. Map sang LoginResponseDto trả về cho Controller
             return new ApiResponse<LoginResponseDto>
             {
@@ -83,7 +81,6 @@ namespace WebApplication1.Service
                 }
             };
         }
-
 
         // Đăng ký
         public async Task<ApiResponse<RegisterResponseDto>> RegisterAsync(RegisterRequestDto request)
@@ -117,7 +114,6 @@ namespace WebApplication1.Service
 
             //2. Kiểm Email đã tồn tại chưa
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);
-
             if (existingUser != null)
             {
                 return new ApiResponse<RegisterResponseDto>
@@ -140,9 +136,7 @@ namespace WebApplication1.Service
 
             //4.Lưu thông tin người dùng
             await _userRepository.AddUserAsync(newUser);
-
             //5.Map sang RegisterResponseDto trả về cho Controller
-
             return new ApiResponse<RegisterResponseDto>
             {
                 StatusCode = StatusCodes.Status200OK,
@@ -154,6 +148,38 @@ namespace WebApplication1.Service
                     Name = newUser.Name,
                     Email = newUser.Email,
                 }
+            };
+        }
+
+        public async Task<ApiResponse<UpdateUserResponseDto>> UpdateUser(UpdateUserRequestDTo request)
+        {
+            var user = await _userRepository.GetUserById(request.Id);
+            if (user == null)
+            {
+                return new ApiResponse<UpdateUserResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Không tìm thấy email người dùng",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            user.Name = request.Name;
+            user.Email = request.Email;
+            await _userRepository.UpdateUserAsync(user);
+            return new ApiResponse<UpdateUserResponseDto>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "cập nhật thành công",
+                Data = new UpdateUserResponseDto
+                {
+                    Name = user.Name,
+                    Email = user.Email
+                },
+                Errors = new List<string>()
             };
         }
 
@@ -207,7 +233,6 @@ namespace WebApplication1.Service
                 },
             };
         }
-
 
         public async Task<ApiResponse<TokenResponseDto>> RefreshAsync(string refreshToken)
         {

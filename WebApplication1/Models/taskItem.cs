@@ -19,4 +19,5 @@ public class TaskItem
     public List<TaskItem> SubTasks { get; set; } = new List<TaskItem>();// phía "nhiều": cha -> các con từ một task cha, đi xuống lấy nhiều task con. Vì “nhiều” nên phải là một tập hợp (List<TaskItem>), không thể là một TaskItem đơn.
     public int? AssigneeId { get; set; } //khóa ngoại trỏ tới bảng User, cho biết ai được giao task này. null nghĩa là chưa giao cho ai.
     public User? Assignee { get; set; } //lấy ra đối tượng User được giao
+    public string? Description { get; set; } // mô tả chi tiết công việc
 }

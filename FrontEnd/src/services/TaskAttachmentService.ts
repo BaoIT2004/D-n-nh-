@@ -70,3 +70,14 @@ export async function DownloadFile(
     data: blob,
   };
 }
+
+export function DeleteFile(
+  attachmentId: number,
+): Promise<ServiceResult<boolean>> {
+  return apiRequest<boolean>(
+    `/api/TaskAttachments/delete/file/${attachmentId}`,
+    {
+      method: "DELETE",
+    },
+  );
+}
