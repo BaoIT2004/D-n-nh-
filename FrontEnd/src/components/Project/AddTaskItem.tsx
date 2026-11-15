@@ -28,7 +28,7 @@ function AddStatusItem({
   const [title, setTitle] = useState("");
   const [workType, setWorkType] = useState("Task");
   const [degree, setDegree] = useState("Thấp");
-  const [createdAt, setCreatedAt] = useState<Date | null>(new Date());
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
   const { data: taskItem = [] } = useTaskItems(statusId); // hiển thị taskItem
   const [board, setBoard] = useState(false);
   const [taskItemId, setTaskItemId] = useState<number | null>(null); // tạo để nhớ khi sửa useState<number | null>: kiểu của giá trị là number (id của task) hoặc null (không sửa task nào).
@@ -38,9 +38,16 @@ function AddStatusItem({
   const { mutate: deleteTaskItem } = useDeleteTaskItem();
   const navigate = useNavigate();
 
+  function toDateOnly(date: Date) {
+    const year = String(date.getFullYear()).padStart(4, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
   //THÊM
   function handleAdd() {
-    if (!title.trim() || !createdAt) {
+    if (!title.trim() || !startDate) {
       toast.error("Không được để trống trường");
       return;
     }
@@ -48,7 +55,7 @@ function AddStatusItem({
     createTaskItem(
       {
         title,
-        createdAt: createdAt.toLocaleDateString("sv-SE"),
+        startDate: toDateOnly(startDate),
         workType,
         degree,
         statusId,
@@ -70,14 +77,14 @@ function AddStatusItem({
 
   //Cập nhật dự án
   function updateProject() {
-    if (!title.trim() || !createdAt || taskItemId === null) {
+    if (!title.trim() || !startDate || taskItemId === null) {
       return;
     }
     updateTaskItem(
       {
         title,
-        createdAt: createdAt.toLocaleDateString("sv-SE"),
-        dueDate: createdAt.toLocaleDateString("sv-SE"),
+        startDate: startDate.toLocaleDateString("sv-SE"),
+        dueDate: startDate.toLocaleDateString("sv-SE"),
         workType,
         degree,
         taskItemId,
@@ -156,8 +163,8 @@ function AddStatusItem({
                       setTitle(task.title);
                       setWorkType(task.workType);
                       setDegree(task.degree);
-                      setCreatedAt(
-                        task.createdAt ? new Date(task.createdAt) : new Date(),
+                      setStartDate(
+                        task.startDate ? new Date(task.startDate) : new Date(),
                       );
                     }}
                   >
@@ -206,8 +213,8 @@ function AddStatusItem({
                 <>
                   <span className="flex mb-2 items-center gap-1 text-xs text-gray-500">
                     <GrFormSchedule size={22} />
-                    {task.createdAt
-                      ? new Date(task.createdAt).toLocaleString("vi-VN", {
+                    {task.startDate
+                      ? new Date(task.startDate).toLocaleString("vi-VN", {
                           day: "2-digit",
                           month: "2-digit",
                           year: "numeric",
@@ -298,8 +305,8 @@ function AddStatusItem({
             </div>
 
             <DatePicker
-              selected={createdAt}
-              onChange={(d: Date | null) => setCreatedAt(d)}
+              selected={startDate}
+              onChange={(d: Date | null) => setStartDate(d)}
               dateFormat="dd/MM/yyyy"
               customInput={
                 <button

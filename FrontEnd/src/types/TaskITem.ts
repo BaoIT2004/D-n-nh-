@@ -1,7 +1,7 @@
 export type AddTaskItem = {
   id: number;
   title: string;
-  createdAt: string;
+  startDate: string;
   status: string;
   workType: string;
   degree: string;
@@ -13,7 +13,7 @@ export type GetAllTaskItem = {
   assigneeEmail: string;
   id: number;
   title: string;
-  createdAt: string;
+  startDate: string;
   status: string;
   workType: string;
   degree: string;
@@ -23,7 +23,7 @@ export type GetAllTaskItem = {
 export type UpdateTaskItemResponse = {
   id: number;
   title: string;
-  createdAt: string;
+  startDate: string;
   dueDate: string | null;
   workType: string;
   degree: string;
@@ -33,7 +33,7 @@ export type UpdateTaskItemResponse = {
 export type TaskItemSubtask = {
   id: number;
   title: string;
-  createdAt: string;
+  startDate: string;
   status: string;
   workType: string;
   degree: string;
@@ -45,7 +45,7 @@ export type TaskItemSubtask = {
 export type TaskItemDetail = {
   id: number;
   title: string;
-  createdAt: string;
+  startDate: string;
   dueDate: string | null;
   workType: string;
   degree: string;

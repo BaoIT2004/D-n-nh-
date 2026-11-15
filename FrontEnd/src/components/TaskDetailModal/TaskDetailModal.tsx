@@ -78,7 +78,7 @@ export default function TaskDetailModal() {
   const currentTask = task;
   //hiển thị màu đỏ trang khá
   const isOverdue = task.dueDate
-    ? new Date(task.dueDate) < new Date(task.createdAt)
+    ? new Date(task.dueDate) < new Date(task.startDate)
     : false;
 
   const menuItem = [
@@ -166,7 +166,7 @@ export default function TaskDetailModal() {
     updateTaskItem(
       {
         title: currentTask.title,
-        createdAt: currentTask.createdAt.slice(0, 10),
+        startDate: currentTask.startDate.slice(0, 10),
         dueDate: dueDate,
         workType: currentTask.workType,
         degree: currentTask.degree,
@@ -192,7 +192,7 @@ export default function TaskDetailModal() {
     createMutation(
       {
         title,
-        createdAt: new Date().toLocaleDateString("sv-SE"), // yyyy-MM-dd
+        startDate: new Date().toLocaleDateString("sv-SE"), // yyyy-MM-dd
         workType: "Task",
         degree: "Medium", // đổi theo giá trị backend của bạn
         statusId: task.statusId, // cùng status với task cha
@@ -544,7 +544,7 @@ export default function TaskDetailModal() {
                   </dt>
                   <dd className="text-gray-500">
                     {/*set form ngày tháng năm*/}
-                    {new Date(task.createdAt).toLocaleDateString("vi-VN")}
+                    {new Date(task.startDate).toLocaleDateString("vi-VN")}
                   </dd>
                 </div>
 

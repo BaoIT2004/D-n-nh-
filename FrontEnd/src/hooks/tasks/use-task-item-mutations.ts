@@ -7,7 +7,7 @@ import {
 
 type CreateTaskItemInput = {
   title: string;
-  createdAt: string; // DateOnly
+  startDate: string; // DateOnly
   workType: string;
   degree: string;
   statusId: number;
@@ -16,7 +16,7 @@ type CreateTaskItemInput = {
 
 type UpdateTaskItemInput = {
   title: string;
-  createdAt: string; // DateOnly
+  startDate: string; // DateOnly
   dueDate: string;
   workType: string;
   degree: string;
@@ -35,7 +35,7 @@ export function useCreateTaskItem() {
   return useMutation({
     mutationFn: async ({
       title,
-      createdAt,
+      startDate: startDate,
       workType,
       degree,
       statusId,
@@ -43,7 +43,7 @@ export function useCreateTaskItem() {
     }: CreateTaskItemInput) => {
       const result = await addTaskItem(
         title,
-        createdAt,
+        startDate,
         workType,
         degree,
         statusId,
@@ -77,7 +77,7 @@ export function useUpdateTaskItem() {
   return useMutation({
     mutationFn: async ({
       title,
-      createdAt,
+      startDate: startDate,
       dueDate,
       workType,
       degree,
@@ -87,7 +87,7 @@ export function useUpdateTaskItem() {
       const result = await updateTaskItem(
         taskItemId,
         title,
-        createdAt,
+        startDate,
         dueDate,
         workType,
         degree,

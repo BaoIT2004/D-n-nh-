@@ -9,7 +9,7 @@ import type {
 // Thêm
 export function addTaskItem(
   title: string,
-  createdAt: string, // DateOnly
+  startDate : string, // DateOnly
   workType: string,
   degree: string,
   statusId: number,
@@ -19,7 +19,7 @@ export function addTaskItem(
     method: "POST",
     body: JSON.stringify({
       Title: title,
-      CreatedAt: createdAt,
+      StartDate: startDate ,
       WorkType: workType,
       Degree: degree,
       StatusId: statusId,
@@ -57,7 +57,7 @@ export function deleteTaskItem(
 export function updateTaskItem(
   taskItemId: number,
   title: string,
-  createdAt: string, // DateOnly
+  startDate: string, // DateOnly
   dueDate: string,
   workType: string,
   degree: string,
@@ -67,7 +67,7 @@ export function updateTaskItem(
     method: "PUT",
     body: JSON.stringify({
       title,
-      createdAt,
+      startDate: startDate,
       dueDate,
       workType,
       degree,
