@@ -107,7 +107,7 @@ function AddStatusItem({
     );
   }
 
-  //xóa dự áns
+  //xóa dự án
   function handleDeleteTaskItem(taskItemId: number) {
     deleteTaskItem(
       {

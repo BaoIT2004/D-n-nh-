@@ -2,7 +2,7 @@ import { apiRequest, type ServiceResult } from "./Api";
 import type {
   AddMemberResponse,
   AddStatusTaskResponse,
-  GetAllStatusTaask,
+  GetAllStatusTaask as GetAllStatusTask,
 } from "../types/statusTask";
 
 //thêm
@@ -31,8 +31,8 @@ export function AddMember(
 }
 
 //Hiển thị
-export function GetAllStatusTask(
+export function GetAllStatusTaskByProject(
   projectId: number,
-): Promise<ServiceResult<GetAllStatusTaask[]>> {
-  return apiRequest<GetAllStatusTaask[]>(`/api/statusTask/${projectId}`);
+): Promise<ServiceResult<GetAllStatusTask[]>> {
+  return apiRequest<GetAllStatusTask[]>(`/api/statusTask/${projectId}`);
 }
