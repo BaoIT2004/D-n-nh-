@@ -3,6 +3,7 @@ import type {
   MemberResponse,
   Project,
   ProjectResponse,
+  UpdateProject,
 } from "../types/project";
 
 //Hiển thị project
@@ -49,4 +50,24 @@ export function addMember(
       body: JSON.stringify(request),
     },
   );
+}
+
+export function deleteProject(projectId: number): Promise<ServiceResult<null>> {
+  return apiRequest<null>(`/api/NewProject/delete/${projectId}`, {
+    method: "DELETE",
+  });
+}
+
+export function updateProject(
+  projectId: number,
+  nameProject: string,
+  status: string,
+): Promise<ServiceResult<UpdateProject>> {
+  return apiRequest<UpdateProject>(`/api/NewProject/update/${projectId}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      nameProject,
+      status,
+    }),
+  });
 }

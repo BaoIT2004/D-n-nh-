@@ -40,7 +40,7 @@ namespace WebApplication1.Controllers
         }
 
         //Cập nhật dự án
-        [HttpPut("{id}")]
+        [HttpPut("update/{id}")]
         [Authorize]
         public async Task<IActionResult> UpdateProject([FromBody] UpdateProjectRequestDto project, int id)
         {
@@ -54,12 +54,12 @@ namespace WebApplication1.Controllers
         }
 
         // Xóa dự án
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("delete/{projectId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteProject(int id)
+        public async Task<IActionResult> DeleteProject(int projectId)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var response = await _projectService.DeleteProjectAsync(id, userId);
+            var response = await _projectService.DeleteProjectAsync(projectId, userId);
             return StatusCode(response.StatusCode, response);
         }
     }

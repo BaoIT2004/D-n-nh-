@@ -7,4 +7,5 @@ public class GetAllProjectResponseDto
     public string Status { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public int UserId { get; set; }
+    public string Email { get; set; } = string.Empty;
 }
