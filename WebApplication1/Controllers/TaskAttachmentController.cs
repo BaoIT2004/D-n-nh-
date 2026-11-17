@@ -53,7 +53,7 @@ namespace WebApplication1.Controllers
         }
 
         //Xóa
-        [HttpDelete("{attachmentId}")]
+        [HttpDelete("delete/file/{attachmentId}")]
         [Authorize]
         public async Task<IActionResult> DeleteTaskAttachment(int attachmentId)
         {

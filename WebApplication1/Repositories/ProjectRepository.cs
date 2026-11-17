@@ -40,12 +40,11 @@ namespace WebApplication1.Repositories
         }
 
 
-        public async Task DeleteProjectAsync(newProject newProject)
+        public async Task DeleteProjectAsync(newProject project)
         {
-            _dbContext.Projects.Remove(newProject);
+            project.DelFlag = true;
             await _dbContext.SaveChangesAsync();
         }
-
 
         public Task<bool> CanAccessProjectAsync(int projectId, int userId)
         {

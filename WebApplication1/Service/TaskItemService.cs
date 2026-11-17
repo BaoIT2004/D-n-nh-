@@ -102,16 +102,19 @@ namespace WebApplication1.Service
                     };
                 }
             }
+
+
             // tạo mới
             var newTaskItem = new TaskItem
             {
                 Title = request.Title,
-                CreatedAt = request.CreatedAt,   // DateOnly
+                StartDate = request.StartDate,   // DateOnly
                 WorkType = request.WorkType,
                 Degree = request.Degree,
                 StatusId = statusTaskId,
                 CreatedByUserId = userId,
                 ParentId = request.ParentId,
+                Description = request.Description
             };
             await _taskItemRepositories.AddTaskItem(newTaskItem);
             return new ApiResponse<AddTaskItemResponseDto>
@@ -123,7 +126,7 @@ namespace WebApplication1.Service
                 {
                     Id = newTaskItem.Id,
                     Title = newTaskItem.Title,
-                    CreatedAt = newTaskItem.CreatedAt,
+                    StartDate = newTaskItem.StartDate,
                     Status = response.StatusTask,
                     Degree = newTaskItem.Degree,
                     ParentId = newTaskItem.ParentId
@@ -155,7 +158,7 @@ namespace WebApplication1.Service
                 {
                     Id = p.Id,
                     Title = p.Title,
-                    CreatedAt = p.CreatedAt,
+                    StartDate = p.StartDate,
                     Status = p.Status?.StatusTask ?? string.Empty,
                     WorkType = p.WorkType,
                     Degree = p.Degree
@@ -200,7 +203,7 @@ namespace WebApplication1.Service
                 {
                     Id = taskItem.Id,
                     Title = taskItem.Title,
-                    CreatedAt = taskItem.CreatedAt,
+                    StartDate = taskItem.StartDate,
                     DueDate = taskItem.DueDate,
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
@@ -210,11 +213,12 @@ namespace WebApplication1.Service
                     ParentId = taskItem.ParentId,
                     AssigneeId = taskItem.AssigneeId,
                     AssigneeEmail = taskItem.Assignee?.Email,
+                    Description = taskItem.Description,
                     SubTasks = taskItem.SubTasks.Select(s => new SubTaskResponseDto
                     {
                         Id = s.Id,
                         Title = s.Title,
-                        CreatedAt = s.CreatedAt,
+                        StartDate = s.StartDate,
                         Status = s.Status?.StatusTask ?? string.Empty,
                         Degree = s.Degree,
                         ParentId = s.ParentId,
@@ -235,7 +239,7 @@ namespace WebApplication1.Service
             {
                 err.Add("Không để trống tên");
             }
-            if (request.CreatedAt == default)
+            if (request.StartDate == default)
             {
                 err.Add("không để trống ngày tháng năm");
             }
@@ -322,7 +326,7 @@ namespace WebApplication1.Service
             // chỉ kiểm tra khi người dùng đã nhập ngày kết thúc
             if (request.DueDate != default)
             {
-                if (request.DueDate < request.CreatedAt)
+                if (request.DueDate < request.StartDate)
                 {
                     return new ApiResponse<UpdateTaskItemResponseDto>
                     {
@@ -336,11 +340,12 @@ namespace WebApplication1.Service
 
             // Chỉ cập nhật sau khi đã kiểm tra quyền
             taskItem.Title = request.Title;
-            taskItem.CreatedAt = request.CreatedAt;
+            taskItem.StartDate = request.StartDate;
             taskItem.DueDate = request.DueDate;
             taskItem.WorkType = request.WorkType;
             taskItem.Degree = request.Degree;
             taskItem.StatusId = request.StatusId;
+            taskItem.Description = request.Description;
 
             await _taskItemRepositories.UpdateTaskItemAsync(taskItem);
 
@@ -353,11 +358,12 @@ namespace WebApplication1.Service
                 {
                     Id = taskItem.Id,
                     Title = taskItem.Title,
-                    CreatedAt = taskItem.CreatedAt,
+                    StartDate = taskItem.StartDate,
                     DueDate = taskItem.DueDate,
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
-                    StatusId = taskItem.StatusId
+                    StatusId = taskItem.StatusId,
+                    Description = taskItem.Description,
                 }
             };
         }

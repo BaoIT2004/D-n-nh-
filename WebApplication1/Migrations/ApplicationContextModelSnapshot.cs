@@ -30,12 +30,27 @@ namespace WebApplication1.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("DelFlag")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("integer");
 
                     b.Property<string>("StatusTask")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -44,7 +59,7 @@ namespace WebApplication1.Migrations
                     b.ToTable("AddStatusTasks");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.ProjectMember", b =>
+            modelBuilder.Entity("WebApplication1.Models.ProjectManger", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,7 +67,22 @@ namespace WebApplication1.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("DelFlag")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedId")
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
@@ -145,14 +175,23 @@ namespace WebApplication1.Migrations
                     b.Property<int?>("AssigneeId")
                         .HasColumnType("integer");
 
-                    b.Property<DateOnly>("CreatedAt")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("CreatedByUserId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("CreatedId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Degree")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("DelFlag")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<DateOnly?>("DueDate")
@@ -161,12 +200,21 @@ namespace WebApplication1.Migrations
                     b.Property<int?>("ParentId")
                         .HasColumnType("integer");
 
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
                     b.Property<int>("StatusId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("WorkType")
                         .IsRequired()
@@ -193,6 +241,15 @@ namespace WebApplication1.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("DelFlag")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -200,6 +257,12 @@ namespace WebApplication1.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("passWord")
                         .IsRequired()
@@ -223,6 +286,18 @@ namespace WebApplication1.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("DelFlag")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UpdatedId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -254,7 +329,7 @@ namespace WebApplication1.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("WebApplication1.Models.ProjectMember", b =>
+            modelBuilder.Entity("WebApplication1.Models.ProjectManger", b =>
                 {
                     b.HasOne("WebApplication1.Models.newProject", "Project")
                         .WithMany("ProjectMembers")

@@ -30,7 +30,7 @@ namespace WebApplication1.Repositories
             return _dbContext.ProjectMembers.AnyAsync(member => member.ProjectId == projectId && member.UserId == userId);
         }
 
-        public async Task<ProjectMember> AddMemberAsync(ProjectMember member)
+        public async Task<ProjectManger> AddMemberAsync(ProjectManger member)
         {
             await _dbContext.ProjectMembers.AddAsync(member);
             await _dbContext.SaveChangesAsync();

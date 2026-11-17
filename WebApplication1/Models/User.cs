@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 namespace WebApplication1.Models;
 
 [Index(nameof(Email), IsUnique = true)]  // không cho trùng email
-public class User
+public class User : BaseEntity
 {
     public int Id { get; set; }
     // [Required(ErrorMessage = "Không để trống tên")]
@@ -12,5 +12,5 @@ public class User
 
     public ICollection<newProject> Projects { get; set; } = new List<newProject>();
 
-    public ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
+    public ICollection<ProjectManger> ProjectMembers { get; set; } = new List<ProjectManger>();
 }

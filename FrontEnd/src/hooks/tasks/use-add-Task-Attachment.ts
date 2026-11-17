@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AddFile, DownloadFile } from "../../services/TaskAttachmentService";
 import { useQuery } from "@tanstack/react-query";
+import {
+  AddFile,
+  DeleteFile,
+  DownloadFile,
+} from "../../services/TaskAttachmentService";
 import { GetFiles } from "../../services/TaskAttachmentService";
 
 type AddFileItem = {
@@ -12,6 +16,13 @@ type DownloadFileItem = {
   fileId: number;
   fileName: string;
 };
+
+export function useGetFiles(taskItemId: number) {
+  return useQuery({
+    queryKey: ["files", taskItemId],
+    queryFn: () => GetFiles(taskItemId),
+  });
+}
 
 export function useAddFile() {
   const queryClient = useQueryClient();
@@ -34,10 +45,22 @@ export function useAddFile() {
   });
 }
 
-export function useGetFiles(taskItemId: number) {
-  return useQuery({
-    queryKey: ["files", taskItemId],
-    queryFn: () => GetFiles(taskItemId),
+export function useDeleteFile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (attachmentId: number) => {
+      const result = await DeleteFile(attachmentId);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["files"] });
+    },
+    onError: (error: Error) => {
+      console.error("Xóa file thất bại:", error.message);
+    },
   });
 }
 

@@ -7,21 +7,23 @@ import {
 
 type CreateTaskItemInput = {
   title: string;
-  createdAt: string; // DateOnly
+  startDate: string; // DateOnly
   workType: string;
   degree: string;
   statusId: number;
   parentId: number | null;
+  description: string | null;
 };
 
 type UpdateTaskItemInput = {
   title: string;
-  createdAt: string; // DateOnly
-  dueDate: string;
+  startDate: string; // DateOnly
+  dueDate: string | null;
   workType: string;
   degree: string;
   taskItemId: number;
   statusId: number;
+  description: string | null;
 };
 
 type DeleteTaskItemInput = {
@@ -35,7 +37,7 @@ export function useCreateTaskItem() {
   return useMutation({
     mutationFn: async ({
       title,
-      createdAt,
+      startDate: startDate,
       workType,
       degree,
       statusId,
@@ -43,7 +45,7 @@ export function useCreateTaskItem() {
     }: CreateTaskItemInput) => {
       const result = await addTaskItem(
         title,
-        createdAt,
+        startDate,
         workType,
         degree,
         statusId,
@@ -77,21 +79,23 @@ export function useUpdateTaskItem() {
   return useMutation({
     mutationFn: async ({
       title,
-      createdAt,
+      startDate: startDate,
       dueDate,
       workType,
       degree,
       statusId,
       taskItemId,
+      description,
     }: UpdateTaskItemInput) => {
       const result = await updateTaskItem(
         taskItemId,
         title,
-        createdAt,
+        startDate,
         dueDate,
         workType,
         degree,
         statusId,
+        description ?? "", // có thể null
       );
       if (!result.success) {
         throw new Error(result.message);
