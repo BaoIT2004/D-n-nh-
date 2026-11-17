@@ -11,6 +11,7 @@ import { useStatusTasks } from "../../hooks/tasks/use-status-tasks";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAddMember } from "../../hooks/projects/use-add-member";
 import { useProjects } from "../../hooks/projects/use-projects";
+import Select from "react-select";
 
 function BoardPage() {
   const { id: projectId } = useParams(); // Lấy id dự án từ URL (ví dụ: /projects/:id)
@@ -118,6 +119,23 @@ function BoardPage() {
     );
   }
 
+  const STATUS_OPTIONS = [
+    { value: "Todo", label: "To do" },
+    { value: "BuildBroken", label: "Build Broken" },
+    { value: "Building", label: "Building" },
+    { value: "Closed", label: "Closed" },
+    { value: "Done", label: "Done" },
+    { value: "Inprogress", label: "In Progress" },
+    { value: "Open", label: "Open" },
+    { value: "Reopened", label: "Reopened" },
+    { value: "Resolved", label: "Resolved" },
+  ];
+
+  //ẩn khi chọn xong
+  const availableOptions = STATUS_OPTIONS.filter(
+    (o) => !statusTasks.some((s) => s.status === o.value), //some: "có ít nhất 1": duyệt từng cột trong status nếu thỏa mã trả true . ! có mục đích đảo ngược lại
+  );
+
   return (
     <nav>
       <div className="home">
@@ -196,12 +214,15 @@ function BoardPage() {
                     </div>
                   ))}
                   {/* add buton */}
-                  <button className="sticky right-4 z-10" onClick={toggleModal}>
+                  <button
+                    className="sticky bottom-4 right-4 z-60"
+                    onClick={toggleModal}
+                  >
                     <CiSquarePlus size={35} />
                   </button>
                   {/* trang thêm statustask */}
                   {modal && (
-                    <div className="fixed inset-0 flex items-center justify-center">
+                    <div className="fixed inset-0 z-100 flex items-center justify-center">
                       <div
                         className="absolute inset-0 bg-black/50 "
                         onClick={toggleModal}
@@ -214,15 +235,17 @@ function BoardPage() {
                           existing status or type to create a new one.
                         </h4>
                         <h5 className="text-gray-900 pt-4">Status name</h5>
-                        <select
-                          value={status}
-                          onChange={(e) => setStatus(e.target.value)}
-                          className="w-full appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2.5 pr-10 text-sm text-gray-700 shadow-sm transition hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 mt-3"
-                        >
-                          <option value="Todo">To do</option>
-                          <option value="Inprogress">In progress</option>
-                          <option value="Done">Done</option>
-                        </select>
+
+                        <Select
+                          options={availableOptions} //danh sách các lựa chọn hiển thị trong điều kiện hiển thị này
+                          value={availableOptions.find(
+                            (p) => p.value === status,
+                          )} //Trong danh sách, tìm cái thẻ nào có value bằng status
+                          onChange={(p) => p && setStatus(p.value)} //: khi chọn option mới, nhận object p và lưu p.value (chuỗi) vào status. p && để tránh lỗi khi p là null.
+                          isOptionDisabled={
+                            (p) => statusTasks.some((s) => s.status === p.value) //chạy cho từng option; trả true thì option bị khóa. some kiểm tra option đó đã có trong statusTasks chưa, nếu có thì khóa, nên mỗi status chỉ chọn được 1 lần.
+                          }
+                        />
 
                         <div className="mt-6 flex justify-end gap-2">
                           <button

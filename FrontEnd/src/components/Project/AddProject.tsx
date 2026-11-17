@@ -6,6 +6,14 @@ function AddProject() {
   const [nameProject, setNameProject] = useState("");
   const [status, setStatus] = useState("private");
   const { mutate } = useCreateProject();
+  const [showForm, setShowForm] = useState(true);
+
+  function handleCancel() {
+    setShowForm(false);
+  }
+  if (!showForm) {
+    return null;
+  }
 
   async function HandleNewProject() {
     mutate(
@@ -23,7 +31,7 @@ function AddProject() {
   }
 
   return (
-    <nav className="w-72 h-[40vh] bg-blue-50 p-3">
+    <nav className="w-72 h-screen bg-blue-50 p-3">
       <div className="w-65 h-75 bg-white shadow-sm mx-auto border border-gray-200 rounded-md">
         <div className="p-3 flex flex-col">
           <h1 className="font-bold">Tạo dự án mới</h1>
@@ -60,7 +68,10 @@ function AddProject() {
             <option value="public">Công khai</option>
           </select>
           <div className="flex items-center gap-3 mt-3 ml-12">
-            <button className="border border-gray-200 rounded-md w-20 h-8 text-sm">
+            <button
+              className="border border-gray-200 rounded-md w-20 h-8 text-sm"
+              onClick={handleCancel}
+            >
               Hủy
             </button>
             <button

@@ -56,6 +56,16 @@ namespace WebApplication1.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+
+        [HttpPut("assignee/{taskItemId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateAssignee(int taskItemId, [FromBody] UpdateAssigneeRequestDto request)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _taskItemService.UpdateAssigneeAsync(taskItemId, userId, request);
+            return StatusCode(response.StatusCode, response);
+        }
+
         //xóa
         [HttpDelete("{taskItemId}")]
         [Authorize]
@@ -65,5 +75,7 @@ namespace WebApplication1.Controllers
             var response = await _taskItemService.DeleteTaskItem(userId, taskItemId);
             return StatusCode(response.StatusCode, response);
         }
+
+
     }
 }

@@ -13,10 +13,7 @@ namespace WebApplication1.Repositories
             _dbContext = dbcontext;
         }
 
-        public Task<TaskItem?> GetTaskItemAsync(int taskItemId)
-        {
-            return _dbContext.TaskItem.Include(t => t.Status).FirstOrDefaultAsync(task => task.Id == taskItemId);
-        }
+
 
         //hàm lấy attachment
         public Task<TaskAttachment?> GetAttachmentAsync(int attachmentId)
@@ -46,5 +43,9 @@ namespace WebApplication1.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public Task<TaskItem?> GetTaskItemByIdAsync(int taskItemId)
+        {
+            return _dbContext.TaskItem.Include(t => t.Status).FirstOrDefaultAsync(task => task.Id == taskItemId);
+        }
     }
 }

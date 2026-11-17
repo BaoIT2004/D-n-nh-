@@ -28,5 +28,15 @@ namespace WebApplication1.Controllers
             var response = await _projectMemberService.AddMemberAsync(projectId, userId, request);
             return StatusCode(response.StatusCode, response);
         }
+
+        //Hiển thị các thành viên đươc mời và chủ dự án
+        [HttpGet("view/{projectId}")]
+        [Authorize]
+        public async Task<IActionResult> GetMember(int projectId)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _projectMemberService.GetMemberAsync(projectId, userId);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

@@ -3,25 +3,27 @@ import type {
   AddTaskItem,
   GetAllTaskItem,
   TaskItemDetail,
-  UpdateTaskItem,
+  UpdateTaskItemResponse,
 } from "../types/TaskITem";
 
 // Thêm
 export function addTaskItem(
-  Title: string,
+  title: string,
   createdAt: string, // DateOnly
   workType: string,
   degree: string,
   statusId: number,
+  parentId: number | null,
 ): Promise<ServiceResult<AddTaskItem>> {
   return apiRequest<AddTaskItem>(`/api/TaskItem/${statusId}`, {
     method: "POST",
     body: JSON.stringify({
-      Title,
+      Title: title,
       CreatedAt: createdAt,
       WorkType: workType,
       Degree: degree,
       StatusId: statusId,
+      ParentId: parentId,
     }),
   });
 }
@@ -29,7 +31,6 @@ export function addTaskItem(
 //Hiển thị
 export function getAllTaskItems(
   statusId: number,
-  // trả danh sách
 ): Promise<ServiceResult<GetAllTaskItem[]>> {
   return apiRequest<GetAllTaskItem[]>(`/api/TaskItem/${statusId}`, {
     method: "GET",
@@ -53,15 +54,23 @@ export function deleteTaskItem(
 }
 
 export function updateTaskItem(
-  taskITemId: number,
+  taskItemId: number,
   title: string,
   createdAt: string, // DateOnly
+  dueDate: string,
   workType: string,
   degree: string,
   statusId: number,
-): Promise<ServiceResult<UpdateTaskItem>> {
-  return apiRequest<UpdateTaskItem>(`/api/TaskItem/${taskITemId}`, {
+): Promise<ServiceResult<UpdateTaskItemResponse>> {
+  return apiRequest<UpdateTaskItemResponse>(`/api/TaskItem/${taskItemId}`, {
     method: "PUT",
-    body: JSON.stringify({ title, createdAt, workType, degree, statusId }),
+    body: JSON.stringify({
+      title,
+      createdAt,
+      dueDate,
+      workType,
+      degree,
+      statusId,
+    }),
   });
 }

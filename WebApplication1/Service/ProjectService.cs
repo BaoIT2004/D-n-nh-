@@ -111,7 +111,7 @@ namespace WebApplication1.Services
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
                 Message = "Hiển thị thông tin của dự án",
-                Data = projects.Select(project => new GetAllProjectResponseDto
+                Data = projects.OrderBy(p => p.CreatedAt).Select(project => new GetAllProjectResponseDto
                 {
                     Id = project.Id,
                     NameProject = project.nameProject,

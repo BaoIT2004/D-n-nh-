@@ -5,17 +5,19 @@ import {
   updateTaskItem,
 } from "../../services/TaskItemService";
 
-type CreateStaskItem = {
-  Title: string;
+type CreateTaskItemInput = {
+  title: string;
   createdAt: string; // DateOnly
   workType: string;
   degree: string;
   statusId: number;
+  parentId: number | null;
 };
 
-type UseCreateStaskItem = {
-  Title: string;
+type UpdateTaskItemInput = {
+  title: string;
   createdAt: string; // DateOnly
+  dueDate: string;
   workType: string;
   degree: string;
   taskItemId: number;
@@ -27,23 +29,25 @@ type DeleteTaskItemInput = {
   statusId: number;
 };
 
-export function useCreateStaskItem() {
+export function useCreateTaskItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
-      Title,
+      title,
       createdAt,
       workType,
       degree,
       statusId,
-    }: CreateStaskItem) => {
+      parentId,
+    }: CreateTaskItemInput) => {
       const result = await addTaskItem(
-        Title,
+        title,
         createdAt,
         workType,
         degree,
         statusId,
+        parentId,
       );
 
       if (!result.success) {
@@ -52,11 +56,15 @@ export function useCreateStaskItem() {
 
       return result;
     },
-    onSuccess: (data, variable) => {
-      //variable.statusId  dùng để báo query ["taskItems", 5] tải lại đúng danh sách task của trạng thái đó.
+    onSuccess: (_data, input) => {
       queryClient.invalidateQueries({
-        queryKey: ["taskItems", variable.statusId],
+        queryKey: ["taskItems", input.statusId],
       });
+      if (input.parentId !== null) {
+        queryClient.invalidateQueries({
+          queryKey: ["taskItem", input.parentId],
+        });
+      }
     },
     onError: (Error: Error) => {
       console.error(Error.message);
@@ -66,20 +74,21 @@ export function useCreateStaskItem() {
 
 export function useUpdateTaskItem() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
-      Title,
+      title,
       createdAt,
+      dueDate,
       workType,
       degree,
       statusId,
       taskItemId,
-    }: UseCreateStaskItem) => {
+    }: UpdateTaskItemInput) => {
       const result = await updateTaskItem(
         taskItemId,
-        Title,
+        title,
         createdAt,
+        dueDate,
         workType,
         degree,
         statusId,
@@ -89,10 +98,12 @@ export function useUpdateTaskItem() {
       }
       return result;
     },
-    onSuccess: (data, variable) => {
-      // invalidateQueries(...): đánh dấu query khớp với key là cũ để React Query tải lại dữ liệu, giúp giao diện hiện task vừa cập nhật.
+    onSuccess: (_data, input) => {
       queryClient.invalidateQueries({
-        queryKey: ["taskItems", variable.statusId],
+        queryKey: ["taskItems", input.statusId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["taskItem", input.taskItemId],
       });
     },
     onError: (error: Error) => {
@@ -100,7 +111,6 @@ export function useUpdateTaskItem() {
     },
   });
 }
-
 
 export function useDeleteTaskItem() {
   const queryClient = useQueryClient();
@@ -112,10 +122,9 @@ export function useDeleteTaskItem() {
       }
       return result;
     },
-    onSuccess: (data, variable) => {
-      // invalidateQueries(...): đánh dấu query khớp với key là cũ để React Query tải lại dữ liệu, giúp giao diện hiện task vừa cập nhật.
+    onSuccess: (_data, input) => {
       queryClient.invalidateQueries({
-        queryKey: ["taskItems", variable.statusId],
+        queryKey: ["taskItems", input.statusId],
       });
     },
     onError: (error: Error) => {

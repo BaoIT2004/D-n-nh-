@@ -11,10 +11,10 @@ import { LuPencilLine } from "react-icons/lu";
 import { LiaEllipsisHSolid } from "react-icons/lia";
 import { useTaskItems } from "../../hooks/tasks/use-task-items";
 import {
-  useCreateStaskItem,
+  useCreateTaskItem,
   useDeleteTaskItem,
   useUpdateTaskItem,
-} from "../../hooks/tasks/use-create-task-item";
+} from "../../hooks/tasks/use-task-item-mutations";
 import { useNavigate } from "react-router-dom";
 
 function AddStatusItem({
@@ -33,7 +33,7 @@ function AddStatusItem({
   const [board, setBoard] = useState(false);
   const [taskItemId, setTaskItemId] = useState<number | null>(null); // tạo để nhớ khi sửa useState<number | null>: kiểu của giá trị là number (id của task) hoặc null (không sửa task nào).
   const [showSetting, setShowSetting] = useState<number | null>(null);
-  const { mutate: createTaskItem } = useCreateStaskItem();
+  const { mutate: createTaskItem } = useCreateTaskItem();
   const { mutate: updateTaskItem } = useUpdateTaskItem();
   const { mutate: deleteTaskItem } = useDeleteTaskItem();
   const navigate = useNavigate();
@@ -47,11 +47,12 @@ function AddStatusItem({
 
     createTaskItem(
       {
-        Title: title,
+        title,
         createdAt: createdAt.toLocaleDateString("sv-SE"),
         workType,
         degree,
         statusId,
+        parentId: null,
       },
       {
         onSuccess: () => {
@@ -74,8 +75,9 @@ function AddStatusItem({
     }
     updateTaskItem(
       {
-        Title: title,
+        title,
         createdAt: createdAt.toLocaleDateString("sv-SE"),
+        dueDate: createdAt.toLocaleDateString("sv-SE"),
         workType,
         degree,
         taskItemId,
@@ -95,8 +97,6 @@ function AddStatusItem({
       },
     );
   }
-
-
 
   //xóa dự án
   function handleDeleteTaskItem(taskItemId: number) {
@@ -217,7 +217,7 @@ function AddStatusItem({
 
                   <div className="mt-1 flex items-center gap-2 text-xs  ">
                     <span
-                      className={`rounded px-2 py-0.5 ${
+                      className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${
                         task.workType === "Bug"
                           ? "bg-red-100 text-red-700"
                           : task.workType === "Story"
@@ -227,6 +227,10 @@ function AddStatusItem({
                               : "bg-gray-100 text-gray-700"
                       }`}
                     >
+                      {
+                        menuItem.find((item) => item.label === task.workType)
+                          ?.icons
+                      }
                       {task.workType}
                     </span>
 

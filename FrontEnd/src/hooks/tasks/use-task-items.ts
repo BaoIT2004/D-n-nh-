@@ -1,22 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllTaskItems, getTaskItemById } from "../../services/TaskItemService";
+import {
+  getAllTaskItems,
+  getTaskItemById,
+} from "../../services/TaskItemService";
 
 export function useTaskItems(statusId: number) {
-    return useQuery({
-        queryKey: ["taskItems", statusId],
-        queryFn: async () => {
-            const result = await getAllTaskItems(statusId);
+  return useQuery({
+    queryKey: ["taskItems", statusId],
+    queryFn: async () => {
+      const result = await getAllTaskItems(statusId);
 
-            if (!result.success) {
-                throw new Error(result.message);
-            }
+      if (!result.success) {
+        throw new Error(result.message);
+      }
 
-            return result.data;
-        },
-        enabled: Number.isInteger(statusId) && statusId > 0,
-        retry: false,
-        staleTime: 30_000,
-    });
+      return result.data;
+    },
+    enabled: Number.isInteger(statusId) && statusId > 0,
+    retry: false,
+    staleTime: 30_000,
+  });
 }
 
 export function useTaskItem(taskItemId: number) {
