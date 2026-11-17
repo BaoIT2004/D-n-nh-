@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AddFile, DowloadFile } from "../../services/TaskAttachmentService";
+import { AddFile, DownloadFile } from "../../services/TaskAttachmentService";
 import { useQuery } from "@tanstack/react-query";
 import { GetFiles } from "../../services/TaskAttachmentService";
 
@@ -44,7 +44,7 @@ export function useGetFiles(taskItemId: number) {
 export function useDownLoadFile() {
   return useMutation({
     mutationFn: async ({ fileId, fileName }: DownloadFileItem) => {
-      const result = await DowloadFile(fileId, fileName);
+      const result = await DownloadFile(fileId, fileName);
       if (!result.success) {
         throw new Error(result.message ?? "Tải tệp thất bại");
       }

@@ -1,4 +1,4 @@
-import { apiRequest, getStoredUserId, type ServiceResult } from "./Api";
+import { apiRequest, type ServiceResult } from "./Api";
 import type {
   AddMemberResponse,
   AddStatusTaskResponse,
@@ -34,13 +34,5 @@ export function AddMember(
 export function GetAllStatusTask(
   projectId: number,
 ): Promise<ServiceResult<GetAllStatusTaask[]>> {
-  // Kiểm tra đăng nhập chưa
-  const userId = getStoredUserId();
-  if (!userId) {
-    return Promise.resolve({
-      success: false,
-      message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
-    });
-  }
   return apiRequest<GetAllStatusTaask[]>(`/api/statusTask/${projectId}`);
 }

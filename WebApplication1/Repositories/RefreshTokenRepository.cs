@@ -13,22 +13,22 @@ namespace WebApplication1.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task Create(refreshToken token)
+        public async Task Create(RefreshToken token)
         {
             _dbContext.RefreshTokens.Add(token);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task Delete(refreshToken token)
+        public async Task Delete(RefreshToken token)
         {
             _dbContext.RefreshTokens.Remove(token);
             await _dbContext.SaveChangesAsync();
         }
 
-        public Task<refreshToken?> Get(string token)
+        public Task<RefreshToken?> Get(string token)
         {
             return _dbContext.RefreshTokens
-                .FirstOrDefaultAsync(refreshToken => refreshToken.Tokens == token);
+                .FirstOrDefaultAsync(refreshToken => refreshToken.TokenHash == token);
         }
     }
 }

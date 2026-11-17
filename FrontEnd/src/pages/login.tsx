@@ -2,28 +2,30 @@ import { useState } from "react";
 import { loginUser } from "../services/UserService";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 function Login() {
   const [Email, SetEmail] = useState("");
   const [Password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [, setIsSubmitting] = useState(false);
-
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   async function handleLogin() {
-    setIsSubmitting(true);
     if (!Email.trim() || !Password.trim()) {
       setMessage("empty");
       return;
     }
-
+    setIsSubmitting(true);
     setMessage("");
-
     try {
       const result = await loginUser(Email, Password);
       setMessage(result.message);
       if (result.success) {
+        await queryClient.invalidateQueries({
+          queryKey: ["currentUser"],
+        });
         toast.success("Đăng nhập thàn công");
         navigate("/");
       } else {

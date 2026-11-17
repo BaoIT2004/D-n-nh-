@@ -191,26 +191,12 @@ namespace WebApplication1.Service
             };
         }
 
-        public async Task<ApiResponse<LogoutResponseDto>> LogoutAsync(LogoutRequestDto request)
+        public async Task<ApiResponse<object>> LogoutAsync(string refreshToken)
         {
-            //1. Validate kiểm trs đã có token chưa
-            var result = await _jwtService.LogoutRefreshTokenAsync(request.RefreshToken);
+            // Xóa token trong DB (nếu không có thì coi như đã đăng xuất)
+            await _jwtService.LogoutRefreshTokenAsync(refreshToken);
 
-            //2. Khi thất bại
-            if (!result)
-            {
-                return new ApiResponse<LogoutResponseDto>
-                {
-                    StatusCode = StatusCodes.Status401Unauthorized,
-                    Status = false,
-                    Message = "Không tìm thấy token",
-                    Data = null!,
-                    Errors = new List<string> { "token không hợp lệ" }
-                };
-            }
-
-            //3. Map sang LogoutnResponseDto trả về cho Controller
-            return new ApiResponse<LogoutResponseDto>
+            return new ApiResponse<object>
             {
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
@@ -219,6 +205,32 @@ namespace WebApplication1.Service
                 {
                     Message = "Đăng xuất thành công"
                 },
+            };
+        }
+
+
+        public async Task<ApiResponse<TokenResponseDto>> RefreshAsync(string refreshToken)
+        {
+            var token = await _jwtService.ValidateToken(refreshToken);
+            if (token is null)
+            {
+                return new ApiResponse<TokenResponseDto>
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized,
+                    Status = false,
+                    Message = "Refresh token không hợp lệ hoặc đã hết hạn",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            return new ApiResponse<TokenResponseDto>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Làm mới token thành công",
+                Data = token,
+                Errors = new List<string>()
             };
         }
     }

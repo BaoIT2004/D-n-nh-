@@ -8,7 +8,7 @@ public class ApplicationContext(  // constructor
 
     public DbSet<User> Users { get; set; } // quản lý các objject user
     public DbSet<newProject> Projects { get; set; } // quản lý các objject tạo ra dự án
-    public DbSet<refreshToken> RefreshTokens { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public DbSet<TaskItem> TaskItem { get; set; }
 
