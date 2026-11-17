@@ -627,9 +627,7 @@ export default function TaskDetailModal() {
                   </dt>
                   <dd className="text-gray-500">
                     <DatePicker
-                      selected={
-                        task.dueDate ? new Date(task.dueDate) : new Date()
-                      }
+                      selected={task.dueDate ? new Date(task.dueDate) : null}
                       onChange={(
                         d: Date | null, //d là ngày người dùng vừa chọn : Date | null là khai báo kiểu cho TypeScript: d là một đối tượng Date, hoặc null (khi người dùng xóa ô ngày).
                       ) =>

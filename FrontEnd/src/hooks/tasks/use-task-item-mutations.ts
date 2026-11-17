@@ -104,10 +104,10 @@ export function useUpdateTaskItem() {
     },
     onSuccess: (_data, input) => {
       queryClient.invalidateQueries({
-        queryKey: ["taskItems", input.statusId],
+        queryKey: ["taskItems"], //đánh dấu các danh sách Task trong cache là đã cũ.
       });
       queryClient.invalidateQueries({
-        queryKey: ["taskItem", input.taskItemId],
+        queryKey: ["taskItem", input.taskItemId], //Dùng để cập nhật lại dữ liệu chi tiết của một Task.
       });
     },
     onError: (error: Error) => {

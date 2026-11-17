@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import Search from "../Home/Search";
 import SidebarLeft from "../Home/SidebarLeft";
@@ -12,6 +12,39 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAddMember } from "../../hooks/projects/use-add-member";
 import { useProjects } from "../../hooks/projects/use-projects";
 import Select from "react-select";
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+  useSortable,
+  SortableContext,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+function SortableColumn({ id, children }: { id: number; children: ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </div>
+  );
+}
 
 function BoardPage() {
   const { id: projectId } = useParams(); // Lấy id dự án từ URL (ví dụ: /projects/:id)
@@ -24,6 +57,9 @@ function BoardPage() {
   const queryClient = useQueryClient();
   const { data: projects = [] } = useProjects();
   const currentProject = projects.find((p) => p.id === projectIdNumber); // lấy status của tạo dự án
+
+  // const [items, setItems] = useState<number | null>(); // chỉ có thể chứa một số
+  const [items, setItems] = useState<number[]>([]); /// lấy một mảng nhiều số
 
   // thêm cột
   const [openColumnId, setOpenColumnId] = useState<number | null>(null);
@@ -83,17 +119,6 @@ function BoardPage() {
     }
   };
 
-  // thêm memeber
-  // const handAddMember = async () => {
-  //    const result = await AddMember(Number(projectId), email);
-  //    if (result.success) {
-  //       toast.success("Thêm thành viên thành công")
-  //       setEmail("");
-  //    } else {
-  //       toast.error("Thêm thành viên thất bại")
-  //    }
-  // }
-
   function handAddMember() {
     if (!email.trim()) {
       toast.error("Vui lòng nhập email người cần thêm.");
@@ -135,6 +160,48 @@ function BoardPage() {
   const availableOptions = STATUS_OPTIONS.filter(
     (o) => !statusTasks.some((s) => s.status === o.value), //some: "có ít nhất 1": duyệt từng cột trong status nếu thỏa mã trả true . ! có mục đích đảo ngược lại
   );
+
+  //đồng bộ Id status từ API vào setItems
+  useEffect(() => {
+    // map() dùng để duyệt qua từng phần tử trong mảng và tạo ra một mảng mới.
+    // [statusTasks] trong useEffect được gọi là Dependency Array (mảng phụ thuộc)
+    // Nhiệm vụ của nó là theo dõi sự thay đổi của biến statusTasks để quyết định khi nào useEffect chạy lại
+    setItems(statusTasks.map((s) => s.id));
+  }, [statusTasks]);
+
+  function handleDragEnd(even: DragEndEvent) {
+    const { active, over } = even;
+    if (!over) return;
+    if (active.id !== over!.id) {
+      setItems((items) => {
+        const oldIndex = items.indexOf(Number(active.id));
+        const newIndex = items.indexOf(Number(over.id));
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+    console.log("handleDragEnd", even);
+  }
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5, // người dùng di chuyển 5px mới di chuyển
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  //items là mảng id đã được sắp xếp, ví dụ [3, 1, 2] (thay đổi sau khi kéo thả bằng arrayMove).
+  //Với mỗi id, find tìm trong statusTasks cột có s.id === id.
+  //!!s đổi s thành true/false: có giá trị thì giữ, undefined thì loại.
+  // s is NonNullable<typeof s> là type guard của TypeScript: báo cho TS
+  // biết sau khi lọc, mảng không còn undefined. Nhờ vậy khi dùng
+  // orderedStatusTasks.map((s) => s.id) sẽ không bị lỗi “s possibly undefined”.
+  const orderedStatusTasks = items
+    .map((id) => statusTasks.find((s) => s.id === id))
+    .filter((s): s is NonNullable<typeof s> => !!s);
 
   return (
     <nav>
@@ -185,86 +252,90 @@ function BoardPage() {
               <hr className="border-t border-gray-300 -mx-6 my-5" />
 
               {/* Giao diện các cột */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-start gap-3">
-                  {" "}
-                  {/*items-start mọi phần tử con bị kéo giãn cho cao bằng phần tử cao nhất trong hàng. */}
-                  {statusTasks.map((s) => (
-                    <div
-                      key={s.id}
-                      className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200"
-                    >
-                      <h3 className="font-semibold text-gray-700 mb-6">
-                        {s.status}
-                      </h3>
-                      <div className="-mx-3 -my-3 space-y-1">
-                        {
-                          <AddStatusItem
-                            statusId={s.id}
-                            isOpen={openColumnId === s.id}
-                          />
-                        }{" "}
-                        {/* truyền vào hai thông tin là statusId và cho biết cột đó đang được mở hay khônh */}
-                        <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
-                          <button onClick={() => handleClickPlus(s.id)}>
-                            <CiSquarePlus size={20} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {/* add buton */}
-                  <button
-                    className="sticky bottom-4 right-4 z-60"
-                    onClick={toggleModal}
+              <div className="flex items-start gap-3 overflow-x-auto">
+                <DndContext
+                  onDragEnd={handleDragEnd}
+                  collisionDetection={closestCenter}
+                  sensors={sensors}
+                >
+                  <SortableContext
+                    items={items}
+                    strategy={horizontalListSortingStrategy}
                   >
-                    <CiSquarePlus size={35} />
-                  </button>
-                  {/* trang thêm statustask */}
-                  {modal && (
-                    <div className="fixed inset-0 z-100 flex items-center justify-center">
-                      <div
-                        className="absolute inset-0 bg-black/50 "
-                        onClick={toggleModal}
-                      ></div>
+                    {orderedStatusTasks.map((s) => (
+                      <SortableColumn key={s.id} id={s.id}>
+                        <div className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200">
+                          <h3 className="font-semibold text-gray-700 mb-6">
+                            {s.status}
+                          </h3>
+                          <div className="-mx-3 -my-3 space-y-1">
+                            <AddStatusItem
+                              statusId={s.id}
+                              isOpen={openColumnId === s.id}
+                            />
+                            <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
+                              <button onClick={() => handleClickPlus(s.id)}>
+                                <CiSquarePlus size={20} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </SortableColumn>
+                    ))}
+                    {/* add buton */}
+                    <button
+                      className="sticky bottom-4 right-4 z-60"
+                      onClick={toggleModal}
+                    >
+                      <CiSquarePlus size={35} />
+                    </button>
+                    {/* trang thêm statustask */}
+                    {modal && (
+                      <div className="fixed inset-0 z-100 flex items-center justify-center">
+                        <div
+                          className="absolute inset-0 bg-black/50 "
+                          onClick={toggleModal}
+                        ></div>
 
-                      <div className="relative bg-white p-6 rounded-lg w-150 h-70 mb-60">
-                        <h1 className="font-bold pb-4">AddStatus</h1>
-                        <h4 className="text-gray-500">
-                          A status shows the progression of work. Add an
-                          existing status or type to create a new one.
-                        </h4>
-                        <h5 className="text-gray-900 pt-4">Status name</h5>
+                        <div className="relative bg-white p-6 rounded-lg w-150 h-70 mb-60">
+                          <h1 className="font-bold pb-4">AddStatus</h1>
+                          <h4 className="text-gray-500">
+                            A status shows the progression of work. Add an
+                            existing status or type to create a new one.
+                          </h4>
+                          <h5 className="text-gray-900 pt-4">Status name</h5>
 
-                        <Select
-                          options={availableOptions} //danh sách các lựa chọn hiển thị trong điều kiện hiển thị này
-                          value={availableOptions.find(
-                            (p) => p.value === status,
-                          )} //Trong danh sách, tìm cái thẻ nào có value bằng status
-                          onChange={(p) => p && setStatus(p.value)} //: khi chọn option mới, nhận object p và lưu p.value (chuỗi) vào status. p && để tránh lỗi khi p là null.
-                          isOptionDisabled={
-                            (p) => statusTasks.some((s) => s.status === p.value) //chạy cho từng option; trả true thì option bị khóa. some kiểm tra option đó đã có trong statusTasks chưa, nếu có thì khóa, nên mỗi status chỉ chọn được 1 lần.
-                          }
-                        />
+                          <Select
+                            options={availableOptions} //danh sách các lựa chọn hiển thị trong điều kiện hiển thị này
+                            value={availableOptions.find(
+                              (p) => p.value === status,
+                            )} //Trong danh sách, tìm cái thẻ nào có value bằng status
+                            onChange={(p) => p && setStatus(p.value)} //: khi chọn option mới, nhận object p và lưu p.value (chuỗi) vào status. p && để tránh lỗi khi p là null.
+                            isOptionDisabled={
+                              (p) =>
+                                statusTasks.some((s) => s.status === p.value) //chạy cho từng option; trả true thì option bị khóa. some kiểm tra option đó đã có trong statusTasks chưa, nếu có thì khóa, nên mỗi status chỉ chọn được 1 lần.
+                            }
+                          />
 
-                        <div className="mt-6 flex justify-end gap-2">
-                          <button
-                            className="rounded-lg bg-red-400 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-200"
-                            onClick={toggleModal}
-                          >
-                            Close
-                          </button>
-                          <button
-                            className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-600"
-                            onClick={handleAddStatusTask}
-                          >
-                            Add
-                          </button>
+                          <div className="mt-6 flex justify-end gap-2">
+                            <button
+                              className="rounded-lg bg-red-400 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-200"
+                              onClick={toggleModal}
+                            >
+                              Close
+                            </button>
+                            <button
+                              className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-600"
+                              onClick={handleAddStatusTask}
+                            >
+                              Add
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </SortableContext>
+                </DndContext>
               </div>
             </div>
           </div>

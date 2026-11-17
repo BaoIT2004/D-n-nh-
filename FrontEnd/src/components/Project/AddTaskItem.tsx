@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
@@ -9,6 +9,7 @@ import { RiTaskLine } from "react-icons/ri";
 import { IoIosArrowDown } from "react-icons/io";
 import { LuPencilLine } from "react-icons/lu";
 import { LiaEllipsisHSolid } from "react-icons/lia";
+import type { ReactNode } from "react";
 import { useTaskItems } from "../../hooks/tasks/use-task-items";
 import {
   useCreateTaskItem,
@@ -16,6 +17,39 @@ import {
   useUpdateTaskItem,
 } from "../../hooks/tasks/use-task-item-mutations";
 import { useNavigate } from "react-router-dom";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+//Kéo thả
+function SortableItem({
+  id,
+  statusId,
+  children,
+}: {
+  id: number;
+  statusId: number;
+  children: ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({
+      id,
+      data: { type: "task", statusId },
+    });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </div>
+  );
+}
 
 function AddStatusItem({
   statusId,
@@ -37,6 +71,7 @@ function AddStatusItem({
   const { mutate: updateTaskItem } = useUpdateTaskItem();
   const { mutate: deleteTaskItem } = useDeleteTaskItem();
   const navigate = useNavigate();
+  const [, setItems] = useState<number[]>([]);
 
   function toDateOnly(date: Date) {
     const year = String(date.getFullYear()).padStart(4, "0");
@@ -140,128 +175,142 @@ function AddStatusItem({
     },
   ];
 
+  //
+  useEffect(() => {
+    setItems(taskItem.map((s) => s.id));
+  }, [taskItem]);
+
   return (
     <div>
       <div className="space-y-2">
-        {taskItem.map((task) => (
-          <div key={task.id}>
-            <div
-              className="flex h-28 w-full flex-col rounded-lg border border-gray-300 bg-white p-3"
-              onClick={() => navigate(`/task-detail-modal/${task.id}`)}
-            >
-              <div className="group flex items-center gap-2 mb-3">
-                <p className="line-clamp-1 flex-1 min-w-0 whitespace-pre-wrap wrap-break-word text-sm text-gray-800">
-                  {task.title}
-                </p>
-
-                <div
-                  className="flex shrink-0 items-center gap-2"
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  <button
-                    className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                    onClick={() => {
-                      setTaskItemId(task.id);
-                      setTitle(task.title);
-                      setWorkType(task.workType);
-                      setDegree(task.degree);
-                      setStartDate(
-                        task.startDate ? new Date(task.startDate) : new Date(),
-                      );
-                    }}
-                  >
-                    <LuPencilLine />
-                  </button>
+        <SortableContext
+          items={taskItem.map((task) => task.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {taskItem.map((task) => (
+            //id={task.id}: prop truyền vào SortableItem, rồi đưa vào useSortable({ id }).
+            // dnd-kit dùng id này để biết card nào đang được kéo (active.id) và đang thả lên card nào
+            <SortableItem key={task.id} id={task.id} statusId={statusId}>
+              <div
+                className="flex h-28 w-full flex-col rounded-lg border border-gray-300 bg-white p-3"
+                onClick={() => navigate(`/task-detail-modal/${task.id}`)}
+              >
+                <div className="group flex items-center gap-2 mb-3">
+                  <p className="line-clamp-1 flex-1 min-w-0 whitespace-pre-wrap wrap-break-word text-sm text-gray-800">
+                    {task.title}
+                  </p>
 
                   <div
-                    className={`relative shrink-0 ${showSetting === task.id ? "z-50" : ""}`}
+                    className="flex shrink-0 items-center gap-2"
+                    onClick={(event) => event.stopPropagation()}
                   >
                     <button
-                      onClick={() =>
-                        setShowSetting(
-                          showSetting === task.id ? null : task.id, // toán tử 3 ngôi nếu showSetting = taskItemId thì trả về null ngược lại mở menutassk đó
-                        )
-                      }
-                      className="opacity-0 transition-opacity group-hover:opacity-100"
+                      className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                      onClick={() => {
+                        setTaskItemId(task.id);
+                        setTitle(task.title);
+                        setWorkType(task.workType);
+                        setDegree(task.degree);
+                        setStartDate(
+                          task.startDate
+                            ? new Date(task.startDate)
+                            : new Date(),
+                        );
+                      }}
                     >
-                      <LiaEllipsisHSolid />
+                      <LuPencilLine />
                     </button>
 
-                    {showSetting === task.id && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setShowSetting(null)}
-                        />
-                        <div className="absolute right-0 top-full z-50 mt-1 w-32 rounded bg-white shadow-md">
-                          <button
-                            className="block w-full p-2 text-left hover:bg-gray-100"
-                            onClick={() => {
-                              handleDeleteTaskItem(task.id);
-                              setShowSetting(null);
-                            }}
-                          >
-                            Xóa
-                          </button>
-                        </div>
-                      </>
-                    )}
+                    <div
+                      className={`relative shrink-0 ${showSetting === task.id ? "z-50" : ""}`}
+                    >
+                      <button
+                        onClick={() =>
+                          setShowSetting(
+                            showSetting === task.id ? null : task.id, // toán tử 3 ngôi nếu showSetting = taskItemId thì trả về null ngược lại mở menutassk đó
+                          )
+                        }
+                        className="opacity-0 transition-opacity group-hover:opacity-100"
+                      >
+                        <LiaEllipsisHSolid />
+                      </button>
+
+                      {showSetting === task.id && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-40"
+                            onClick={() => setShowSetting(null)}
+                          />
+                          <div className="absolute right-0 top-full z-50 mt-1 w-32 rounded bg-white shadow-md">
+                            <button
+                              className="block w-full p-2 text-left hover:bg-gray-100"
+                              onClick={() => {
+                                handleDeleteTaskItem(task.id);
+                                setShowSetting(null);
+                              }}
+                            >
+                              Xóa
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {/* Nếu taskItemId bằng null thì hiển thị nội dung bên trong */}
+                {taskItemId === null && (
+                  <>
+                    <span className="flex mb-2 items-center gap-1 text-xs text-gray-500">
+                      <GrFormSchedule size={22} />
+                      {task.startDate
+                        ? new Date(task.startDate).toLocaleString("vi-VN", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })
+                        : "—"}
+                    </span>
+
+                    <div className="mt-1 flex items-center gap-2 text-xs  ">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${
+                          task.workType === "Bug"
+                            ? "bg-red-100 text-red-700"
+                            : task.workType === "Story"
+                              ? "bg-green-100 text-green-700"
+                              : task.workType === "Task"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {
+                          menuItem.find((item) => item.label === task.workType)
+                            ?.icons
+                        }
+                        {task.workType}
+                      </span>
+
+                      <span
+                        className={`rounded px-2 py-0.5 ${
+                          task.degree === "Thấp"
+                            ? "bg-gray-200 text-gray-700"
+                            : task.degree === "Trung bình"
+                              ? "bg-amber-100 text-amber-700"
+                              : task.degree === "Cao"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {task.degree}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
-
-              {/* Nếu taskItemId bằng null thì hiển thị nội dung bên trong */}
-              {taskItemId === null && (
-                <>
-                  <span className="flex mb-2 items-center gap-1 text-xs text-gray-500">
-                    <GrFormSchedule size={22} />
-                    {task.startDate
-                      ? new Date(task.startDate).toLocaleString("vi-VN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })
-                      : "—"}
-                  </span>
-
-                  <div className="mt-1 flex items-center gap-2 text-xs  ">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded px-2 py-0.5 ${
-                        task.workType === "Bug"
-                          ? "bg-red-100 text-red-700"
-                          : task.workType === "Story"
-                            ? "bg-green-100 text-green-700"
-                            : task.workType === "Task"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {
-                        menuItem.find((item) => item.label === task.workType)
-                          ?.icons
-                      }
-                      {task.workType}
-                    </span>
-
-                    <span
-                      className={`rounded px-2 py-0.5 ${
-                        task.degree === "Thấp"
-                          ? "bg-gray-200 text-gray-700"
-                          : task.degree === "Trung bình"
-                            ? "bg-amber-100 text-amber-700"
-                            : task.degree === "Cao"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {task.degree}
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        ))}
+            </SortableItem>
+          ))}
+        </SortableContext>
       </div>
 
       {(isOpen || taskItemId !== null) && ( //hiển thị giao diện nếu isOpen đúng HOẶC taskItemId khác null.
