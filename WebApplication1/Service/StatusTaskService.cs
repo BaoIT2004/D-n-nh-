@@ -120,11 +120,11 @@ namespace WebApplication1.Services
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
                 Message = "Hiển thị thành công",
-                Data = statusTask.Select(project => new GetAllStatusTaskResponseDto
+                Data = statusTask.Select(st => new GetAllStatusTaskResponseDto
                 {
-                    Id = project.Id,
-                    Status = project.StatusTask,
-                    ProjectId = project.ProjectId
+                    Id = st.Id,
+                    Status = st.StatusTask,
+                    ProjectId = st.ProjectId
                 }).ToList()
             };
 

@@ -24,9 +24,9 @@ import {
 import {
   arrayMove,
   sortableKeyboardCoordinates,
-  horizontalListSortingStrategy,
   useSortable,
   SortableContext,
+  horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -47,38 +47,86 @@ function SortableColumn({ id, children }: { id: number; children: ReactNode }) {
 }
 
 function BoardPage() {
+  const STATUS_OPTIONS = [
+    { value: "Todo", label: "To do" },
+    { value: "BuildBroken", label: "Build Broken" },
+    { value: "Building", label: "Building" },
+    { value: "Closed", label: "Closed" },
+    { value: "Done", label: "Done" },
+    { value: "Inprogress", label: "In Progress" },
+    { value: "Open", label: "Open" },
+    { value: "Reopened", label: "Reopened" },
+    { value: "Resolved", label: "Resolved" },
+  ];
+
   const { id: projectId } = useParams(); // Lấy id dự án từ URL (ví dụ: /projects/:id)
+  const projectIdNumber = Number(projectId);
+  const queryClient = useQueryClient();
+  const { data: statusTasks = [] } = useStatusTasks(projectIdNumber);
+  const { data: projects = [] } = useProjects();
+  const { mutate } = useAddMember();
+
   const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false
   const [modal, setModal] = useState(false);
   const [status, setStatus] = useState("Todo");
   const [email, setEmail] = useState("");
-  const projectIdNumber = Number(projectId);
-  const { data: statusTasks = [] } = useStatusTasks(projectIdNumber);
-  const queryClient = useQueryClient();
-  const { data: projects = [] } = useProjects();
-  const currentProject = projects.find((p) => p.id === projectIdNumber); // lấy status của tạo dự án
-
   // const [items, setItems] = useState<number | null>(); // chỉ có thể chứa một số
   const [items, setItems] = useState<number[]>([]); /// lấy một mảng nhiều số
+  const [openColumnId, setOpenColumnId] = useState<number | null>(null); // thêm cột
 
-  // thêm cột
-  const [openColumnId, setOpenColumnId] = useState<number | null>(null);
-  const { mutate } = useAddMember();
+  const currentProject = projects.find((p) => p.id === projectIdNumber); // lấy status của tạo dự án
 
   let projectForm = null;
   if (projectOpen) {
     projectForm = <AddProject />;
   }
 
+  //ẩn khi chọn xong
+  const availableOptions = STATUS_OPTIONS.filter(
+    (o) => !statusTasks.some((s) => s.status === o.value), //some: "có ít nhất 1": duyệt từng cột trong status nếu thỏa mã trả true . ! có mục đích đảo ngược lại
+  );
+
+  //items là mảng id đã được sắp xếp, ví dụ [3, 1, 2] (thay đổi sau khi kéo thả bằng arrayMove).
+  //Với mỗi id, find tìm trong statusTasks cột có s.id === id.
+  //!!s đổi s thành true/false: có giá trị thì giữ, undefined thì loại.
+  // s is NonNullable<typeof s> là type guard của TypeScript: báo cho TS
+  // biết sau khi lọc, mảng không còn undefined. Nhờ vậy khi dùng
+  // orderedStatusTasks.map((s) => s.id) sẽ không bị lỗi “s possibly undefined”.
+  const orderedStatusTasks = items
+    .map((id) => statusTasks.find((s) => s.id === id))
+    .filter((s): s is NonNullable<typeof s> => !!s);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5, // người dùng di chuyển 5px mới di chuyển
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  //đồng bộ Id status từ API vào setItems
+  useEffect(() => {
+    // map() dùng để duyệt qua từng phần tử trong mảng và tạo ra một mảng mới.
+    // [statusTasks] trong useEffect được gọi là Dependency Array (mảng phụ thuộc)
+    // Nhiệm vụ của nó là theo dõi sự thay đổi của biến statusTasks để quyết định khi nào useEffect chạy lại
+    setItems(statusTasks.map((s) => s.id));
+  }, [statusTasks]);
+
+  //tắt trang StatusTask
+  const toggleModal = () => {
+    setModal(!modal);
+  };
+
   //thêm trạng thái
   const handleAddStatusTask = async () => {
     const Id = Number(projectId);
-
     if (!Number.isInteger(Id) || Id < 0) {
       toast.error("ID dư án không hợp lệ");
       return;
     }
-
     try {
       const result = await AddStatusTask(status, Id);
       if (result.success) {
@@ -105,11 +153,6 @@ function BoardPage() {
     }
   };
 
-  //tắt trang StatusTask
-  const toggleModal = () => {
-    setModal(!modal);
-  };
-
   //Thêm cột mới
   const handleClickPlus = (columnId: number) => {
     if (openColumnId === columnId) {
@@ -119,6 +162,7 @@ function BoardPage() {
     }
   };
 
+  //thêm thành viên
   function handAddMember() {
     if (!email.trim()) {
       toast.error("Vui lòng nhập email người cần thêm.");
@@ -144,31 +188,6 @@ function BoardPage() {
     );
   }
 
-  const STATUS_OPTIONS = [
-    { value: "Todo", label: "To do" },
-    { value: "BuildBroken", label: "Build Broken" },
-    { value: "Building", label: "Building" },
-    { value: "Closed", label: "Closed" },
-    { value: "Done", label: "Done" },
-    { value: "Inprogress", label: "In Progress" },
-    { value: "Open", label: "Open" },
-    { value: "Reopened", label: "Reopened" },
-    { value: "Resolved", label: "Resolved" },
-  ];
-
-  //ẩn khi chọn xong
-  const availableOptions = STATUS_OPTIONS.filter(
-    (o) => !statusTasks.some((s) => s.status === o.value), //some: "có ít nhất 1": duyệt từng cột trong status nếu thỏa mã trả true . ! có mục đích đảo ngược lại
-  );
-
-  //đồng bộ Id status từ API vào setItems
-  useEffect(() => {
-    // map() dùng để duyệt qua từng phần tử trong mảng và tạo ra một mảng mới.
-    // [statusTasks] trong useEffect được gọi là Dependency Array (mảng phụ thuộc)
-    // Nhiệm vụ của nó là theo dõi sự thay đổi của biến statusTasks để quyết định khi nào useEffect chạy lại
-    setItems(statusTasks.map((s) => s.id));
-  }, [statusTasks]);
-
   function handleDragEnd(even: DragEndEvent) {
     const { active, over } = even;
     if (!over) return;
@@ -181,27 +200,6 @@ function BoardPage() {
     }
     console.log("handleDragEnd", even);
   }
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5, // người dùng di chuyển 5px mới di chuyển
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  //items là mảng id đã được sắp xếp, ví dụ [3, 1, 2] (thay đổi sau khi kéo thả bằng arrayMove).
-  //Với mỗi id, find tìm trong statusTasks cột có s.id === id.
-  //!!s đổi s thành true/false: có giá trị thì giữ, undefined thì loại.
-  // s is NonNullable<typeof s> là type guard của TypeScript: báo cho TS
-  // biết sau khi lọc, mảng không còn undefined. Nhờ vậy khi dùng
-  // orderedStatusTasks.map((s) => s.id) sẽ không bị lỗi “s possibly undefined”.
-  const orderedStatusTasks = items
-    .map((id) => statusTasks.find((s) => s.id === id))
-    .filter((s): s is NonNullable<typeof s> => !!s);
 
   return (
     <nav>
