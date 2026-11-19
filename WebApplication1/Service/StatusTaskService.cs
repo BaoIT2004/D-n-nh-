@@ -192,7 +192,8 @@ namespace WebApplication1.Services
                 {
                     Id = st.Id,
                     Status = st.StatusTask,
-                    ProjectId = st.ProjectId
+                    ProjectId = st.ProjectId,
+                    Position = st.Position
                 }).ToList()
             };
 

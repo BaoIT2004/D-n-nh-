@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import Search from "../Home/Search";
 import SidebarLeft from "../Home/SidebarLeft";
@@ -29,6 +29,7 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useReorderStatus } from "../../hooks/tasks/use-Reorder-Status";
 
 function SortableColumn({
   id,
@@ -81,6 +82,7 @@ function BoardPage() {
   const { data: statusTasks = [] } = useStatusTasks(projectIdNumber);
   const { data: projects = [] } = useProjects();
   const { mutate } = useAddMember();
+  const reorder = useReorderStatus(projectIdNumber);
 
   const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false
   const [modal, setModal] = useState(false);
@@ -89,9 +91,7 @@ function BoardPage() {
   // const [items, setItems] = useState<number | null>(); // chỉ có thể chứa một số
   const [items, setItems] = useState<number[]>([]); /// lấy một mảng nhiều số
   const [openColumnId, setOpenColumnId] = useState<number | null>(null); // thêm cột
-
   const currentProject = projects.find((p) => p.id === projectIdNumber); // lấy status của tạo dự án
-
   //ẩn khi chọn xong
   const availableOptions = STATUS_OPTIONS.filter(
     (o) => !statusTasks.some((s) => s.status === o.value), //some: "có ít nhất 1": duyệt từng cột trong status nếu thỏa mã trả true . ! có mục đích đảo ngược lại
@@ -120,17 +120,9 @@ function BoardPage() {
 
   //đồng bộ Id status từ API vào setItems
   useEffect(() => {
-    setItems((prev) => {
-      const newIds = statusTasks.map((s) => s.id);
+    const sorted = [...statusTasks].sort((a, b) => a.position - b.position);
 
-      // Giữ thứ tự cũ nếu danh sách ID không thay đổi
-      const oldIds = new Set(prev);
-      const addedIds = newIds.filter((id) => !oldIds.has(id));
-
-      const validOldIds = prev.filter((id) => newIds.includes(id));
-
-      return [...validOldIds, ...addedIds];
-    });
+    setItems(sorted.map((s) => s.id));
   }, [statusTasks]);
 
   //tắt trang StatusTask
@@ -216,13 +208,13 @@ function BoardPage() {
       //N3 biến chỗi thánh số
       const activeId = Number(String(active.id).replace("col-", ""));
       const overId = Number(String(over.id).replace("col-", ""));
-      setItems((items) => {
-        //cập nhật danh sách item ví dụ [1,2,3]
-        const oldIndex = items.indexOf(Number(activeId)); // tìm vị trí cũ dùng indexOf
-        const newIndex = items.indexOf(Number(overId)); // vị trí mới
-        if (oldIndex === -1 || newIndex === -1) return items; // ondexOf = -1 nếu không tìm thấy phần tử
-        return arrayMove(items, oldIndex, newIndex); // trả về vị trí mới  - items là một mảng lưu danh sách ID và thứ tự của các cột trạng thái
-      });
+      //cập nhật danh sách item ví dụ [1,2,3]
+      const oldIndex = items.indexOf(activeId);
+      const newIndex = items.indexOf(overId);
+      if (oldIndex === -1 || newIndex === -1) return; // ondexOf = -1 nếu không tìm thấy phần tử
+      const newItems = arrayMove(items, oldIndex, newIndex); // trả về vị trí mới  - items là một mảng lưu danh sách ID và thứ tự của các cột trạng thái
+      setItems(newItems); // cập nhật UI ngay
+      reorder.mutate(newItems); // gửi thẳng mảng id lên server
     }
     console.log("handleDragEnd", even);
   }
@@ -288,19 +280,19 @@ function BoardPage() {
                   >
                     {orderedStatusTasks.map(
                       (
-                        status, // danh sách các cột trạng thái , duyệt từng phần trong mỗi cột (Status)
+                        column, // danh sách các cột trạng thái , duyệt từng phần trong mỗi cột (Status)
                       ) => (
                         <SortableColumn
-                          key={status.id} // phân biệt cột nào bằng id
-                          id={status.id} // xác định cột nào kéo thả
-                          title={status.status} // Hiển thị tên cột
+                          key={column.id} // phân biệt cột nào bằng id
+                          id={column.id} // xác định cột nào kéo thả
+                          title={column.status} // Hiển thị tên cột
                         >
                           <AddStatusItem //Hiển thị danh sách trạng thái
-                            statusId={status.id} // truyền component để lấy task tương ứng
-                            isOpen={openColumnId === status.id} //Kiểm tra cột hiện tại có mở hay không
+                            statusId={column.id} // truyền component để lấy task tương ứng
+                            isOpen={openColumnId === column.id} //Kiểm tra cột hiện tại có mở hay không
                           />
                           <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
-                            <button onClick={() => handleClickPlus(status.id)}>
+                            <button onClick={() => handleClickPlus(column.id)}>
                               <CiSquarePlus size={20} />
                             </button>
                           </div>
