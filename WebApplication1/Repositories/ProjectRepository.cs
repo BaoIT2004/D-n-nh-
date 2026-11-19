@@ -55,6 +55,14 @@ namespace WebApplication1.Repositories
         }
 
 
-    }
+        public async Task<List<AddStatusTask>> GetStatusTasksByProjectIdAsync(int projectId)
+        {
+            return await _dbContext.AddStatusTasks.Where(s => s.ProjectId == projectId).ToListAsync();
+        }
 
+        public async Task SaveChangesAsync()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+    }
 }

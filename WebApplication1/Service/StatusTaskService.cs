@@ -95,6 +95,74 @@ namespace WebApplication1.Services
 
         }
 
+
+        //Thay đổi vị trí
+        public async Task<ApiResponse<ReorderStatusTaskResponseDto>> ReorderStatusAsync(int projectId, int userId, ReorderStatusTaskRequestDto request)
+        {
+
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);
+            if (project == null)
+            {
+                return new ApiResponse<ReorderStatusTaskResponseDto>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy dự án",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            var canAccess = await _projectRepository.CanAccessProjectAsync(projectId, userId);
+            if (!canAccess)
+            {
+                return new ApiResponse<ReorderStatusTaskResponseDto>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Status = false,
+                    Message = "Bạn không thể truy cập dự án",
+                    Data = null!
+                };
+            }
+
+            var statusTask = await _projectRepository.GetStatusTasksByProjectIdAsync(projectId); // trả về danh sách AddStatusTask của project đó.
+
+            var existingIds = statusTask.Select(p => p.Id).OrderBy(x => x);  //lấy danh sách ID từng phần tử trong statusTask .OrderBy(x => x) sawpx sếp theo thứ tự tăng dần x: đại diện cho từng ID. x => x: sắp xếp dựa trên chính giá trị ID đó.
+
+            //IF
+            //request.Ids.Count != statusTask.Count: số lượng Id khác số status trong DB.
+            //request.Ids.OrderBy(x => x): sắp xếp Id client gửi tăng dần.
+            //.SequenceEqual(existingIds): so sánh hai dãy có giống hệt nhau không.
+            if (request.Ids.Count != statusTask.Count || !request.Ids.OrderBy(x => x).SequenceEqual(existingIds))
+            {
+                return new ApiResponse<ReorderStatusTaskResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Danh sách Ids không hợp lệ",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            for (int i = 0; i < request.Ids.Count; i++) //Lặp qua từng Id client gửi, i là vị trí (0, 1, 2...).
+            {
+                var status = statusTask.First(s => s.Id == request.Ids[i]); //Tìm phần tử đầu tiên trong danh sách statusTask có Id bằng với ID tại vị trí i trong request.Ids, rồi lưu vào biến status.
+                status.Position = i;//Gán giá trị i vào thuộc tính Position của đối tượng status.
+            }
+
+            await _projectRepository.SaveChangesAsync();//Lưu lại
+
+            return new ApiResponse<ReorderStatusTaskResponseDto>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Sắp xếp thành công",
+                Data = new ReorderStatusTaskResponseDto { Ids = request.Ids },
+                Errors = new List<string>()
+            };
+        }
+
         //2.Hiển thị trạng thái dự án
         public async Task<ApiResponse<List<GetAllStatusTaskResponseDto>>> GetAllStatusTasksAsync(int projectId, int userId)
         {

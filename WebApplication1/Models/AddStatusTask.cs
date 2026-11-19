@@ -8,4 +8,5 @@ public class AddStatusTask : BaseEntity
     public int ProjectId { get; set; }
     public newProject? Project { get; set; }
     public List<TaskItem> Tasks { get; set; } = new();
+    public int Position {get;set;}
 }
