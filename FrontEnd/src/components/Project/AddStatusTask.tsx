@@ -13,7 +13,6 @@ import { useAddMember } from "../../hooks/projects/use-add-member";
 import { useProjects } from "../../hooks/projects/use-projects";
 import Select from "react-select";
 import {
-  closestCenter,
   closestCorners,
   DndContext,
   KeyboardSensor,
@@ -49,22 +48,16 @@ function SortableColumn({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="w-64 min-w-64 shrink-0 h-fit p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200"
-    >
-      {/* Khu vực kéo cột */}
-      <div
-        {...attributes}
-        {...listeners}
-        className="cursor-grab active:cursor-grabbing touch-none mb-4"
-      >
-        <h3 className="font-semibold text-gray-700">{title}</h3>
-      </div>
+    <div ref={setNodeRef} style={style} className="self-stretch shrink-0">
+      <div className="w-64 min-w-64 h-fit p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200">
+        {/* Khu vực kéo cột */}
+        <div {...attributes} {...listeners} className="cursor-grabgi mb-4">
+          <h3 className="font-semibold text-gray-700">{title}</h3>
+        </div>
 
-      {/* Nội dung cột */}
-      {children}
+        {/* Nội dung cột */}
+        {children}
+      </div>
     </div>
   );
 }
