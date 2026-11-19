@@ -39,6 +39,9 @@ namespace WebApplication1.Migrations
                     b.Property<bool>("DelFlag")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("integer");
 

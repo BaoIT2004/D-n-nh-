@@ -23,9 +23,13 @@ namespace WebApplication1.Repositories
 
         public async Task<List<AddStatusTask>> GetAllStatusProjectAsync(int projectId, int userId)
         {
-            return await _dbContext.AddStatusTasks.Where(status => status.ProjectId == projectId &&
-            (status.Project!.UserId == userId ||
-            status.Project.ProjectMembers.Any(member => member.UserId == userId))).ToListAsync();
+            return await _dbContext.AddStatusTasks
+                .Where(status => status.ProjectId == projectId &&
+                    (status.Project!.UserId == userId ||
+                     status.Project.ProjectMembers.Any(member => member.UserId == userId)))
+                .OrderBy(status => status.Position)
+                .ThenBy(status => status.Id)
+                .ToListAsync();
         }
 
         public async Task DeleteStatusTaskAsync(AddStatusTask addStatusTask)

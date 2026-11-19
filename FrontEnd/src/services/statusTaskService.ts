@@ -2,7 +2,8 @@ import { apiRequest, type ServiceResult } from "./Api";
 import type {
   AddMemberResponse,
   AddStatusTaskResponse,
-  GetAllStatusTaask,
+  GetAllStatusTask as GetAllStatusTask,
+  ReorderStatusResponse,
 } from "../types/statusTask";
 
 //thêm
@@ -31,8 +32,22 @@ export function AddMember(
 }
 
 //Hiển thị
-export function GetAllStatusTask(
+export function GetAllStatusTaskByProject(
   projectId: number,
-): Promise<ServiceResult<GetAllStatusTaask[]>> {
-  return apiRequest<GetAllStatusTaask[]>(`/api/statusTask/${projectId}`);
+): Promise<ServiceResult<GetAllStatusTask[]>> {
+  return apiRequest<GetAllStatusTask[]>(`/api/statusTask/${projectId}`);
+}
+
+//Sắp xếp
+export function ReorderStatusAsync(
+  projectId: number,
+  ids: number[],
+): Promise<ServiceResult<ReorderStatusResponse>> {
+  return apiRequest<ReorderStatusResponse>(
+    `/api/StatusTask/reorder/${projectId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ ids }),
+    },
+  );
 }

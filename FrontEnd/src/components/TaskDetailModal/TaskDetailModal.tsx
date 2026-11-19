@@ -22,6 +22,7 @@ import {
 } from "../../hooks/tasks/use-task-item-mutations";
 import DatePicker from "react-datepicker";
 import { MdDeleteOutline } from "react-icons/md";
+import { useStatusTasks } from "../../hooks/tasks/use-status-tasks";
 
 export default function TaskDetailModal() {
   const navigate = useNavigate();
@@ -60,6 +61,8 @@ export default function TaskDetailModal() {
       setDescription(task.description ?? ""); //Dùng để lấy description từ Task đưa vào state.
     }
   }, [task]); //dependency array (mảng phụ thuộc).
+
+  const { data: statusTasks = [] } = useStatusTasks(task?.projectId ?? 0); //ID của Project mà Task hiện tại đang thuộc về
 
   //kéo các cột
   const [colWidths, setColWidths] = useState([300, 120, 160, 140]); // px
@@ -173,11 +176,13 @@ export default function TaskDetailModal() {
     );
   }
 
+  // hàm thay đổi người thực hiện
   function handleSelectTaskAssignee(assigneeId: number | null) {
     updateTaskAssignee(currentTask.id, assigneeId, currentTask.parentId);
     setIsTaskAssigneeMenuOpen(false);
   }
 
+  //chọn người thực hiện
   function handleSelectSubtaskAssignee(
     taskItemId: number,
     assigneeId: number | null,
@@ -186,6 +191,7 @@ export default function TaskDetailModal() {
     setOpenSubtaskAssigneeId(null);
   }
 
+  //cập nhật taskItem
   function handleDueDateChange(dueDate: string) {
     if (!dueDate) {
       toast.error("Ngày hết hạn không được để trống");
@@ -286,7 +292,10 @@ export default function TaskDetailModal() {
                 rows={4}
               />
               <div className="flex">
-                <button className="mt-2 ml-auto rounded bg-[#29903b] px-4 py-2 text-white disabled:opacity-50">
+                <button
+                  className="mt-2 ml-auto rounded bg-[#29903b] px-4 py-2 text-white disabled:opacity-50"
+                  onClick={saveDescription}
+                >
                   Save
                 </button>
               </div>
@@ -501,6 +510,32 @@ export default function TaskDetailModal() {
 
           {/* cột phải */}
           <aside className="bg-gray-50/60 p-6">
+            <section>
+              <ul className="space-y-1">
+                <select
+                  value={task.statusId}
+                  onChange={(e) => {
+                    updateTaskItem({
+                      taskItemId: task.id,
+                      title: task.title,
+                      startDate: task.startDate.slice(0, 10),
+                      dueDate: task.dueDate,
+                      workType: task.workType,
+                      degree: task.degree,
+                      statusId: Number(e.target.value),
+                      description: task.description,
+                    });
+                  }}
+                >
+                  {statusTasks.map((status) => (
+                    <option key={status.id} value={status.id}>
+                      {status.status}
+                    </option>
+                  ))}
+                </select>
+              </ul>
+            </section>
+
             <div className="overflow-hidden rounded-xl border border-slate-300 bg-white text-sm shadow-sm">
               <h2 className="bg-gray-100 px-4 py-3 text-base font-semibold text-gray-800">
                 Details
@@ -592,9 +627,7 @@ export default function TaskDetailModal() {
                   </dt>
                   <dd className="text-gray-500">
                     <DatePicker
-                      selected={
-                        task.dueDate ? new Date(task.dueDate) : new Date()
-                      }
+                      selected={task.dueDate ? new Date(task.dueDate) : null}
                       onChange={(
                         d: Date | null, //d là ngày người dùng vừa chọn : Date | null là khai báo kiểu cho TypeScript: d là một đối tượng Date, hoặc null (khi người dùng xóa ô ngày).
                       ) =>

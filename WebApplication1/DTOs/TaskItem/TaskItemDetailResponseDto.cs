@@ -9,6 +9,7 @@ public class TaskItemDetailResponseDto
     public string WorkType { get; set; } = string.Empty;
     public string Degree { get; set; } = string.Empty;
     public int StatusId { get; set; }
+    public string Status { get; set; } = string.Empty;
     public int ProjectId { get; set; }
     public string CreatedByEmail { get; set; } = string.Empty;
     public int? ParentId { get; set; }

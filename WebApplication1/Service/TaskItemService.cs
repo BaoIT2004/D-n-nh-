@@ -208,6 +208,7 @@ namespace WebApplication1.Service
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
                     StatusId = taskItem.StatusId,
+                    Status = taskItem.Status.StatusTask,
                     ProjectId = taskItem.Status?.ProjectId ?? 0,  //ProjectId của Status, và nếu Status là null thì dùng 0 thay vì báo lỗi.
                     CreatedByEmail = taskItem.CreatedByUser?.Email,
                     ParentId = taskItem.ParentId,
@@ -363,6 +364,7 @@ namespace WebApplication1.Service
                     WorkType = taskItem.WorkType,
                     Degree = taskItem.Degree,
                     StatusId = taskItem.StatusId,
+                    Status = targetStatus.StatusTask,
                     Description = taskItem.Description,
                 }
             };
