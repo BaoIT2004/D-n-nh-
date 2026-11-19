@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type JSX, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import Search from "../Home/Search";
 import SidebarLeft from "../Home/SidebarLeft";
@@ -14,6 +14,7 @@ import { useProjects } from "../../hooks/projects/use-projects";
 import Select from "react-select";
 import {
   closestCenter,
+  closestCorners,
   DndContext,
   KeyboardSensor,
   PointerSensor,
@@ -30,17 +31,39 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-function SortableColumn({ id, children }: { id: number; children: ReactNode }) {
+function SortableColumn({
+  id,
+  title,
+  children,
+}: {
+  id: number;
+  title: string;
+  children: ReactNode;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
+    useSortable({ id: `col-${id}`, data: { type: "column" } });
 
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: CSS.Transform.toString(transform),
     transition,
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="w-64 min-w-64 shrink-0 h-fit p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200"
+    >
+      {/* Khu vực kéo cột */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing touch-none mb-4"
+      >
+        <h3 className="font-semibold text-gray-700">{title}</h3>
+      </div>
+
+      {/* Nội dung cột */}
       {children}
     </div>
   );
@@ -76,11 +99,6 @@ function BoardPage() {
 
   const currentProject = projects.find((p) => p.id === projectIdNumber); // lấy status của tạo dự án
 
-  let projectForm = null;
-  if (projectOpen) {
-    projectForm = <AddProject />;
-  }
-
   //ẩn khi chọn xong
   const availableOptions = STATUS_OPTIONS.filter(
     (o) => !statusTasks.some((s) => s.status === o.value), //some: "có ít nhất 1": duyệt từng cột trong status nếu thỏa mã trả true . ! có mục đích đảo ngược lại
@@ -99,7 +117,7 @@ function BoardPage() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, // người dùng di chuyển 5px mới di chuyển
+        distance: 3, // người dùng di chuyển 5px mới di chuyển
       },
     }),
     useSensor(KeyboardSensor, {
@@ -109,10 +127,17 @@ function BoardPage() {
 
   //đồng bộ Id status từ API vào setItems
   useEffect(() => {
-    // map() dùng để duyệt qua từng phần tử trong mảng và tạo ra một mảng mới.
-    // [statusTasks] trong useEffect được gọi là Dependency Array (mảng phụ thuộc)
-    // Nhiệm vụ của nó là theo dõi sự thay đổi của biến statusTasks để quyết định khi nào useEffect chạy lại
-    setItems(statusTasks.map((s) => s.id));
+    setItems((prev) => {
+      const newIds = statusTasks.map((s) => s.id);
+
+      // Giữ thứ tự cũ nếu danh sách ID không thay đổi
+      const oldIds = new Set(prev);
+      const addedIds = newIds.filter((id) => !oldIds.has(id));
+
+      const validOldIds = prev.filter((id) => newIds.includes(id));
+
+      return [...validOldIds, ...addedIds];
+    });
   }, [statusTasks]);
 
   //tắt trang StatusTask
@@ -122,13 +147,12 @@ function BoardPage() {
 
   //thêm trạng thái
   const handleAddStatusTask = async () => {
-    const Id = Number(projectId);
-    if (!Number.isInteger(Id) || Id < 0) {
+    if (!Number.isInteger(projectIdNumber) || projectIdNumber <= 0) {
       toast.error("ID dư án không hợp lệ");
       return;
     }
     try {
-      const result = await AddStatusTask(status, Id);
+      const result = await AddStatusTask(status, projectIdNumber);
       if (result.success) {
         toggleModal();
         toast.success("Thêm trạng thái thành công");
@@ -192,9 +216,12 @@ function BoardPage() {
     const { active, over } = even;
     if (!over) return;
     if (active.id !== over!.id) {
+      const activeId = Number(String(active.id).replace("col-", ""));
+      const overId = Number(String(over.id).replace("col-", ""));
       setItems((items) => {
-        const oldIndex = items.indexOf(Number(active.id));
-        const newIndex = items.indexOf(Number(over.id));
+        const oldIndex = items.indexOf(Number(activeId));
+        const newIndex = items.indexOf(Number(overId));
+        if (oldIndex === -1 || newIndex === -1) return items;
         return arrayMove(items, oldIndex, newIndex);
       });
     }
@@ -213,7 +240,7 @@ function BoardPage() {
               () => setProjectOpen((openCreate) => !openCreate) // openCreate giá trị hiên tại của projectOpen
             }
           />
-          {projectForm}
+          {projectOpen && <AddProject />}
           {/* Nội dung chính */}
           <div className="flex-1 min-w-0 border-l border-gray-300">
             <div className="p-6 bg-white min-h-screen w-full">
@@ -253,33 +280,27 @@ function BoardPage() {
               <div className="flex items-start gap-3 overflow-x-auto">
                 <DndContext
                   onDragEnd={handleDragEnd}
-                  collisionDetection={closestCenter}
+                  collisionDetection={closestCorners}
                   sensors={sensors}
                 >
-                  <SortableContext
-                    items={items}
+                  <SortableContext //xác định một nhóm phần tử có thể kéo thả và sắp xếp thứ tự.
+                    items={items.map((id) => `col-${id}`)}
                     strategy={horizontalListSortingStrategy}
                   >
                     {orderedStatusTasks.map((s) => (
-                      <SortableColumn key={s.id} id={s.id}>
-                        <div className="w-fit h-fit min-w-64 max-w-md p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200">
-                          <h3 className="font-semibold text-gray-700 mb-6">
-                            {s.status}
-                          </h3>
-                          <div className="-mx-3 -my-3 space-y-1">
-                            <AddStatusItem
-                              statusId={s.id}
-                              isOpen={openColumnId === s.id}
-                            />
-                            <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
-                              <button onClick={() => handleClickPlus(s.id)}>
-                                <CiSquarePlus size={20} />
-                              </button>
-                            </div>
-                          </div>
+                      <SortableColumn key={s.id} id={s.id} title={s.status}>
+                        <AddStatusItem
+                          statusId={s.id}
+                          isOpen={openColumnId === s.id}
+                        />
+                        <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
+                          <button onClick={() => handleClickPlus(s.id)}>
+                            <CiSquarePlus size={20} />
+                          </button>
                         </div>
                       </SortableColumn>
                     ))}
+
                     {/* add buton */}
                     <button
                       className="sticky bottom-4 right-4 z-60"
