@@ -51,7 +51,7 @@ function SortableColumn({
     <div ref={setNodeRef} style={style} className="self-stretch shrink-0">
       <div className="w-64 min-w-64 h-fit p-4 bg-[#F8F8F8] rounded-lg shadow-sm border border-gray-200">
         {/* Khu vực kéo cột */}
-        <div {...attributes} {...listeners} className="cursor-grabgi mb-4">
+        <div {...attributes} {...listeners} className="cursor-grab mb-4">
           <h3 className="font-semibold text-gray-700">{title}</h3>
         </div>
 
@@ -206,16 +206,22 @@ function BoardPage() {
   }
 
   function handleDragEnd(even: DragEndEvent) {
-    const { active, over } = even;
-    if (!over) return;
-    if (active.id !== over!.id) {
+    // even sự kiện kéo thả , kiểu dữ liệu của sự kiện kết thúc kéo thả thư viện dnd kit
+    const { active, over } = even; // cách lấy dữ liệu từ opject envet có hai giá trị (phần tử mà người dùng kéo và phần tử người dùng thả)
+    if (!over) return; //kiểm tra vị trí thả có hay không
+    if (active.id !== over.id) {
+      //nếu id của ngời dùng kéo khác với id mà người dùng thả  sẽ thực hiện đổi vị trí
+      //B1 chuyển id thành chuỗi String(active.id) id: `col-${id}`
+      //B2 replace xó chữ col-
+      //N3 biến chỗi thánh số
       const activeId = Number(String(active.id).replace("col-", ""));
       const overId = Number(String(over.id).replace("col-", ""));
       setItems((items) => {
-        const oldIndex = items.indexOf(Number(activeId));
-        const newIndex = items.indexOf(Number(overId));
-        if (oldIndex === -1 || newIndex === -1) return items;
-        return arrayMove(items, oldIndex, newIndex);
+        //cập nhật danh sách item ví dụ [1,2,3]
+        const oldIndex = items.indexOf(Number(activeId)); // tìm vị trí cũ dùng indexOf
+        const newIndex = items.indexOf(Number(overId)); // vị trí mới
+        if (oldIndex === -1 || newIndex === -1) return items; // ondexOf = -1 nếu không tìm thấy phần tử
+        return arrayMove(items, oldIndex, newIndex); // trả về vị trí mới  - items là một mảng lưu danh sách ID và thứ tự của các cột trạng thái
       });
     }
     console.log("handleDragEnd", even);
@@ -277,22 +283,30 @@ function BoardPage() {
                   sensors={sensors}
                 >
                   <SortableContext //xác định một nhóm phần tử có thể kéo thả và sắp xếp thứ tự.
-                    items={items.map((id) => `col-${id}`)}
-                    strategy={horizontalListSortingStrategy}
+                    items={items.map((id) => `col-${id}`)} //duyệt từng phần tử trong items  ghép col- với id của cột đó
+                    strategy={horizontalListSortingStrategy} //sắp xếp các phần tử theo chiều ngang
                   >
-                    {orderedStatusTasks.map((s) => (
-                      <SortableColumn key={s.id} id={s.id} title={s.status}>
-                        <AddStatusItem
-                          statusId={s.id}
-                          isOpen={openColumnId === s.id}
-                        />
-                        <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
-                          <button onClick={() => handleClickPlus(s.id)}>
-                            <CiSquarePlus size={20} />
-                          </button>
-                        </div>
-                      </SortableColumn>
-                    ))}
+                    {orderedStatusTasks.map(
+                      (
+                        status, // danh sách các cột trạng thái , duyệt từng phần trong mỗi cột (Status)
+                      ) => (
+                        <SortableColumn
+                          key={status.id} // phân biệt cột nào bằng id
+                          id={status.id} // xác định cột nào kéo thả
+                          title={status.status} // Hiển thị tên cột
+                        >
+                          <AddStatusItem //Hiển thị danh sách trạng thái
+                            statusId={status.id} // truyền component để lấy task tương ứng
+                            isOpen={openColumnId === status.id} //Kiểm tra cột hiện tại có mở hay không
+                          />
+                          <div className="p-1 rounded shadow-sm border border-dashed border-gray-300 text-sm text-gray-500 flex justify-center">
+                            <button onClick={() => handleClickPlus(status.id)}>
+                              <CiSquarePlus size={20} />
+                            </button>
+                          </div>
+                        </SortableColumn>
+                      ),
+                    )}
 
                     {/* add buton */}
                     <button
