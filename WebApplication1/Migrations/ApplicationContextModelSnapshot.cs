@@ -203,6 +203,9 @@ namespace WebApplication1.Migrations
                     b.Property<int?>("ParentId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
 

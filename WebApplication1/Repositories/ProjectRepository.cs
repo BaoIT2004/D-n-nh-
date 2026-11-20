@@ -57,9 +57,9 @@ namespace WebApplication1.Repositories
 
         public async Task<List<AddStatusTask>> GetStatusTasksByProjectIdAsync(int projectId)
         {
-            return await _dbContext.AddStatusTasks
-                .Where(s => s.ProjectId == projectId)
-                .OrderBy(s => s.Position)
+            return await _dbContext.AddStatusTasks  // truy cập bảng
+                .Where(s => s.ProjectId == projectId) //lọc trạng thái có projectId nào
+                .OrderBy(s => s.Position)//sắp xếp theo thứ tự tăng dần
                 .ToListAsync();
         }
 

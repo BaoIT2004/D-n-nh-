@@ -512,6 +512,72 @@ namespace WebApplication1.Service
                 Errors = new List<string>()
             };
         }
+
+        public async Task<ApiResponse<ReorderTaskItemResponseDto>> ReorderTaskItemAsync(int taskItemId, int userId, ReorderTaskItemRequestDto request)
+        {
+            // 1. Tìm task
+            var taskItem = await _taskItemRepositories.GetStatusItemAsync(taskItemId);
+            if (taskItem == null || taskItem.Status == null)
+            {
+                return new ApiResponse<ReorderTaskItemResponseDto>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Status = false,
+                    Message = "Không tìm thấy công việc",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            // 2. Kiểm tra người gọi có thuộc dự án không
+            var projectId = taskItem.Status.ProjectId;
+            var canAccess = await _projectRepository.CanAccessProjectAsync(projectId, userId);
+            if (!canAccess)
+            {
+                return new ApiResponse<ReorderTaskItemResponseDto>
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Status = false,
+                    Message = "Bạn không có quyền truy cập dự án",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+            var taskItems = await _taskItemRepositories.GetTaskItemsByProjectIdAsync(projectId);
+
+            var Ids = taskItems.Select(s => s.Id).OrderBy(s => s);
+
+            if (request.Ids.Count != taskItems.Count || !request.Ids.OrderBy(x => x).SequenceEqual(Ids))
+            {
+                return new ApiResponse<ReorderTaskItemResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Danh sách Ids không hợp lệ",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
+
+
+            for (int i = 0; i < request.Ids.Count; i++)
+            {
+                var item = taskItems.First(s => s.Id == request.Ids[i]);
+                item.Position = i;
+            }
+
+            await _taskItemRepositories.SaveChangeAsync();
+
+            return new ApiResponse<ReorderTaskItemResponseDto>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Status = true,
+                Message = "Sắp xếp thành công",
+                Data = new ReorderTaskItemResponseDto { Ids = request.Ids },
+                Errors = new List<string>()
+            };
+        }
     }
 }
 

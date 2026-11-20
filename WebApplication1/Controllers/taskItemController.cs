@@ -76,6 +76,14 @@ namespace WebApplication1.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [HttpPut("reorder/{taskItemId}")]
+        [Authorize]
+        public async Task<IActionResult> ReoderStatusTask(int taskItemId, [FromBody] ReorderTaskItemRequestDto request)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var response = await _taskItemService.ReorderTaskItemAsync(taskItemId, userId, request);
+            return StatusCode(response.StatusCode, response);
+        }
 
     }
 }

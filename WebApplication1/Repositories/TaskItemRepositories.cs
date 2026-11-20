@@ -1,5 +1,6 @@
 
 
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
@@ -76,6 +77,17 @@ namespace WebApplication1.Repositories
         public Task<TaskItem?> GetTaskItemAsync(int taskItemId)
         {
             return _dbcontext.TaskItem.Include(t => t.Status).FirstOrDefaultAsync(task => task.Id == taskItemId);
+        }
+
+        public async Task<List<TaskItem>> GetTaskItemsByProjectIdAsync(int projectId)
+        {
+            return await _dbcontext.TaskItem
+            .Include(t => t.Status).Where(t => t.Status!.ProjectId == projectId).ToListAsync();
+        }
+
+        public async Task<int> SaveChangeAsync()
+        {
+            return await _dbcontext.SaveChangesAsync();
         }
     }
 }
