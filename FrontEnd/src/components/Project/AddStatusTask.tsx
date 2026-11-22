@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import Search from "../Home/Search";
 import SidebarLeft from "../Home/SidebarLeft";
@@ -31,6 +31,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useReorderStatus } from "../../hooks/tasks/use-Reorder-Status";
+import { useReorderTaskItem } from "../../hooks/tasks/user-Reorder-Task-item";
+import type { GetAllTaskItem } from "../../types/TaskITem";
 
 function SortableColumn({
   id,
@@ -84,6 +86,8 @@ function BoardPage() {
   const { data: projects = [] } = useProjects();
   const { mutate } = useAddMember();
   const reorder = useReorderStatus(projectIdNumber);
+  const moveTask = useReorderTaskItem();
+  const dragReorderedRef = useRef(false);
 
   const [projectOpen, setProjectOpen] = useState(false); // projectOpen ban đầu là false
   const [modal, setModal] = useState(false);
@@ -198,39 +202,185 @@ function BoardPage() {
     );
   }
 
-  function handleDragEnd(even: DragEndEvent) {
-    // even sự kiện kéo thả , kiểu dữ liệu của sự kiện kết thúc kéo thả thư viện dnd kit
-    const { active, over } = even; // cách lấy dữ liệu từ opject envet có hai giá trị (phần tử mà người dùng kéo và phần tử người dùng thả)
-    if (!over) return; //kiểm tra vị trí thả có hay không
-    const activeType = active.data.current?.type;
-    const overType = over.data.current?.type;
-    if (activeType === "column" && overType === "column") {
-      if (active.id !== over.id) {
-        //nếu id của ngời dùng kéo khác với id mà người dùng thả  sẽ thực hiện đổi vị trí
-        //B1 chuyển id thành chuỗi String(active.id) id: `col-${id}`
-        //B2 replace xó chữ col-
-        //N3 biến chỗi thánh số
-        const activeId = Number(String(active.id).replace("col-", ""));
-        const overId = Number(String(over.id).replace("col-", ""));
-        //cập nhật danh sách item ví dụ [1,2,3]
-        const oldIndex = items.indexOf(activeId);
-        const newIndex = items.indexOf(overId);
-        if (oldIndex === -1 || newIndex === -1) return; // ondexOf = -1 nếu không tìm thấy phần tử
-        const newItems = arrayMove(items, oldIndex, newIndex); // trả về vị trí mới  - items là một mảng lưu danh sách ID và thứ tự của các cột trạng thái
-        setItems(newItems); // cập nhật UI ngay
-        reorder.mutate(newItems); // gửi thẳng mảng id lên server
-      }
-    }
-    console.log("handleDragEnd", even);
-  }
-
   function handleDragOver(event: DragOverEvent) {
     const { active, over } = event;
-
     if (!over) return;
 
-    console.log("Task đang kéo:", active.id);
-    console.log("Đang di chuyển qua:", over.id);
+    if (active.data.current?.type !== "item") return;
+
+    const activeTaskId = Number(String(active.id).replace("item-", ""));
+    const sourceStatusId = active.data.current.statusId as number;
+    const overType = over.data.current?.type;
+
+    const targetStatusId =
+      overType === "column"
+        ? Number(String(over.id).replace("col-", ""))
+        : (over.data.current?.statusId as number);
+
+    if (
+      !Number.isInteger(activeTaskId) ||
+      !Number.isInteger(sourceStatusId) ||
+      !Number.isInteger(targetStatusId)
+    ) {
+      return;
+    }
+
+    const sourceKey = ["taskItems", sourceStatusId];
+    const targetKey = ["taskItems", targetStatusId];
+
+    if (sourceStatusId === targetStatusId) {
+      if (overType !== "item") return;
+
+      const overTaskId = Number(String(over.id).replace("item-", ""));
+      const sourceTasks =
+        queryClient.getQueryData<GetAllTaskItem[]>(sourceKey) ?? [];
+      const oldIndex = sourceTasks.findIndex(
+        (task) => task.id === activeTaskId,
+      );
+      const newIndex = sourceTasks.findIndex(
+        (task) => task.id === overTaskId,
+      );
+
+      if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
+
+      dragReorderedRef.current = true;
+      queryClient.setQueryData(
+        sourceKey,
+        arrayMove(sourceTasks, oldIndex, newIndex),
+      );
+      return;
+    }
+
+    const sourceTasks =
+      queryClient.getQueryData<GetAllTaskItem[]>(sourceKey) ?? [];
+    const targetTasks =
+      queryClient.getQueryData<GetAllTaskItem[]>(targetKey) ?? [];
+    const activeTask = sourceTasks.find((task) => task.id === activeTaskId);
+    if (!activeTask) return;
+
+    const newSourceTasks = sourceTasks.filter(
+      (task) => task.id !== activeTaskId,
+    );
+    const newTargetTasks = targetTasks.filter(
+      (task) => task.id !== activeTaskId,
+    );
+
+    let insertIndex = newTargetTasks.length;
+    if (overType === "item") {
+      const overTaskId = Number(String(over.id).replace("item-", ""));
+      const overIndex = newTargetTasks.findIndex(
+        (task) => task.id === overTaskId,
+      );
+      if (overIndex !== -1) insertIndex = overIndex;
+    }
+
+    newTargetTasks.splice(insertIndex, 0, activeTask);
+    dragReorderedRef.current = true;
+    queryClient.setQueryData(sourceKey, newSourceTasks);
+    queryClient.setQueryData(targetKey, newTargetTasks);
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
+
+    // Kéo đổi vị trí cột
+    if (activeType === "column" && overType === "column") {
+      const activeId = Number(String(active.id).replace("col-", ""));
+      const overId = Number(String(over.id).replace("col-", ""));
+
+      const oldIndex = items.indexOf(activeId);
+      const newIndex = items.indexOf(overId);
+
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      const newItems = arrayMove(items, oldIndex, newIndex);
+      setItems(newItems);
+      reorder.mutate(newItems);
+    }
+
+    if (activeType === "item") {
+      const activeTaskId = Number(String(active.id).replace("item-", ""));
+      const sourceStatusId = active.data.current?.statusId as number;
+
+      if (!Number.isInteger(activeTaskId) || !Number.isInteger(sourceStatusId)) {
+        return;
+      }
+
+      const targetStatusId =
+        overType === "column"
+          ? Number(String(over.id).replace("col-", ""))
+          : (over.data.current?.statusId as number);
+
+      if (!Number.isInteger(targetStatusId)) return;
+
+      const sourceKey = ["taskItems", sourceStatusId];
+      const targetKey = ["taskItems", targetStatusId];
+      const targetTasks =
+        queryClient.getQueryData<GetAllTaskItem[]>(targetKey) ?? [];
+
+      if (sourceStatusId === targetStatusId) {
+        let finalTasks = targetTasks;
+
+        if (!dragReorderedRef.current && overType === "item") {
+          const overTaskId = Number(String(over.id).replace("item-", ""));
+          const oldIndex = targetTasks.findIndex(
+            (task) => task.id === activeTaskId,
+          );
+          const newIndex = targetTasks.findIndex(
+            (task) => task.id === overTaskId,
+          );
+
+          if (oldIndex !== -1 && newIndex !== -1) {
+            finalTasks = arrayMove(targetTasks, oldIndex, newIndex);
+            queryClient.setQueryData(targetKey, finalTasks);
+          }
+        }
+
+        moveTask.mutate({
+          taskItemId: activeTaskId,
+          statusId: targetStatusId,
+          ids: finalTasks.map((task) => task.id),
+        });
+        dragReorderedRef.current = false;
+        return;
+      }
+
+      let finalTargetTasks = targetTasks;
+      if (
+        !dragReorderedRef.current &&
+        !targetTasks.some((task) => task.id === activeTaskId)
+      ) {
+        const sourceTasks =
+          queryClient.getQueryData<GetAllTaskItem[]>(sourceKey) ?? [];
+        const activeTask = sourceTasks.find(
+          (task) => task.id === activeTaskId,
+        );
+        if (activeTask) {
+          let insertIndex = finalTargetTasks.length;
+          if (overType === "item") {
+            const overTaskId = Number(String(over.id).replace("item-", ""));
+            const overIndex = finalTargetTasks.findIndex(
+              (task) => task.id === overTaskId,
+            );
+            if (overIndex !== -1) insertIndex = overIndex;
+          }
+          finalTargetTasks = [...finalTargetTasks];
+          finalTargetTasks.splice(insertIndex, 0, activeTask);
+          queryClient.setQueryData(targetKey, finalTargetTasks);
+        }
+      }
+
+      moveTask.mutate({
+        taskItemId: activeTaskId,
+        statusId: targetStatusId,
+        ids: finalTargetTasks.map((task) => task.id),
+      });
+      dragReorderedRef.current = false;
+    }
   }
 
   return (

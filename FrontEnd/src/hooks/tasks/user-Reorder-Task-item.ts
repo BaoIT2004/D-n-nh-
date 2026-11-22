@@ -1,23 +1,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ReorderItemAsync } from "../../services/StatusTaskService";
+import { reorderTaskItem } from "../../services/TaskItemService"; // sửa lại đường dẫn
 
-export function useReorderItems(statusId: number) {
+type ReorderVars = {
+  taskItemId: number;
+  statusId: number;
+  ids: number[];
+};
+
+export function useReorderTaskItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (ids: number[]) => {
-      const result = await ReorderItemAsync(statusId, ids);
-
-      if (!result.success) {
-        throw new Error(result.message);
-      }
-
-      return result.data;
+    mutationFn: ({ taskItemId, statusId, ids }: ReorderVars) =>
+      reorderTaskItem(taskItemId, statusId, ids),
+    onError: () => {
+      // lỗi thì lấy lại dữ liệu thật từ server để UI quay về đúng
+      queryClient.invalidateQueries({ queryKey: ["taskItems"] });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["taskItems", statusId],
-      });
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["taskItems"] });
     },
   });
 }

@@ -18,21 +18,11 @@ import {
 } from "../../hooks/tasks/use-task-item-mutations";
 import { useNavigate } from "react-router-dom";
 import {
-  arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import { useReorderItems } from "../../hooks/tasks/user-Reorder-Task-item";
 
 //Kéo thả
 function SortableItem({
@@ -81,9 +71,6 @@ function AddStatusItem({
   const { mutate: updateTaskItem } = useUpdateTaskItem();
   const { mutate: deleteTaskItem } = useDeleteTaskItem();
   const navigate = useNavigate();
-  const [items, setItems] = useState<number[]>([]);
-  const taskItemIdNumber = Number(taskItemId);
-  const reorder = useReorderItems(taskItemIdNumber);
 
   function toDateOnly(date: Date) {
     const year = String(date.getFullYear()).padStart(4, "0");
@@ -186,22 +173,6 @@ function AddStatusItem({
       label: "Task",
     },
   ];
-
-  //
-  useEffect(() => {
-    setItems(taskItem.map((s) => s.id));
-  }, [taskItem]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 3, // người dùng di chuyển 5px mới di chuyển
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
 
   return (
     <div>

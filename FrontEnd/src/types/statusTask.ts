@@ -27,4 +27,5 @@ export type ReorderStatus = {
 
 export type ReorderStatusResponse = {
   ids: number[];
+  statusId: number;
 };

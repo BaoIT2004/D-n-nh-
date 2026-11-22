@@ -80,12 +80,16 @@ export function updateTaskItem(
 }
 
 // sắp xêp
-export function reorderTaskitem(
+export function reorderTaskItem(
+  taskItemId: number,
   statusId: number,
   ids: number[],
 ): Promise<ServiceResult<ReorderStatusResponse>> {
-  return apiRequest<ReorderStatusResponse>(`/api/reorder/${statusId}`, {
+  return apiRequest<ReorderStatusResponse>(`/api/TaskItem/reorder/${taskItemId}`, {
     method: "PUT",
-    body: JSON.stringify({ ids }),
+    body: JSON.stringify({
+      statusId,
+      ids,
+    }),
   });
 }
