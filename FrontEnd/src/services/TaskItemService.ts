@@ -5,6 +5,7 @@ import type {
   TaskItemDetail,
   UpdateTaskItemResponse,
 } from "../types/TaskITem";
+import type { ReorderStatusResponse } from "../types/statusTask";
 
 // Thêm
 export function addTaskItem(
@@ -75,5 +76,16 @@ export function updateTaskItem(
       statusId,
       description,
     }),
+  });
+}
+
+// sắp xêp
+export function reorderTaskitem(
+  statusId: number,
+  ids: number[],
+): Promise<ServiceResult<ReorderStatusResponse>> {
+  return apiRequest<ReorderStatusResponse>(`/api/reorder/${statusId}`, {
+    method: "PUT",
+    body: JSON.stringify({ ids }),
   });
 }

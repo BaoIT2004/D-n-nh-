@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ReorderStatusAsync } from "../../services/StatusTaskService";
+import { ReorderItemAsync } from "../../services/StatusTaskService";
 
 export function useReorderStatus(projectId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (ids: number[]) => {
-      const result = await ReorderStatusAsync(projectId, ids);
+      const result = await ReorderItemAsync(projectId, ids);
 
       if (!result.success) {
         throw new Error(result.message);

@@ -37,6 +37,7 @@ namespace WebApplication1.Repositories
             return await _dbcontext.TaskItem
             .Include(task => task.Status)
             .Where(task => task.StatusId == statusId && task.ParentId == null) //ParentId == null là điều kiện lọc task gốc. Trong DB, task gốc không có cha nên cột ParentId để null; subtask thì ParentId mang Id của cha.
+            .OrderBy(task => task.Position)
             .ToListAsync();
         }
 
@@ -85,9 +86,17 @@ namespace WebApplication1.Repositories
             .Include(t => t.Status).Where(t => t.Status!.ProjectId == projectId).ToListAsync();
         }
 
-        public async Task<int> SaveChangeAsync()
+        public async Task<List<TaskItem>> GetTasksForReorderAsync(int statusId)
         {
-            return await _dbcontext.SaveChangesAsync();
+            return await _dbcontext.TaskItem
+            .Where(t => t.StatusId == statusId && t.ParentId == null && !t.DelFlag) // lấy những task thuộc statusId lấy task chính và delfalg = false
+            .OrderBy(t => t.Position) // sắp xếp task theo danh sách tăng dần từ nhỏ đến lớn
+            .ToListAsync();
+        }
+
+        public async Task SaveChangeAsync()
+        {
+            await _dbcontext.SaveChangesAsync();
         }
     }
 }

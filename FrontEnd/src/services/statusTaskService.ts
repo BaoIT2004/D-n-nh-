@@ -39,12 +39,12 @@ export function GetAllStatusTaskByProject(
 }
 
 //Sắp xếp
-export function ReorderStatusAsync(
-  projectId: number,
+export function ReorderItemAsync(
+  taskItemId: number,
   ids: number[],
 ): Promise<ServiceResult<ReorderStatusResponse>> {
   return apiRequest<ReorderStatusResponse>(
-    `/api/StatusTask/reorder/${projectId}`,
+    `/api/StatusTask/reorder/${taskItemId}`,
     {
       method: "PUT",
       body: JSON.stringify({ ids }),

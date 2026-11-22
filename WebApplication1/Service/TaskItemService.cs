@@ -513,6 +513,8 @@ namespace WebApplication1.Service
             };
         }
 
+
+        //Di chuyển các item
         public async Task<ApiResponse<ReorderTaskItemResponseDto>> ReorderTaskItemAsync(int taskItemId, int userId, ReorderTaskItemRequestDto request)
         {
             // 1. Tìm task
@@ -544,37 +546,60 @@ namespace WebApplication1.Service
                 };
             }
 
-            var taskItems = await _taskItemRepositories.GetTaskItemsByProjectIdAsync(projectId);
-
-            var Ids = taskItems.Select(s => s.Id).OrderBy(s => s);
-
-            if (request.Ids.Count != taskItems.Count || !request.Ids.OrderBy(x => x).SequenceEqual(Ids))
+            //Kiểm tra cột đích có tồn tại không
+            var targetColumn = await _statusTaskRepository.GetStatusTaskById(request.StatusId);
+            if (targetColumn == null || targetColumn.ProjectId != projectId)
             {
                 return new ApiResponse<ReorderTaskItemResponseDto>
                 {
-                    StatusCode = StatusCodes.Status400BadRequest,
+                    StatusCode = StatusCodes.Status403Forbidden,
                     Status = false,
-                    Message = "Danh sách Ids không hợp lệ",
+                    Message = "Không tìm thấy cột đích",
                     Data = null!,
                     Errors = new List<string>()
                 };
             }
 
+            var column = await _taskItemRepositories.GetTasksForReorderAsync(request.StatusId);
+
+            if (!column.Any(t => t.Id == taskItemId))
+            {
+                column.Add(taskItem);
+            }
+
+            var expectedIds = column.Select(t => t.Id).OrderBy(id => id).ToList();  // db
+            var idsFromClient = request.Ids.OrderBy(id => id).ToList(); //client
+
+            if (!expectedIds.SequenceEqual(idsFromClient))
+            {
+                return new ApiResponse<ReorderTaskItemResponseDto>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Status = false,
+                    Message = "Danh sách không khớp dữ liệu, vui lòng tải lại trang",
+                    Data = null!,
+                    Errors = new List<string>()
+                };
+            }
 
             for (int i = 0; i < request.Ids.Count; i++)
             {
-                var item = taskItems.First(s => s.Id == request.Ids[i]);
-                item.Position = i;
+                var task = column.First(t => t.Id == request.Ids[i]);
+                task.StatusId = request.StatusId;
+                task.Position = i + 1;
             }
-
             await _taskItemRepositories.SaveChangeAsync();
 
             return new ApiResponse<ReorderTaskItemResponseDto>
             {
                 StatusCode = StatusCodes.Status200OK,
                 Status = true,
-                Message = "Sắp xếp thành công",
-                Data = new ReorderTaskItemResponseDto { Ids = request.Ids },
+                Message = "Thay đổi thành công",
+                Data = new ReorderTaskItemResponseDto
+                {
+                    Ids = request.Ids,
+                    StatusId = request.StatusId
+                },
                 Errors = new List<string>()
             };
         }

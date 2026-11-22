@@ -20,6 +20,7 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragOverEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -41,7 +42,7 @@ function SortableColumn({
   children: ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: `col-${id}`, data: { type: "column" } });
+    useSortable({ id: `col-${id}`, data: { type: "column", statusId: id } });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -201,22 +202,35 @@ function BoardPage() {
     // even sự kiện kéo thả , kiểu dữ liệu của sự kiện kết thúc kéo thả thư viện dnd kit
     const { active, over } = even; // cách lấy dữ liệu từ opject envet có hai giá trị (phần tử mà người dùng kéo và phần tử người dùng thả)
     if (!over) return; //kiểm tra vị trí thả có hay không
-    if (active.id !== over.id) {
-      //nếu id của ngời dùng kéo khác với id mà người dùng thả  sẽ thực hiện đổi vị trí
-      //B1 chuyển id thành chuỗi String(active.id) id: `col-${id}`
-      //B2 replace xó chữ col-
-      //N3 biến chỗi thánh số
-      const activeId = Number(String(active.id).replace("col-", ""));
-      const overId = Number(String(over.id).replace("col-", ""));
-      //cập nhật danh sách item ví dụ [1,2,3]
-      const oldIndex = items.indexOf(activeId);
-      const newIndex = items.indexOf(overId);
-      if (oldIndex === -1 || newIndex === -1) return; // ondexOf = -1 nếu không tìm thấy phần tử
-      const newItems = arrayMove(items, oldIndex, newIndex); // trả về vị trí mới  - items là một mảng lưu danh sách ID và thứ tự của các cột trạng thái
-      setItems(newItems); // cập nhật UI ngay
-      reorder.mutate(newItems); // gửi thẳng mảng id lên server
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
+    if (activeType === "column" && overType === "column") {
+      if (active.id !== over.id) {
+        //nếu id của ngời dùng kéo khác với id mà người dùng thả  sẽ thực hiện đổi vị trí
+        //B1 chuyển id thành chuỗi String(active.id) id: `col-${id}`
+        //B2 replace xó chữ col-
+        //N3 biến chỗi thánh số
+        const activeId = Number(String(active.id).replace("col-", ""));
+        const overId = Number(String(over.id).replace("col-", ""));
+        //cập nhật danh sách item ví dụ [1,2,3]
+        const oldIndex = items.indexOf(activeId);
+        const newIndex = items.indexOf(overId);
+        if (oldIndex === -1 || newIndex === -1) return; // ondexOf = -1 nếu không tìm thấy phần tử
+        const newItems = arrayMove(items, oldIndex, newIndex); // trả về vị trí mới  - items là một mảng lưu danh sách ID và thứ tự của các cột trạng thái
+        setItems(newItems); // cập nhật UI ngay
+        reorder.mutate(newItems); // gửi thẳng mảng id lên server
+      }
     }
     console.log("handleDragEnd", even);
+  }
+
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    console.log("Task đang kéo:", active.id);
+    console.log("Đang di chuyển qua:", over.id);
   }
 
   return (
@@ -271,6 +285,7 @@ function BoardPage() {
               <div className="flex items-start gap-3 overflow-x-auto">
                 <DndContext
                   onDragEnd={handleDragEnd}
+                  onDragOver={handleDragOver}
                   collisionDetection={closestCorners}
                   sensors={sensors}
                 >

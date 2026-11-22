@@ -59,3 +59,9 @@ export type TaskItemDetail = {
   assigneeEmail: string | null;
   description: string | null;
 };
+
+export type ReorderTaskItemResponse = {
+  ids: number[];
+};
+
+

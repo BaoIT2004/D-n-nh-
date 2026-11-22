@@ -20,5 +20,5 @@ public class TaskItem : BaseEntity
     public int? AssigneeId { get; set; } //khóa ngoại trỏ tới bảng User, cho biết ai được giao task này. null nghĩa là chưa giao cho ai.
     public User? Assignee { get; set; } //lấy ra đối tượng User được giao
     public string? Description { get; set; } // mô tả chi tiết công việc
-    public int Position { get; set; }
+    public int Position { get; set; } // vị trí mới
 }
